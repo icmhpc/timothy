@@ -1,0 +1,173 @@
+\hypertarget{vessel_8c}{\section{vessel.\-c File Reference}
+\label{vessel_8c}\index{vessel.\-c@{vessel.\-c}}
+}
+
+
+contains functions defining virtual vessels  
+
+
+{\ttfamily \#include $<$stdio.\-h$>$}\\*
+{\ttfamily \#include $<$stdlib.\-h$>$}\\*
+{\ttfamily \#include $<$mpi.\-h$>$}\\*
+{\ttfamily \#include $<$math.\-h$>$}\\*
+{\ttfamily \#include $<$inttypes.\-h$>$}\\*
+{\ttfamily \#include $<$sprng.\-h$>$}\\*
+{\ttfamily \#include $<$float.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}global.\-h\char`\"{}}\\*
+Include dependency graph for vessel.\-c\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{vessel_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{vessel_8c_a65a12659db12d4815c7e805138e029ee}{init\-Vessel} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+contains functions defining virtual vessels 
+
+Definition in file \hyperlink{vessel_8c_source}{vessel.\-c}.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{vessel_8c_a65a12659db12d4815c7e805138e029ee}{\index{vessel.\-c@{vessel.\-c}!init\-Vessel@{init\-Vessel}}
+\index{init\-Vessel@{init\-Vessel}!vessel.c@{vessel.\-c}}
+\subsubsection[{init\-Vessel}]{\setlength{\rightskip}{0pt plus 5cm}void init\-Vessel (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{vessel_8c_a65a12659db12d4815c7e805138e029ee}
+This functions builds a tube vessel from available data. 
+
+Definition at line 40 of file vessel.\-c.
+
+
+
+References cell\-Data\-::age, cells, csize, cell\-Data\-::ctype, cell\-Data\-::death, cell\-Data\-::density, cell\-Data\-::g1, g1, cell\-Data\-::g2, g2, cell\-Data\-::gid, cell\-Data\-::h, cell\-Data\-::halo, lnc, local\-Cell\-Count, local\-I\-D, lvc, cell\-Data\-::m, m, max\-Cells\-Per\-Proc, middle\-Cell\-Idx, M\-P\-Irank, number\-Of\-Counts, cell\-Data\-::phase, cell\-Data\-::phasetime, cell\-Data\-::s, s, cell\-Data\-::size, stream, total\-Cell\-Count, cell\-Data\-::tumor, cell\-Data\-::v, v, vc, x, cell\-Data\-::x, cell\-Data\-::y, uint\-Vector3d\-::y, cell\-Data\-::young, cell\-Data\-::z, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+41 \{
+42   \textcolor{keywordtype}{int} i;
+43 
+44   \textcolor{keywordtype}{double} minx,miny,minz;
+45   \textcolor{keywordtype}{double} maxx,maxy,maxz;
+46 
+47   \textcolor{keywordtype}{double} dist;
+48   \textcolor{keywordtype}{double} mindist;
+49   \textcolor{keywordtype}{double} middle[3];
+50 
+51   \hyperlink{global_8h_aff943633016deb6c62a519ffe92c6819}{vc}=0;
+52   \hyperlink{global_8h_a54901de38c37cfcd038a1e723cd4ecb8}{lvc}=0;
+53 
+54   \textcolor{keywordflow}{if} (\hyperlink{global_8h_a710288ab7d2734acc4566a87a645325d}{MPIrank} == 0) \{
+55     FILE *fh;
+56     \textcolor{keywordtype}{double} ax,ay,az;
+57     \textcolor{keywordflow}{if}(!(fh=fopen(\textcolor{stringliteral}{"vessel.txt"},\textcolor{stringliteral}{"r"}))) \{
+58       printf(\textcolor{stringliteral}{"File vessel.txt not found\(\backslash\)n"});
+59       exit(1);
+60     \}
+61     minx=DBL\_MAX;
+62     miny=DBL\_MAX;
+63     minz=DBL\_MAX;
+64     maxx=-DBL\_MAX;
+65     maxy=-DBL\_MAX;
+66     maxz=-DBL\_MAX;
+67     \textcolor{keywordflow}{while}(fscanf(fh,\textcolor{stringliteral}{"%lf %lf %lf\(\backslash\)n"},&ax,&ay,&az)!=EOF) \{
+68       \textcolor{keywordtype}{int} skip=0;
+69       \textcolor{keywordflow}{for}(i=0; i<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; i++) \{
+70         dist=sqrt(pow(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{tempf_8c_a1780e9c70637026d6fab31f63b3a193e}{x}-ax,2.0)+pow(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}-ay,2.0)+pow(
+      \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}-az,2.0));
+71         \textcolor{keywordflow}{if}(dist<0.01) \{
+72           skip=1;
+73           \textcolor{keywordflow}{break};
+74         \}
+75       \}
+76       \textcolor{keywordflow}{if}(skip) \textcolor{keywordflow}{continue};
+77       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size}=pow(2.0, -(1.0 / 3.0)) * \hyperlink{global_8h_a39fd0cf73801b603ea78d20e05d8cfd3}{csize};\textcolor{comment}{//csize;}
+78       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}=ax;
+79       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}=ay;
+80       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}=az;
+81       maxx=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}>maxx?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}:maxx);
+82       maxy=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}>maxy?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}:maxy);
+83       maxz=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}>maxz?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}:maxz);
+84       minx=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}<minx?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}:minx);
+85       miny=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}<miny?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}:miny);
+86       minz=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}<minz?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}:minz);
+87       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_abb4d4bd9231e9f994e87f32cc4fcfce8}{gid} =
+88         (\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \textcolor{keywordtype}{long} int) \hyperlink{global_8h_a710288ab7d2734acc4566a87a645325d}{MPIrank} *(\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \textcolor{keywordtype}{long} \textcolor{keywordtype}{int})
+89         \hyperlink{global_8h_a2de426dd266cfdaaf6fb52ba3dc2740a}{maxCellsPerProc} + (\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \textcolor{keywordtype}{long} int) lnc;
+90       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a3b90d5a73541ab9402511d87bed076ef}{v} = 0.0;
+91       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a6f8c052f8417728038991f7f2826d38d}{density} = 0.0;
+92       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a8ee9be1b5aa75abae556de3088cba6d9}{h} = 3*\hyperlink{global_8h_a39fd0cf73801b603ea78d20e05d8cfd3}{csize};\textcolor{comment}{//h;}
+93       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ad0bd87a264e65d1c17ecc07049819f2c}{young} = 2100.0 + sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 100.0;
+94       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a80ff3fcc4d03d0b1b01559839d12df5b}{halo} = 0;
+95       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_accf3aec63bc20b3c99ab4881cb07c05b}{phase} = 0;
+96       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a581debe7d16bce9d187b97855f4e99d4}{g1} = \hyperlink{global_8h_a581debe7d16bce9d187b97855f4e99d4}{g1} * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+97       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_aee9971139118d56815564304450c4775}{g2} = \hyperlink{global_8h_aee9971139118d56815564304450c4775}{g2} * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+98       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s} = \hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s} * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+99       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ac51334f57ef8b81c0629c9421798c344}{m} = \hyperlink{global_8h_ac51334f57ef8b81c0629c9421798c344}{m} * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+100       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_afe1297f954440c453b59fcb06992dbd5}{phasetime} = 0.0;
+101       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a91d98a856bbd96810b40af3ca5cc901a}{age} = 0;
+102       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_add1e1533be6e693ffedcdbafdf8b855c}{death} = 0;
+103       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a49af8c5336d6c2401bc24f86dbb97b36}{tumor} = 0;
+104       \textcolor{comment}{/* tag vessel cell */}
+105       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a13fbf3c17594503f639a7ef768ea73bb}{ctype} = 1;
+106 
+107       lnc++;
+108       \hyperlink{global_8h_a54901de38c37cfcd038a1e723cd4ecb8}{lvc}++;
+109       \hyperlink{global_8h_a265cb7ee626de517ecec0f0ac60833a7}{localID}++;
+110     \}
+111     \textcolor{comment}{/* scale */}
+112     \textcolor{keywordflow}{for}(i=0; i<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; i++) \{
+113       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}-=minx;
+114       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}-=miny;
+115       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}-=minz;
+116     \}
+117     \textcolor{comment}{/* find a single cell in the middle */}
+118     middle[0]=0.0;
+119     middle[1]=0.0;
+120     middle[2]=0.0;
+121     \textcolor{keywordflow}{for}(i=0; i<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; i++) \{
+122       middle[0]+=\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+123       middle[1]+=\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y};
+124       middle[2]+=\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+125     \}
+126     middle[0]/=\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc};
+127     middle[1]/=\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc};
+128     middle[2]/=\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc};
+129     mindist=DBL\_MAX;
+130     \textcolor{keywordflow}{for}(i=0; i<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; i++) \{
+131       dist=sqrt(pow(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{tempf_8c_a1780e9c70637026d6fab31f63b3a193e}{x}-middle[0],2.0)+pow(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}-middle[1],2.0)+pow(
+      \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}-middle[2],2.0));
+132       \textcolor{keywordflow}{if}(dist<mindist) \{
+133         \hyperlink{global_8h_aba24a5782ec50a3e3febdf4ce2b567d4}{middleCellIdx}=i;
+134         mindist=dist;
+135       \}
+136     \}
+137     \textcolor{comment}{/* compare with box size */}
+138 
+139     fclose(fh);
+140   \}
+141   MPI\_Allreduce(\hyperlink{global_8h_ab7a46ee61df03f5b6a569427a2f50bec}{localCellCount}, \hyperlink{global_8h_af1a14df9e6c8efece5183d9625039587}{totalCellCount}, 
+      \hyperlink{global_8h_a97c5d6b146e57ace62a66400c433aa4d}{numberOfCounts},
+142                 MPI\_INT64\_T, MPI\_SUM, MPI\_COMM\_WORLD);
+143 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=324pt]{vessel_8c_a65a12659db12d4815c7e805138e029ee_icgraph}
+\end{center}
+\end{figure}
+
+

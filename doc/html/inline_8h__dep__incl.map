@@ -1,0 +1,6 @@
+<map id="inline.h" name="inline.h">
+<area shape="rect" id="node2" href="$cells_8c.html" title="contains functions which control current states and evolution of cells " alt="" coords="5,80,64,107"/>
+<area shape="rect" id="node3" href="$compute_8c.html" title="contains main computational function called in each time step of the simulation " alt="" coords="89,80,171,107"/>
+<area shape="rect" id="node4" href="$init_8c.html" title="contains initialization functions " alt="" coords="196,80,247,107"/>
+<area shape="rect" id="node5" href="$potential_8c.html" title="contains functions that compute the potential " alt="" coords="271,80,352,107"/>
+</map>

@@ -1,0 +1,740 @@
+\hypertarget{octree_8c}{\section{octree.\-c File Reference}
+\label{octree_8c}\index{octree.\-c@{octree.\-c}}
+}
+
+
+contains functions that build octree and functions that provide a convenient way of operating on octree.  
+
+
+{\ttfamily \#include $<$stdio.\-h$>$}\\*
+{\ttfamily \#include $<$stdlib.\-h$>$}\\*
+{\ttfamily \#include $<$float.\-h$>$}\\*
+{\ttfamily \#include $<$math.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}global.\-h\char`\"{}}\\*
+Include dependency graph for octree.\-c\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{octree_8c_a63d1ddc6af5af1d42f6c1971cdf222c3}{oct\-Empty\-Node} (int64\-\_\-t father, int level, unsigned int xbit, unsigned int ybit, unsigned int zbit)
+\item 
+void \hyperlink{octree_8c_a7edffa1c18946c72ce58716ffcdeef4e}{oct\-Insert\-Cell} (int64\-\_\-t c)
+\item 
+void \hyperlink{octree_8c_af7f47734a9d4df25271dd82d2fed146d}{oct\-Build} ()
+\item 
+void \hyperlink{octree_8c_a36ae3b0bdcba2885fa912ee2c012956b}{oct\-Compute\-Code} (int64\-\_\-t c, struct \hyperlink{structuintVector3d}{uint\-Vector3d} $\ast$code)
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} void \hyperlink{octree_8c_a2b9b682e42d53652d70046be6ba37da0}{oct\-Compute\-Box\-R} (int64\-\_\-t c, struct \hyperlink{structuintVector3d}{uint\-Vector3d} $\ast$min\-Loc\-Code, struct \hyperlink{structuintVector3d}{uint\-Vector3d} $\ast$max\-Loc\-Code)
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} void \hyperlink{octree_8c_a282cb66db7aebdecf7a63a39ab410f43}{oct\-Compute\-Box} (int64\-\_\-t c, struct \hyperlink{structuintVector3d}{uint\-Vector3d} $\ast$min\-Loc\-Code, struct \hyperlink{structuintVector3d}{uint\-Vector3d} $\ast$max\-Loc\-Code)
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} int \hyperlink{octree_8c_ae5f89e692535d5e9035727401383a82e}{oct\-Traverse\-To\-Level} (unsigned int level, unsigned int xloc, unsigned int yloc, unsigned int zloc, unsigned int lmin)
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} int \hyperlink{octree_8c_ad868a4549e255fff18ccb3a00c541cba}{oct\-Locate\-Region} (struct \hyperlink{structuintVector3d}{uint\-Vector3d} min\-Loc\-Code, struct \hyperlink{structuintVector3d}{uint\-Vector3d} max\-Loc\-Code)
+\item 
+void \hyperlink{octree_8c_ac575d9ac8ce1341ea6f4dafbbede97b4}{oct\-Free} ()
+\item 
+void \hyperlink{octree_8c_a95956477641a199cf4e32e2677cfa0c1}{oct\-Heap\-Init} (\hyperlink{global_8h_a7254f8ca289e06ad3b25f8714497c85d}{oct\-Heap} $\ast$tt\-Heap)
+\item 
+void \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{oct\-Heap\-Push} (\hyperlink{global_8h_a7254f8ca289e06ad3b25f8714497c85d}{oct\-Heap} $\ast$tt\-Heap, int idx)
+\item 
+int \hyperlink{octree_8c_aa13995841341f9f38845b72b57330047}{oct\-Heap\-Pop} (\hyperlink{global_8h_a7254f8ca289e06ad3b25f8714497c85d}{oct\-Heap} $\ast$tt\-Heap)
+\item 
+void \hyperlink{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af}{oct\-Heap\-Free} (\hyperlink{global_8h_a7254f8ca289e06ad3b25f8714497c85d}{oct\-Heap} $\ast$tt\-Heap)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+contains functions that build octree and functions that provide a convenient way of operating on octree. 
+
+Definition in file \hyperlink{octree_8c_source}{octree.\-c}.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{octree_8c_af7f47734a9d4df25271dd82d2fed146d}{\index{octree.\-c@{octree.\-c}!oct\-Build@{oct\-Build}}
+\index{oct\-Build@{oct\-Build}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Build}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Build (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_af7f47734a9d4df25271dd82d2fed146d}
+This is a driving function for creating an octree. 
+
+Definition at line 129 of file octree.\-c.
+
+
+
+References aff\-Scale, aff\-Shift, cells, h, lnc, loc\-Code, M\-A\-X\-V\-A\-L\-U\-E, oct\-Empty\-Node(), oct\-Insert\-Cell(), octree, oct\-Size, root, R\-O\-O\-T\-\_\-\-L\-E\-V\-E\-L, x, cell\-Data\-::x, double\-Vector3d\-::x, uint\-Vector3d\-::x, cell\-Data\-::y, double\-Vector3d\-::y, uint\-Vector3d\-::y, cell\-Data\-::z, double\-Vector3d\-::z, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+130 \{
+131   \textcolor{keywordtype}{int} i,c;
+132   int64\_t octMaxSize;
+133   \textcolor{keyword}{struct }\hyperlink{structdoubleVector3d}{doubleVector3d} bMin,bMax;
+134   \textcolor{keywordtype}{double} epsilon=0.01;
+135 
+136   \textcolor{keywordflow}{if}(\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}==0)
+137     \textcolor{keywordflow}{return};
+138 
+139   bMin.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x}= DBL\_MAX;
+140   bMin.y= DBL\_MAX;
+141   bMin.z= DBL\_MAX;
+142   bMax.x=-DBL\_MAX;
+143   bMax.y=-DBL\_MAX;
+144   bMax.z=-DBL\_MAX;
+145   \textcolor{keywordflow}{for}(i=0; i<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; i++) \{
+146     \textcolor{keywordtype}{double} \hyperlink{tempf_8c_a1780e9c70637026d6fab31f63b3a193e}{x},\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y},\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+147     \textcolor{keywordtype}{double} e;
+148     x=\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+149     y=\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y};
+150     z=\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+151     e=\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}+epsilon;
+152     bMin.x=(x-e<bMin.x?x-e:bMin.x);
+153     bMax.x=(x+e>bMax.x?x+e:bMax.x);
+154     bMin.y=(y-e<bMin.y?y-e:bMin.y);
+155     bMax.y=(y+e>bMax.y?y+e:bMax.y);
+156     bMin.z=(z-e<bMin.z?z-e:bMin.z);
+157     bMax.z=(z+e>bMax.z?z+e:bMax.z);
+158   \}
+159   \hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}=bMax.x-bMin.x;
+160   \hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}=(\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}>bMax.y-bMin.y?\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}:bMax.y-bMin.y);
+161   \hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}=(\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}>bMax.z-bMin.z?\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}:bMax.z-bMin.z);
+162   \hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x}=bMin.x;
+163   \hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y}=bMin.y;
+164   \hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z}=bMin.z;
+165   \textcolor{comment}{/* each cell coordinate will be shifted by affShift and scaled by affScale */}
+166 
+167   \hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}=(\textcolor{keyword}{struct }\hyperlink{structuintVector3d}{uintVector3d}*) malloc(\textcolor{keyword}{sizeof}(\textcolor{keyword}{struct} 
+      \hyperlink{structuintVector3d}{uintVector3d})*\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc});
+168   \textcolor{comment}{//#pragma omp parallel for}
+169   \textcolor{keywordflow}{for}(c=0; c<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; c++) \{
+170     \hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[c].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}=(\textcolor{keywordtype}{unsigned} int)( ((\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{tempf_8c_a1780e9c70637026d6fab31f63b3a193e}{x}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x})/
+      \hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}) * \hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE} );
+171     \hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[c].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}=(\textcolor{keywordtype}{unsigned} int)( ((\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y})/
+      \hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}) * \hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE} );
+172     \hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[c].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}=(\textcolor{keywordtype}{unsigned} int)( ((\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z})/
+      \hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}) * \hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE} );
+173   \}
+174   \textcolor{comment}{/* memory space required to store octree (to be reviewed again!) */}
+175   octMaxSize=lnc*16;
+176 \textcolor{preprocessor}{#ifdef \_\_MIC\_\_}
+177 \textcolor{preprocessor}{}  \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}=\_mm\_malloc(\textcolor{keyword}{sizeof}(\hyperlink{struct__octNode}{octNode})*octMaxSize,64);
+178 \textcolor{preprocessor}{#else}
+179 \textcolor{preprocessor}{}  \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}=malloc(\textcolor{keyword}{sizeof}(\hyperlink{struct__octNode}{octNode})*octMaxSize);
+180 \textcolor{preprocessor}{#endif}
+181 \textcolor{preprocessor}{}  \hyperlink{global_8h_a1fc2c8d997fee28d79eb93bf711765b1}{root}=0;
+182   \hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}=0;
+183   \hyperlink{octree_8c_a63d1ddc6af5af1d42f6c1971cdf222c3}{octEmptyNode}(-1,\hyperlink{global_8h_a7e9c30baccb96ccd0d941b1c799ff1ef}{ROOT\_LEVEL},0,0,0);
+184 
+185   \textcolor{keywordflow}{for}(c=0; c<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; c++) \{
+186     \hyperlink{octree_8c_a7edffa1c18946c72ce58716ffcdeef4e}{octInsertCell}(c);
+187   \}
+188 
+189   \textcolor{comment}{/* a security check for space available in the octree buffer should be implemented */}
+190 \}
+\end{DoxyCode}
+
+
+Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_af7f47734a9d4df25271dd82d2fed146d_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=206pt]{octree_8c_af7f47734a9d4df25271dd82d2fed146d_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_a282cb66db7aebdecf7a63a39ab410f43}{\index{octree.\-c@{octree.\-c}!oct\-Compute\-Box@{oct\-Compute\-Box}}
+\index{oct\-Compute\-Box@{oct\-Compute\-Box}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Compute\-Box}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} void oct\-Compute\-Box (
+\begin{DoxyParamCaption}
+\item[{int64\-\_\-t}]{c, }
+\item[{struct {\bf uint\-Vector3d} $\ast$}]{min\-Loc\-Code, }
+\item[{struct {\bf uint\-Vector3d} $\ast$}]{max\-Loc\-Code}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a282cb66db7aebdecf7a63a39ab410f43}
+This function computes bounding box of a local cell to be used for neighbour searching. 
+
+Definition at line 236 of file octree.\-c.
+
+
+
+References aff\-Scale, aff\-Shift, cells, h, M\-A\-X\-V\-A\-L\-U\-E, cell\-Data\-::x, double\-Vector3d\-::x, uint\-Vector3d\-::x, cell\-Data\-::y, double\-Vector3d\-::y, uint\-Vector3d\-::y, cell\-Data\-::z, double\-Vector3d\-::z, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+237 \{
+238   \textcolor{keyword}{struct }\hyperlink{structdoubleVector3d}{doubleVector3d} minCor,maxCor;
+239   \textcolor{comment}{/* compute corners */}
+240   minCor.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x}=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}-\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+241   minCor.y=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}-\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+242   minCor.z=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}-\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+243   maxCor.x=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}+\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+244   maxCor.y=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}+\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+245   maxCor.z=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}+\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+246   \textcolor{comment}{/* compute location codes of corners */}
+247   minLocCode[0].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}=(\textcolor{keywordtype}{unsigned} int)(minCor.x*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+248   minLocCode[0].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}=(\textcolor{keywordtype}{unsigned} int)(minCor.y*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+249   minLocCode[0].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}=(\textcolor{keywordtype}{unsigned} int)(minCor.z*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+250   maxLocCode[0].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}=(\textcolor{keywordtype}{unsigned} int)(maxCor.x*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+251   maxLocCode[0].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}=(\textcolor{keywordtype}{unsigned} int)(maxCor.y*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+252   maxLocCode[0].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}=(\textcolor{keywordtype}{unsigned} int)(maxCor.z*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+253 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_a282cb66db7aebdecf7a63a39ab410f43_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_a2b9b682e42d53652d70046be6ba37da0}{\index{octree.\-c@{octree.\-c}!oct\-Compute\-Box\-R@{oct\-Compute\-Box\-R}}
+\index{oct\-Compute\-Box\-R@{oct\-Compute\-Box\-R}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Compute\-Box\-R}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} void oct\-Compute\-Box\-R (
+\begin{DoxyParamCaption}
+\item[{int64\-\_\-t}]{c, }
+\item[{struct {\bf uint\-Vector3d} $\ast$}]{min\-Loc\-Code, }
+\item[{struct {\bf uint\-Vector3d} $\ast$}]{max\-Loc\-Code}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a2b9b682e42d53652d70046be6ba37da0}
+This function computes bounding box of a remote cell to be used for neighbour searching. Difference between remote and local versions is the box croping which is applied to some remote cells. 
+
+Definition at line 207 of file octree.\-c.
+
+
+
+References aff\-Scale, aff\-Shift, h, M\-A\-X\-V\-A\-L\-U\-E, recv\-Data, part\-Data\-::x, double\-Vector3d\-::x, uint\-Vector3d\-::x, part\-Data\-::y, double\-Vector3d\-::y, uint\-Vector3d\-::y, part\-Data\-::z, double\-Vector3d\-::z, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+208 \{
+209   \textcolor{keyword}{struct }\hyperlink{structdoubleVector3d}{doubleVector3d} minCor,maxCor;
+210   \textcolor{comment}{/* compute corners */}
+211   minCor.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x}=(\hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[c].\hyperlink{structpartData_af88b946fb90d5f08b5fb740c70e98c10}{x}-\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+212   minCor.y=(\hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[c].\hyperlink{structpartData_ab927965981178aa1fba979a37168db2a}{y}-\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+213   minCor.z=(\hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[c].\hyperlink{structpartData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}-\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+214   maxCor.x=(\hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[c].\hyperlink{structpartData_af88b946fb90d5f08b5fb740c70e98c10}{x}+\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+215   maxCor.y=(\hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[c].\hyperlink{structpartData_ab927965981178aa1fba979a37168db2a}{y}+\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+216   maxCor.z=(\hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[c].\hyperlink{structpartData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}+\hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale};
+217   \textcolor{comment}{/* for remote cells - box crop */}
+218   minCor.x=(minCor.x<0.0?0.0:minCor.x);
+219   minCor.y=(minCor.y<0.0?0.0:minCor.y);
+220   minCor.z=(minCor.z<0.0?0.0:minCor.z);
+221   maxCor.x=(maxCor.x>1.0?1.0:maxCor.x);
+222   maxCor.y=(maxCor.y>1.0?1.0:maxCor.y);
+223   maxCor.z=(maxCor.z>1.0?1.0:maxCor.z);
+224   \textcolor{comment}{/* compute location codes of corners */}
+225   minLocCode[0].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}=(\textcolor{keywordtype}{unsigned} int)(minCor.x*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+226   minLocCode[0].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}=(\textcolor{keywordtype}{unsigned} int)(minCor.y*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+227   minLocCode[0].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}=(\textcolor{keywordtype}{unsigned} int)(minCor.z*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+228   maxLocCode[0].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}=(\textcolor{keywordtype}{unsigned} int)(maxCor.x*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+229   maxLocCode[0].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}=(\textcolor{keywordtype}{unsigned} int)(maxCor.y*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+230   maxLocCode[0].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}=(\textcolor{keywordtype}{unsigned} int)(maxCor.z*\hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE});
+231 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_a2b9b682e42d53652d70046be6ba37da0_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_a36ae3b0bdcba2885fa912ee2c012956b}{\index{octree.\-c@{octree.\-c}!oct\-Compute\-Code@{oct\-Compute\-Code}}
+\index{oct\-Compute\-Code@{oct\-Compute\-Code}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Compute\-Code}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Compute\-Code (
+\begin{DoxyParamCaption}
+\item[{int64\-\_\-t}]{c, }
+\item[{struct {\bf uint\-Vector3d} $\ast$}]{code}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a36ae3b0bdcba2885fa912ee2c012956b}
+This function computes binary code for a given cell. 
+
+Definition at line 195 of file octree.\-c.
+
+
+
+References aff\-Scale, aff\-Shift, cells, M\-A\-X\-V\-A\-L\-U\-E, x, double\-Vector3d\-::x, uint\-Vector3d\-::x, double\-Vector3d\-::y, uint\-Vector3d\-::y, double\-Vector3d\-::z, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+196 \{
+197   code[0].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}=(\textcolor{keywordtype}{unsigned} int)( ((\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{tempf_8c_a1780e9c70637026d6fab31f63b3a193e}{x}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}) * 
+      \hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE} );
+198   code[0].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}=(\textcolor{keywordtype}{unsigned} int)( ((\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}) * 
+      \hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE} );
+199   code[0].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}=(\textcolor{keywordtype}{unsigned} int)( ((\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[c].\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z}-\hyperlink{global_8h_ac62e4c32649a074b85db16fa3fc8f069}{affShift}.\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z})/\hyperlink{global_8h_a165236ff15a2d54130fd7664f285954a}{affScale}) * 
+      \hyperlink{global_8h_a28c7f4454d27d9a294ebe7eb12a54e8c}{MAXVALUE} );
+200 \}
+\end{DoxyCode}
+\hypertarget{octree_8c_a63d1ddc6af5af1d42f6c1971cdf222c3}{\index{octree.\-c@{octree.\-c}!oct\-Empty\-Node@{oct\-Empty\-Node}}
+\index{oct\-Empty\-Node@{oct\-Empty\-Node}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Empty\-Node}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Empty\-Node (
+\begin{DoxyParamCaption}
+\item[{int64\-\_\-t}]{father, }
+\item[{int}]{level, }
+\item[{unsigned int}]{xbit, }
+\item[{unsigned int}]{ybit, }
+\item[{unsigned int}]{zbit}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a63d1ddc6af5af1d42f6c1971cdf222c3}
+This function creates an empty octree node in a given position. 
+
+Definition at line 37 of file octree.\-c.
+
+
+
+References \-\_\-oct\-Node\-::data, \-\_\-oct\-Node\-::father, \-\_\-oct\-Node\-::level, octree, oct\-Size, \-\_\-oct\-Node\-::xcode, \-\_\-oct\-Node\-::xlimit, \-\_\-oct\-Node\-::ycode, \-\_\-oct\-Node\-::ylimit, \-\_\-oct\-Node\-::zcode, and \-\_\-oct\-Node\-::zlimit.
+
+
+\begin{DoxyCode}
+38 \{
+39   \textcolor{keywordtype}{int} i;
+40   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} bit;
+41   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} len;
+42   \textcolor{keywordflow}{if}(father==-1) \{
+43     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_abf1b4fc0b884c24d8809d956a03e3886}{xcode}=0;
+44     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a4b6e50c81688bebd12ba2adedbcda9a1}{ycode}=0;
+45     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_ab506fe856c958db3cb3e76607f0f73d3}{zcode}=0;
+46     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_abf5a7905067426a571446ca0cc08f4f2}{xlimit}=1<<level;
+47     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a9cccedbe80d5a483a64720353228cb2d}{ylimit}=1<<level;
+48     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a8a5b654c5671a06aaffd1a8ba23f2be1}{zlimit}=1<<level;
+49   \} \textcolor{keywordflow}{else} \{
+50     bit=1<<level;
+51     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_abf1b4fc0b884c24d8809d956a03e3886}{xcode}=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[father].\hyperlink{struct__octNode_abf1b4fc0b884c24d8809d956a03e3886}{xcode}|xbit;
+52     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a4b6e50c81688bebd12ba2adedbcda9a1}{ycode}=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[father].\hyperlink{struct__octNode_a4b6e50c81688bebd12ba2adedbcda9a1}{ycode}|ybit;
+53     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_ab506fe856c958db3cb3e76607f0f73d3}{zcode}=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[father].\hyperlink{struct__octNode_ab506fe856c958db3cb3e76607f0f73d3}{zcode}|zbit;
+54     len=(\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[father].\hyperlink{struct__octNode_abf5a7905067426a571446ca0cc08f4f2}{xlimit}-\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[father].\hyperlink{struct__octNode_abf1b4fc0b884c24d8809d956a03e3886}{xcode})/2;
+55     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_abf5a7905067426a571446ca0cc08f4f2}{xlimit}=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_abf1b4fc0b884c24d8809d956a03e3886}{xcode}+len;
+56     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a9cccedbe80d5a483a64720353228cb2d}{ylimit}=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a4b6e50c81688bebd12ba2adedbcda9a1}{ycode}+len;
+57     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a8a5b654c5671a06aaffd1a8ba23f2be1}{zlimit}=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_ab506fe856c958db3cb3e76607f0f73d3}{zcode}+len;
+58   \}
+59   \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a01857805a0485a378222abf4cceded07}{father}=father;
+60   \textcolor{keywordflow}{for}(i=0; i<8; i++)
+61     \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].child[i]=-1;
+62   \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data}=-1;
+63   \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}].\hyperlink{struct__octNode_a9082f945c1d289684d0bcd51ee08e11e}{level}=level;
+64   \hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize}++;
+65 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_a63d1ddc6af5af1d42f6c1971cdf222c3_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_ac575d9ac8ce1341ea6f4dafbbede97b4}{\index{octree.\-c@{octree.\-c}!oct\-Free@{oct\-Free}}
+\index{oct\-Free@{oct\-Free}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Free}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Free (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_ac575d9ac8ce1341ea6f4dafbbede97b4}
+This function deallocates memory used by octree. 
+
+Definition at line 308 of file octree.\-c.
+
+
+
+References lnc, loc\-Code, and octree.
+
+
+\begin{DoxyCode}
+309 \{
+310   \textcolor{keywordflow}{if}(\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}==0) \textcolor{keywordflow}{return};
+311 \textcolor{preprocessor}{#ifdef \_\_MIC\_\_}
+312 \textcolor{preprocessor}{}  \_mm\_free(\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree});
+313 \textcolor{preprocessor}{#else}
+314 \textcolor{preprocessor}{}  free(\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree});
+315 \textcolor{preprocessor}{#endif}
+316 \textcolor{preprocessor}{}  free(\hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode});
+317 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=204pt]{octree_8c_ac575d9ac8ce1341ea6f4dafbbede97b4_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af}{\index{octree.\-c@{octree.\-c}!oct\-Heap\-Free@{oct\-Heap\-Free}}
+\index{oct\-Heap\-Free@{oct\-Heap\-Free}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Heap\-Free}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Heap\-Free (
+\begin{DoxyParamCaption}
+\item[{{\bf oct\-Heap} $\ast$}]{tt\-Heap}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af}
+This functione deallocates memory used by the heap. 
+
+Definition at line 357 of file octree.\-c.
+
+
+
+References \-\_\-oct\-Heap\-::data.
+
+
+\begin{DoxyCode}
+358 \{
+359   free(ttHeap->\hyperlink{struct__octHeap_ac103627c1ad15cbec2f22d0abe6d54b6}{data});
+360 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_a95956477641a199cf4e32e2677cfa0c1}{\index{octree.\-c@{octree.\-c}!oct\-Heap\-Init@{oct\-Heap\-Init}}
+\index{oct\-Heap\-Init@{oct\-Heap\-Init}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Heap\-Init}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Heap\-Init (
+\begin{DoxyParamCaption}
+\item[{{\bf oct\-Heap} $\ast$}]{tt\-Heap}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a95956477641a199cf4e32e2677cfa0c1}
+This function initializes heap for tree traversal. 
+
+Definition at line 324 of file octree.\-c.
+
+
+
+References \-\_\-oct\-Heap\-::count, \-\_\-oct\-Heap\-::data, and \-\_\-oct\-Heap\-::size.
+
+
+\begin{DoxyCode}
+325 \{
+326   ttHeap->\hyperlink{struct__octHeap_a439227feff9d7f55384e8780cfc2eb82}{size}=64;
+327   ttHeap->\hyperlink{struct__octHeap_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}=0;
+328   ttHeap->\hyperlink{struct__octHeap_ac103627c1ad15cbec2f22d0abe6d54b6}{data}=malloc(\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int})*ttHeap->\hyperlink{struct__octHeap_a439227feff9d7f55384e8780cfc2eb82}{size});
+329 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_a95956477641a199cf4e32e2677cfa0c1_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_aa13995841341f9f38845b72b57330047}{\index{octree.\-c@{octree.\-c}!oct\-Heap\-Pop@{oct\-Heap\-Pop}}
+\index{oct\-Heap\-Pop@{oct\-Heap\-Pop}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Heap\-Pop}]{\setlength{\rightskip}{0pt plus 5cm}int oct\-Heap\-Pop (
+\begin{DoxyParamCaption}
+\item[{{\bf oct\-Heap} $\ast$}]{tt\-Heap}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_aa13995841341f9f38845b72b57330047}
+This function removes an element from the heap. 
+
+Definition at line 348 of file octree.\-c.
+
+
+
+References \-\_\-oct\-Heap\-::count, and \-\_\-oct\-Heap\-::data.
+
+
+\begin{DoxyCode}
+349 \{
+350   ttHeap->\hyperlink{struct__octHeap_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}-=1;
+351   \textcolor{keywordflow}{return} ttHeap->\hyperlink{struct__octHeap_ac103627c1ad15cbec2f22d0abe6d54b6}{data}[ttHeap->\hyperlink{struct__octHeap_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}];
+352 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_aa13995841341f9f38845b72b57330047_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{\index{octree.\-c@{octree.\-c}!oct\-Heap\-Push@{oct\-Heap\-Push}}
+\index{oct\-Heap\-Push@{oct\-Heap\-Push}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Heap\-Push}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Heap\-Push (
+\begin{DoxyParamCaption}
+\item[{{\bf oct\-Heap} $\ast$}]{tt\-Heap, }
+\item[{int}]{idx}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}
+This function adds an element to the heap. 
+
+Definition at line 334 of file octree.\-c.
+
+
+
+References \-\_\-oct\-Heap\-::count, \-\_\-oct\-Heap\-::data, and \-\_\-oct\-Heap\-::size.
+
+
+\begin{DoxyCode}
+335 \{
+336   \textcolor{keywordflow}{if}(ttHeap->\hyperlink{struct__octHeap_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}==ttHeap->\hyperlink{struct__octHeap_a439227feff9d7f55384e8780cfc2eb82}{size}) \{
+337     ttHeap->\hyperlink{struct__octHeap_a439227feff9d7f55384e8780cfc2eb82}{size}+=64;
+338     ttHeap->\hyperlink{struct__octHeap_ac103627c1ad15cbec2f22d0abe6d54b6}{data}=realloc(ttHeap->\hyperlink{struct__octHeap_ac103627c1ad15cbec2f22d0abe6d54b6}{data},\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int})*ttHeap->\hyperlink{struct__octHeap_a439227feff9d7f55384e8780cfc2eb82}{size});
+339     printf(\textcolor{stringliteral}{"realloc again\(\backslash\)n"});
+340   \}
+341   ttHeap->\hyperlink{struct__octHeap_ac103627c1ad15cbec2f22d0abe6d54b6}{data}[ttHeap->\hyperlink{struct__octHeap_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}]=idx;
+342   ttHeap->\hyperlink{struct__octHeap_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}+=1;
+343 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_a7edffa1c18946c72ce58716ffcdeef4e}{\index{octree.\-c@{octree.\-c}!oct\-Insert\-Cell@{oct\-Insert\-Cell}}
+\index{oct\-Insert\-Cell@{oct\-Insert\-Cell}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Insert\-Cell}]{\setlength{\rightskip}{0pt plus 5cm}void oct\-Insert\-Cell (
+\begin{DoxyParamCaption}
+\item[{int64\-\_\-t}]{c}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_a7edffa1c18946c72ce58716ffcdeef4e}
+This function inserts a given cell c into a proper position in octree. 
+
+Definition at line 70 of file octree.\-c.
+
+
+
+References \-\_\-oct\-Node\-::child, \-\_\-oct\-Node\-::data, loc\-Code, oct\-Empty\-Node(), octree, oct\-Size, R\-O\-O\-T\-\_\-\-L\-E\-V\-E\-L, uint\-Vector3d\-::x, uint\-Vector3d\-::y, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+71 \{
+72   int64\_t octIdx=0;
+73   int64\_t father,child;
+74   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} level;
+75   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} childBranchBit,childIndex;
+76   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} xbit,ybit,zbit;
+77   \textcolor{keywordtype}{int} inserted=0;
+78 
+79   level=\hyperlink{global_8h_a7e9c30baccb96ccd0d941b1c799ff1ef}{ROOT\_LEVEL}-1;
+80   \textcolor{keywordflow}{while}(!inserted) \{
+81     \textcolor{keywordflow}{if}(\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIdx].data==-1) \{ \textcolor{comment}{/* insert cell into node */}
+82       \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIdx].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data}=c;
+83       inserted=1;
+84     \} \textcolor{keywordflow}{else} \{
+85       \textcolor{keywordflow}{if}(\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIdx].data==-2) \{ \textcolor{comment}{/* this is not a leaf */}
+86         childBranchBit = 1 << (level);
+87         xbit=(\hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[c].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}) & childBranchBit;
+88         ybit=(\hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[c].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}) & childBranchBit;
+89         zbit=(\hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[c].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}) & childBranchBit;
+90         childIndex = (   ((xbit) >> (level))
+91                          + ((ybit) >> (level-1))
+92                          + ((zbit) >> (level-2)) );
+93         level--;
+94         father=octIdx;
+95         child = \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIdx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[childIndex];
+96         \textcolor{keywordflow}{if}(child==-1) \{
+97           \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIdx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[childIndex]=\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize};
+98           child=\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize};
+99           \hyperlink{octree_8c_a63d1ddc6af5af1d42f6c1971cdf222c3}{octEmptyNode}(father,level,xbit,ybit,zbit);
+100         \}
+101         octIdx=child;
+102       \} \textcolor{keywordflow}{else} \{ \textcolor{comment}{/* occupied leaf */}
+103         int64\_t oc;
+104         oc=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIdx].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data};
+105         childBranchBit = 1 << (level);
+106         xbit=(\hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[oc].\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}) & childBranchBit;
+107         ybit=(\hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[oc].\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}) & childBranchBit;
+108         zbit=(\hyperlink{global_8h_aa6b7da95b07eb68cca8d60fc92d11b7a}{locCode}[oc].\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z}) & childBranchBit;
+109         childIndex = (   ((xbit) >> (level))
+110                          + ((ybit) >> (level-1))
+111                          + ((zbit) >> (level-2)) );
+112         level--;
+113         father=octIdx;
+114         \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIdx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[childIndex]=\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize};
+115         child=\hyperlink{global_8h_ac971e880e9ee18f8861d0de22f0da320}{octSize};
+116         \hyperlink{octree_8c_a63d1ddc6af5af1d42f6c1971cdf222c3}{octEmptyNode}(father,level,xbit,ybit,zbit);
+117         \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[child].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data}=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[father].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data};
+118         \hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[father].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data}=-2;
+119         octIdx=father;
+120         level++;
+121       \}
+122     \}
+123   \}
+124 \}
+\end{DoxyCode}
+
+
+Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=270pt]{octree_8c_a7edffa1c18946c72ce58716ffcdeef4e_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=314pt]{octree_8c_a7edffa1c18946c72ce58716ffcdeef4e_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_ad868a4549e255fff18ccb3a00c541cba}{\index{octree.\-c@{octree.\-c}!oct\-Locate\-Region@{oct\-Locate\-Region}}
+\index{oct\-Locate\-Region@{oct\-Locate\-Region}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Locate\-Region}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} int oct\-Locate\-Region (
+\begin{DoxyParamCaption}
+\item[{struct {\bf uint\-Vector3d}}]{min\-Loc\-Code, }
+\item[{struct {\bf uint\-Vector3d}}]{max\-Loc\-Code}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_ad868a4549e255fff18ccb3a00c541cba}
+This function determines the level of the smallest cell containing a given region. 
+
+Definition at line 282 of file octree.\-c.
+
+
+
+References oct\-Traverse\-To\-Level(), R\-O\-O\-T\-\_\-\-L\-E\-V\-E\-L, uint\-Vector3d\-::x, uint\-Vector3d\-::y, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+283 \{
+284   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} l1,l2,lmin;
+285   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} level;
+286   \textcolor{keywordtype}{int} cellIdx;
+287   \textcolor{keyword}{struct }\hyperlink{structuintVector3d}{uintVector3d} locDiff;
+288   \textcolor{comment}{/* XOR of location codes */}
+289   locDiff.\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x}=minLocCode.\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x} ^ maxLocCode.\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x};
+290   locDiff.y=minLocCode.\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y} ^ maxLocCode.\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y};
+291   locDiff.z=minLocCode.\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z} ^ maxLocCode.\hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z};
+292   \textcolor{comment}{/* Determining the level of the smallest cell containing the region */}
+293   l1=\hyperlink{global_8h_a7e9c30baccb96ccd0d941b1c799ff1ef}{ROOT\_LEVEL};
+294   l2=\hyperlink{global_8h_a7e9c30baccb96ccd0d941b1c799ff1ef}{ROOT\_LEVEL};
+295   lmin=\hyperlink{global_8h_a7e9c30baccb96ccd0d941b1c799ff1ef}{ROOT\_LEVEL};
+296   \textcolor{keywordflow}{while}(!(locDiff.x & (1<<l1)) && l1) l1--;
+297   \textcolor{keywordflow}{while}(!(locDiff.y & (1<<l2)) && (l2>l1)) l2--;
+298   \textcolor{keywordflow}{while}(!(locDiff.z & (1<<lmin)) && (lmin>l2)) lmin--;
+299   lmin++;
+300   level=\hyperlink{global_8h_a7e9c30baccb96ccd0d941b1c799ff1ef}{ROOT\_LEVEL}-1;
+301   cellIdx=\hyperlink{octree_8c_ae5f89e692535d5e9035727401383a82e}{octTraverseToLevel}(level,minLocCode.\hyperlink{structuintVector3d_a676e0da0ef83bbbdf42538e54b97506b}{x},minLocCode.\hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y},minLocCode.
+      \hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z},lmin);
+302   \textcolor{keywordflow}{return} cellIdx;
+303 \}
+\end{DoxyCode}
+
+
+Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=310pt]{octree_8c_ad868a4549e255fff18ccb3a00c541cba_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_ad868a4549e255fff18ccb3a00c541cba_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{octree_8c_ae5f89e692535d5e9035727401383a82e}{\index{octree.\-c@{octree.\-c}!oct\-Traverse\-To\-Level@{oct\-Traverse\-To\-Level}}
+\index{oct\-Traverse\-To\-Level@{oct\-Traverse\-To\-Level}!octree.c@{octree.\-c}}
+\subsubsection[{oct\-Traverse\-To\-Level}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} int oct\-Traverse\-To\-Level (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{level, }
+\item[{unsigned int}]{xloc, }
+\item[{unsigned int}]{yloc, }
+\item[{unsigned int}]{zloc, }
+\item[{unsigned int}]{lmin}
+\end{DoxyParamCaption}
+)}}\label{octree_8c_ae5f89e692535d5e9035727401383a82e}
+This function traverses the tree to a given level and returns node index. 
+
+Definition at line 258 of file octree.\-c.
+
+
+
+References \-\_\-oct\-Node\-::child, and octree.
+
+
+\begin{DoxyCode}
+259 \{
+260   \textcolor{keywordtype}{int} cellIdx=0;
+261   \textcolor{keywordtype}{int} parent=0;
+262   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} n;
+263   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} childBranchBit,childIndex;
+264   n=(level)-(lmin)+1;
+265   \textcolor{keywordflow}{while}(n--) \{
+266     childBranchBit = 1 << (level);
+267     childIndex = (   (((xloc) & childBranchBit) >> (level))
+268                      + (((yloc) & childBranchBit) >> (level-1))
+269                      + (((zloc) & childBranchBit) >> ((level-2))) );
+270     level--;
+271     parent=cellIdx;
+272     cellIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[cellIdx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[childIndex];
+273     \textcolor{keywordflow}{if}(\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[cellIdx].data != -2) \textcolor{keywordflow}{break}; \textcolor{comment}{/* a leaf */}
+274   \}
+275   \textcolor{keywordflow}{if}(cellIdx==-1) cellIdx=parent;
+276   \textcolor{keywordflow}{return} cellIdx;
+277 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{octree_8c_ae5f89e692535d5e9035727401383a82e_icgraph}
+\end{center}
+\end{figure}
+
+

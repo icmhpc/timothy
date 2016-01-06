@@ -1,0 +1,219 @@
+\hypertarget{bone_8c}{\section{bone.\-c File Reference}
+\label{bone_8c}\index{bone.\-c@{bone.\-c}}
+}
+
+
+contains functions defining virtual bone structure  
+
+
+{\ttfamily \#include $<$stdio.\-h$>$}\\*
+{\ttfamily \#include $<$stdlib.\-h$>$}\\*
+{\ttfamily \#include $<$mpi.\-h$>$}\\*
+{\ttfamily \#include $<$math.\-h$>$}\\*
+{\ttfamily \#include $<$inttypes.\-h$>$}\\*
+{\ttfamily \#include $<$sprng.\-h$>$}\\*
+{\ttfamily \#include $<$float.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}global.\-h\char`\"{}}\\*
+Include dependency graph for bone.\-c\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{bone_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{bone_8c_a76de0ed6535f866cc17a6eb1b7cf1350}{init\-Bone} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+contains functions defining virtual bone structure 
+
+Definition in file \hyperlink{bone_8c_source}{bone.\-c}.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{bone_8c_a76de0ed6535f866cc17a6eb1b7cf1350}{\index{bone.\-c@{bone.\-c}!init\-Bone@{init\-Bone}}
+\index{init\-Bone@{init\-Bone}!bone.c@{bone.\-c}}
+\subsubsection[{init\-Bone}]{\setlength{\rightskip}{0pt plus 5cm}int init\-Bone (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{bone_8c_a76de0ed6535f866cc17a6eb1b7cf1350}
+This functions builds a bone structure from available data. 
+
+Definition at line 40 of file bone.\-c.
+
+
+
+References cell\-Data\-::age, bnc, cells, csize, cell\-Data\-::ctype, cell\-Data\-::death, cell\-Data\-::density, cell\-Data\-::g1, g1, cell\-Data\-::g2, g2, cell\-Data\-::gid, cell\-Data\-::h, cell\-Data\-::halo, lbnc, lnc, local\-Cell\-Count, local\-I\-D, cell\-Data\-::m, m, max\-Cells\-Per\-Proc, M\-P\-Irank, number\-Of\-Counts, cell\-Data\-::phase, cell\-Data\-::phasetime, cell\-Data\-::s, s, cell\-Data\-::size, stream, total\-Cell\-Count, cell\-Data\-::tumor, cell\-Data\-::v, v, cell\-Data\-::x, cell\-Data\-::y, cell\-Data\-::young, and cell\-Data\-::z.
+
+
+\begin{DoxyCode}
+41 \{
+42   \textcolor{keywordtype}{int} i,j,k;
+43   \textcolor{keywordtype}{int} \hyperlink{global_8h_ac51334f57ef8b81c0629c9421798c344}{m};
+44   \textcolor{keywordtype}{int} ax,ay,az;
+45   \textcolor{keywordtype}{double} ox,oy,oz;
+46   \textcolor{keywordtype}{double} v0x,v0y,v0z;
+47   \textcolor{keywordtype}{double} v1x,v1y,v1z;
+48   \textcolor{keywordtype}{double} v2x,v2y,v2z;
+49   \textcolor{keywordtype}{char} text[256];
+50   \textcolor{keywordtype}{int} ***data;
+51   \textcolor{keywordtype}{int} d1,d2;
+52   \textcolor{keywordtype}{int} ret;
+53 
+54   \textcolor{keywordtype}{double} minx,miny,minz;
+55   \textcolor{keywordtype}{double} maxx,maxy,maxz;
+56 
+57   \hyperlink{global_8h_ad1705f0ec3f18de6cc969492145b531b}{bnc}=0;
+58   \hyperlink{global_8h_a0cb9f3a12f8c024f27273125d2f07efb}{lbnc}=0;
+59 
+60   \textcolor{keywordflow}{if}(\hyperlink{global_8h_a710288ab7d2734acc4566a87a645325d}{MPIrank}==0) \{
+61     FILE *fh1,*fh2;
+62     \textcolor{keywordflow}{if}(!(fh1=fopen(\textcolor{stringliteral}{"bones.txt"},\textcolor{stringliteral}{"r"}))) \{
+63       printf(\textcolor{stringliteral}{"File bones.txt not found\(\backslash\)n"});
+64       exit(1);
+65     \}
+66     \textcolor{keywordflow}{if}(!(fh2=fopen(\textcolor{stringliteral}{"bones.vnf"},\textcolor{stringliteral}{"r"}))) \{
+67       printf(\textcolor{stringliteral}{"File bones.vnf not found\(\backslash\)n"});
+68       exit(1);
+69     \}
+70     minx=DBL\_MAX;
+71     miny=DBL\_MAX;
+72     minz=DBL\_MAX;
+73     maxx=-DBL\_MAX;
+74     maxy=-DBL\_MAX;
+75     maxz=-DBL\_MAX;
+76 
+77     \textcolor{comment}{/* start with the .vnf file */}
+78     \textcolor{comment}{/* skip the header */}
+79     ret=fscanf(fh2,\textcolor{stringliteral}{"%*[^\(\backslash\)n]\(\backslash\)n"});
+80     \textcolor{comment}{/* read dimensions */}
+81     ret=fscanf(fh2,\textcolor{stringliteral}{"%s"},text);
+82     \textcolor{keywordflow}{if}(strcmp(text,\textcolor{stringliteral}{"dims"})==0) \{
+83       ret=fscanf(fh2,\textcolor{stringliteral}{"%d %d %d\(\backslash\)n"},&ax,&ay,&az);
+84     \}
+85     \textcolor{comment}{/* read 3d box */}
+86     ret=fscanf(fh2,\textcolor{stringliteral}{"%s"},text);
+87     \textcolor{keywordflow}{if}(strcmp(text,\textcolor{stringliteral}{"origin"})==0) \{
+88       ret=fscanf(fh2,\textcolor{stringliteral}{"%lf %lf %lf\(\backslash\)n"},&ox,&oy,&oz);
+89     \}
+90     ret=fscanf(fh2,\textcolor{stringliteral}{"%s"},text);
+91     \textcolor{keywordflow}{if}(strcmp(text,\textcolor{stringliteral}{"v0"})==0) \{
+92       ret=fscanf(fh2,\textcolor{stringliteral}{"%lf %lf %lf\(\backslash\)n"},&v0x,&v0y,&v0z);
+93     \}
+94     ret=fscanf(fh2,\textcolor{stringliteral}{"%s"},text);
+95     \textcolor{keywordflow}{if}(strcmp(text,\textcolor{stringliteral}{"v1"})==0) \{
+96       ret=fscanf(fh2,\textcolor{stringliteral}{"%lf %lf %lf\(\backslash\)n"},&v1x,&v1y,&v1z);
+97     \}
+98     ret=fscanf(fh2,\textcolor{stringliteral}{"%s"},text);
+99     \textcolor{keywordflow}{if}(strcmp(text,\textcolor{stringliteral}{"v2"})==0) \{
+100       ret=fscanf(fh2,\textcolor{stringliteral}{"%lf %lf %lf\(\backslash\)n"},&v2x,&v2y,&v2z);
+101     \}
+102     \textcolor{comment}{/* print info */}
+103     printf(\textcolor{stringliteral}{"Dimensions: %d %d %d\(\backslash\)nOrigin: %lf %lf %lf\(\backslash\)n"},ax,ay,az,ox,oy,oz);
+104     printf(\textcolor{stringliteral}{"v0: %lf %lf %lf\(\backslash\)nv1: %lf %lf %lf\(\backslash\)nv2: %lf %lf %lf\(\backslash\)n"},v0x,v0y,v0z,v1x,v1y,v1z,v2x,v2y,v2z);
+105     \textcolor{comment}{/* allocate data table */}
+106     data=(\textcolor{keywordtype}{int}***)malloc(ax*\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}**));
+107     \textcolor{keywordflow}{for}(i=0; i<ax; i++) \{
+108       data[i]=(\textcolor{keywordtype}{int}**)malloc(ay*\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}*));
+109       \textcolor{keywordflow}{for}(j=0; j<ay; j++) \{
+110         data[i][j]=(\textcolor{keywordtype}{int}*)malloc(az*\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}));
+111       \}
+112     \}
+113 
+114     \textcolor{comment}{/* now .txt file */}
+115     \textcolor{comment}{/* skip the header */}
+116     ret=fscanf(fh1,\textcolor{stringliteral}{"%*[^\(\backslash\)n]\(\backslash\)n"});
+117     \textcolor{comment}{/* read data */}
+118     \textcolor{keywordflow}{for}(k=0; k<az; k++)
+119       \textcolor{keywordflow}{for}(j=0; j<ay; j++)
+120         \textcolor{keywordflow}{for}(i=0; i<ax; i++) \{
+121           ret=fscanf(fh1,\textcolor{stringliteral}{"%d %d\(\backslash\)n"},&d1,&d2);
+122           data[i][j][k]=d1;
+123         \}
+124 
+125     \textcolor{comment}{/* compute coordinates - use origin,v0,v1,v2 */}
+126     \textcolor{keywordflow}{for}(i=0; i<ax; i++)
+127       \textcolor{keywordflow}{for}(j=0; j<ay; j++)
+128         \textcolor{keywordflow}{for}(k=0; k<az; k++) \{
+129           \textcolor{keywordflow}{if} (data[i][j][k]==2) \{
+130             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size}=pow(2.0, -(1.0 / 3.0)) * \hyperlink{global_8h_a39fd0cf73801b603ea78d20e05d8cfd3}{csize};\textcolor{comment}{//csize;}
+131             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}=ox + i*v0x + j*v1x + k*v2x;
+132             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}=oy + i*v0y + j*v1y + k*v2y;
+133             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}=oz + i*v0z + j*v1z + k*v2z;
+134             maxx=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}>maxx?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}:maxx);
+135             maxy=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}>maxy?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}:maxy);
+136             maxz=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}>maxz?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}:maxz);
+137             minx=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}<minx?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}:minx);
+138             miny=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}<miny?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}:miny);
+139             minz=(\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}<minz?\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}:minz);
+140 
+141             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_abb4d4bd9231e9f994e87f32cc4fcfce8}{gid} =
+142               (\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \textcolor{keywordtype}{long} int) \hyperlink{global_8h_a710288ab7d2734acc4566a87a645325d}{MPIrank} *(\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \textcolor{keywordtype}{long} \textcolor{keywordtype}{int})
+143               \hyperlink{global_8h_a2de426dd266cfdaaf6fb52ba3dc2740a}{maxCellsPerProc} + (\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \textcolor{keywordtype}{long} int) \hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc};
+144             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a3b90d5a73541ab9402511d87bed076ef}{v} = 0.0;
+145             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a6f8c052f8417728038991f7f2826d38d}{density} = 0.0;
+146             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a8ee9be1b5aa75abae556de3088cba6d9}{h} = 3*\hyperlink{global_8h_a39fd0cf73801b603ea78d20e05d8cfd3}{csize};\textcolor{comment}{//h;}
+147             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ad0bd87a264e65d1c17ecc07049819f2c}{young} = 2100.0 + sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 100.0;
+148             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a80ff3fcc4d03d0b1b01559839d12df5b}{halo} = 0;
+149             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_accf3aec63bc20b3c99ab4881cb07c05b}{phase} = 0;
+150             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a581debe7d16bce9d187b97855f4e99d4}{g1} = \hyperlink{global_8h_a581debe7d16bce9d187b97855f4e99d4}{g1} * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * 
+      \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+151             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_aee9971139118d56815564304450c4775}{g2} = \hyperlink{global_8h_aee9971139118d56815564304450c4775}{g2} * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * 
+      \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+152             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s} = \hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s} * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+153             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_ac51334f57ef8b81c0629c9421798c344}{m} = m * (1 + (sprng(\hyperlink{global_8h_a5340130b6fb2647cef6b71354e27b0d4}{stream}) * 2 - 1) * \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v});
+154             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_afe1297f954440c453b59fcb06992dbd5}{phasetime} = 0.0;
+155             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a91d98a856bbd96810b40af3ca5cc901a}{age} = 0;
+156             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_add1e1533be6e693ffedcdbafdf8b855c}{death} = 0;
+157             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a49af8c5336d6c2401bc24f86dbb97b36}{tumor} = 0;
+158             \textcolor{comment}{/* tag bone cell */}
+159             \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}].\hyperlink{structcellData_a13fbf3c17594503f639a7ef768ea73bb}{ctype} = 3;
+160 
+161             \hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}++;
+162             \hyperlink{global_8h_a0cb9f3a12f8c024f27273125d2f07efb}{lbnc}++;
+163             \hyperlink{global_8h_a265cb7ee626de517ecec0f0ac60833a7}{localID}++;
+164 
+165           \}
+166         \}
+167     fclose(fh1);
+168     fclose(fh2);
+169   \}
+170 
+171   \textcolor{keywordflow}{for}(i=0; i<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; i++) \{
+172     \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x}-=minx;
+173     \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y}-=miny;
+174     \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[i].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z}-=minz;
+175   \}
+176 
+177   MPI\_Allreduce(\hyperlink{global_8h_ab7a46ee61df03f5b6a569427a2f50bec}{localCellCount}, \hyperlink{global_8h_af1a14df9e6c8efece5183d9625039587}{totalCellCount}, 
+      \hyperlink{global_8h_a97c5d6b146e57ace62a66400c433aa4d}{numberOfCounts},
+178                 MPI\_INT64\_T, MPI\_SUM, MPI\_COMM\_WORLD);
+179 
+180   \textcolor{comment}{/* free data */}
+181   \textcolor{keywordflow}{for}(i=0; i<ax; i++) \{
+182     \textcolor{keywordflow}{for}(j=0; j<ay; j++)
+183       free(data[i][j]);
+184     free(data[i]);
+185   \}
+186   free(data);
+187 
+188   \textcolor{keywordflow}{return} 0;
+189 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=316pt]{bone_8c_a76de0ed6535f866cc17a6eb1b7cf1350_icgraph}
+\end{center}
+\end{figure}
+
+

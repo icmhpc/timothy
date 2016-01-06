@@ -1,0 +1,734 @@
+\hypertarget{fields_8h}{\section{fields.\-h File Reference}
+\label{fields_8h}\index{fields.\-h@{fields.\-h}}
+}
+
+
+contains variables and arrays for global fields  
+
+
+This graph shows which files directly or indirectly include this file\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{fields_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}~6
+\item 
+\#define \hyperlink{fields_8h_a1afe765b4510add91239ee23e5a89ba4}{N\-I\-F}~2 /$\ast$ number of fields that need to be interpolated from discrete data $\ast$/
+\item 
+\#define \hyperlink{fields_8h_aa40ca56600c708a797a77c1db484958d}{N\-G\-L\-O\-B}~3
+\item 
+\#define \hyperlink{fields_8h_af4afd37668ae33da6377a17adff33029}{N\-C\-H\-E\-M}~3
+\item 
+\#define \hyperlink{fields_8h_a5f8e3ee6c3157997836b1bbbecfba795}{S\-C\-A\-L\-A\-R\-\_\-\-F\-I\-E\-L\-D}~1
+\item 
+\#define \hyperlink{fields_8h_ad7476aeb700c263682abe57af0fd3828}{V\-E\-C\-T\-O\-R\-\_\-\-F\-I\-E\-L\-D}~2
+\item 
+\#define \hyperlink{fields_8h_af79ab52a96be6fa7217a13732bf00b27}{grid}(i, j, k)~(\hyperlink{fields_8h_a1c1a6cf56a04a8b0eae7801ff8ac941b}{grid\-Buffer}\mbox{[}grid\-Size.\-y$\ast$grid\-Size.\-z$\ast$i+grid\-Size.\-z$\ast$j+k\mbox{]})
+\item 
+\#define \hyperlink{fields_8h_a409c319ef6d95e23dbb99a707cc531a8}{D\-E\-N\-S}~0
+\item 
+\#define \hyperlink{fields_8h_a742eb2b2de51e39b1ce4e1ceb3bdc8f1}{B\-V\-E\-S}~1
+\item 
+\#define \hyperlink{fields_8h_a10bed19ceedeb2c12c5aad6de1d3b1a1}{T\-E\-M\-P}~2
+\item 
+\#define \hyperlink{fields_8h_a5e74e9586fb0eac40835526c74bcb0bc}{O\-X\-Y\-G}~3
+\item 
+\#define \hyperlink{fields_8h_acc998936c8c53109a36722f057e21352}{G\-L\-U\-C}~4
+\item 
+\#define \hyperlink{fields_8h_a985ad19b505d54de3ae5d490dfb2e8c5}{H\-Y\-D\-R}~5
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{fields_8h_a6a44392df035942bf1234e9e4414cdf5}{nfields}
+\item 
+int \hyperlink{fields_8h_ad68c6985dce5a3d709f854778dedee19}{nif}
+\item 
+int \hyperlink{fields_8h_af81eeddf84c06fb2a9d57b1ddbd7fae5}{nglob}
+\item 
+int \hyperlink{fields_8h_a953f8f470db9ca200532190d1ab644a3}{nchem}
+\item 
+int \hyperlink{fields_8h_abe4692639a5f11507faff09f2d37efa8}{gfields}
+\item 
+int \hyperlink{fields_8h_a67dd60f843bcdd47eb1503456d0da5de}{oxygen}
+\item 
+int \hyperlink{fields_8h_aa70f92ad44ec1687a70b41b3c3e5fa45}{glucose}
+\item 
+int \hyperlink{fields_8h_a0bd8292376c22b63b67fc99aa6f51986}{hydrogen\-Ion}
+\item 
+int \hyperlink{fields_8h_a0ac2a299549fcca3cd14e4c1ac2087d2}{temperature}
+\item 
+int64\-\_\-t \hyperlink{fields_8h_a05417d7423c6910043c021f274f313e9}{grid\-I}
+\item 
+int64\-\_\-t \hyperlink{fields_8h_a82988efc62eb48ce01aff7e477f133ee}{grid\-J}
+\item 
+int64\-\_\-t \hyperlink{fields_8h_ab9578aa866429a39273874dc7d3d9046}{grid\-K}
+\item 
+struct \hyperlink{structint64Vector3d}{int64\-Vector3d} \hyperlink{fields_8h_ae67bb9d09bd0919a0ccbc27b387cec72}{grid\-Size}
+\item 
+struct \hyperlink{structint64Vector3d}{int64\-Vector3d} $\ast$ \hyperlink{fields_8h_a9154f33f7786c05c61f4d519da14d501}{grid\-Start\-Idx}
+\item 
+struct \hyperlink{structint64Vector3d}{int64\-Vector3d} $\ast$ \hyperlink{fields_8h_a1d13a1c43b1a6eb6ca088b79ee681b48}{grid\-End\-Idx}
+\item 
+struct \hyperlink{structdoubleVector3d}{double\-Vector3d} $\ast$ \hyperlink{fields_8h_a1c1a6cf56a04a8b0eae7801ff8ac941b}{grid\-Buffer}
+\item 
+double \hyperlink{fields_8h_a1c1b24172891a639f9cad84edebeaee9}{grid\-Resolution}
+\item 
+struct \hyperlink{structdoubleVector3d}{double\-Vector3d} \\*
+lower\-Grid\-Corner \hyperlink{fields_8h_a4cd0d7a69ff25d3b90621720a512b524}{upper\-Grid\-Corner}
+\item 
+struct \hyperlink{structdoubleVector3d}{double\-Vector3d} \hyperlink{fields_8h_a3b16f16741e1e72c3829e9944c5537f4}{global\-Grid\-Size}
+\item 
+double \hyperlink{fields_8h_a341ea6bceeddfb9adf95b0f259c74f54}{box\-Volume}
+\item 
+char \hyperlink{fields_8h_a1a12b04329495ce82cf21a9d42b71f1c}{field\-Name} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}\mbox{[}128\mbox{]}
+\item 
+double $\ast$ \hyperlink{fields_8h_a6f2153921f2cf97a60e41a347ecaeb39}{field\-Addr} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double $\ast$ \hyperlink{fields_8h_a74ba67ff9d715f5cc482b96ad9fdfe1e}{grad\-Addr} \mbox{[}\hyperlink{fields_8h_af4afd37668ae33da6377a17adff33029}{N\-C\-H\-E\-M}\mbox{]}
+\item 
+int \hyperlink{fields_8h_a45d95417be1408a38916e94c79cb9e02}{field\-Type} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_ad4870e0beb9744bd643b6501c4505d81}{field\-Diff\-Coef} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_a2fe4102c6ceed6e01ff5b2f47eb0828d}{field\-Lambda} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_a80c6ee80e0f056adba2430ab0d21e58f}{field\-B\-C} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_ad0fb86debb3e1b138683ff94a2f51f5b}{field\-I\-C\-Mean} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_ad7e273c70cc0bf1510948fce547960f4}{field\-I\-C\-Var} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_ae21d99cc23aefdfc02fbe62cd28784fb}{field\-Dt} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_aa36e8f59ad94c5b7629ce29e6d3edc7e}{field\-Consumption} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_a7bef183ed63be648c7c1f4a63652cb41}{field\-Production} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+int \hyperlink{fields_8h_a85197b124a49c00481ff421a2293ebf2}{field\-Number\-Of\-Critical\-Levels} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_a3d0360f40f207ac596765b891c46b285}{field\-Critical\-Level1} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_a5534681dc803f20910d872026257fd75}{field\-Critical\-Level2} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_adc4b9b908fa47243451f8725e6210e34}{field\-Min} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double \hyperlink{fields_8h_afa26584ead914a9e160c467308ed156a}{field\-Max} \mbox{[}\hyperlink{fields_8h_a7986f01c038f396ce7df280bb2903099}{N\-F\-I\-E\-L\-D\-S}\mbox{]}
+\item 
+double $\ast$ \hyperlink{fields_8h_a55b7734feef0881a48041f5c8b0fe434}{tissue\-Field}
+\item 
+double $\ast$ \hyperlink{fields_8h_a6ef295c3b0816bc488287d089220ac10}{vessel\-Field}
+\item 
+double $\ast$ \hyperlink{fields_8h_afffa6ff788240a58e074a58603f3d11e}{temp\-Field}
+\item 
+double $\ast$ \hyperlink{fields_8h_adb9b18c97bd0384bf977ee57e604626a}{chem\-Field} \mbox{[}\hyperlink{fields_8h_af4afd37668ae33da6377a17adff33029}{N\-C\-H\-E\-M}\mbox{]}
+\item 
+double $\ast$ \hyperlink{fields_8h_a8cd0c6c0aae2776dba1259c9780d5ba7}{chem\-Gradient} \mbox{[}\hyperlink{fields_8h_af4afd37668ae33da6377a17adff33029}{N\-C\-H\-E\-M}\mbox{]}
+\item 
+double $\ast$$\ast$ \hyperlink{fields_8h_af5c78cf0ef851175243d9f71767efe50}{fields\-Patches\-Comm\-Buff}
+\item 
+double $\ast$$\ast$ \hyperlink{fields_8h_a978db43304285c6d893667023bd6bfb9}{fields\-Patches}
+\item 
+double $\ast$ \hyperlink{fields_8h_a5b1a6ed0ad91a58cc9c9e48eba217643}{halo\-S\-X0}
+\item 
+double $\ast$ \hyperlink{fields_8h_abcd411d2d371bb75abb7c2d89aac1265}{halo\-S\-X1}
+\item 
+double $\ast$ \hyperlink{fields_8h_ab8d502d0d87b4e406600573e62b06f28}{halo\-S\-Y0}
+\item 
+double $\ast$ \hyperlink{fields_8h_af601c47ad6c97b079ce66bba7e7b2a24}{halo\-S\-Y1}
+\item 
+double $\ast$ \hyperlink{fields_8h_a421410f629046ce8c9eaea51123ae34d}{halo\-S\-Z0}
+\item 
+double $\ast$ \hyperlink{fields_8h_a4e1a5f725f1e3695a8b11d27ac45b905}{halo\-S\-Z1}
+\item 
+double $\ast$ \hyperlink{fields_8h_aa455b936396c224d389201ecf4b94368}{halo\-R\-X0}
+\item 
+double $\ast$ \hyperlink{fields_8h_a028e4eb118e3c99a36504c722fdd498f}{halo\-R\-X1}
+\item 
+double $\ast$ \hyperlink{fields_8h_a361933efde31efd4609c2ced0f74f4e1}{halo\-R\-Y0}
+\item 
+double $\ast$ \hyperlink{fields_8h_ae3b1497d0e550e0ae7f11870a12886f5}{halo\-R\-Y1}
+\item 
+double $\ast$ \hyperlink{fields_8h_a8f084698e89cc616937d46dcb1308a1b}{halo\-R\-Z0}
+\item 
+double $\ast$ \hyperlink{fields_8h_afc3a2c260c70eaca8afbf0785ab283f7}{halo\-R\-Z1}
+\item 
+int \hyperlink{fields_8h_af04702287d6dec57802c81071212423f}{r\-X0}
+\item 
+int \hyperlink{fields_8h_a7c990eb627c166f119dddf7d0fe33285}{r\-X1}
+\item 
+int \hyperlink{fields_8h_ac41b308e7a718a159727b7a08340b577}{r\-Y0}
+\item 
+int \hyperlink{fields_8h_a72bac0e9dbb96427052c46a5dbb5675c}{r\-Y1}
+\item 
+int \hyperlink{fields_8h_af48da71f2b169dce2e4ae8da64f79cea}{r\-Z0}
+\item 
+int \hyperlink{fields_8h_a6698e8930956f935b86bf825e333f82e}{r\-Z1}
+\item 
+M\-P\-I\-\_\-\-Request \hyperlink{fields_8h_aa0e8b4fb8fd6e43d53d341cdfb7c34ef}{req\-F\-G\-Send} \mbox{[}6\mbox{]}
+\item 
+M\-P\-I\-\_\-\-Request \hyperlink{fields_8h_a4067b0240f9168c992e3e5e81d6bf4f2}{req\-F\-G\-Recv} \mbox{[}6\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+contains variables and arrays for global fields 
+
+Definition in file \hyperlink{fields_8h_source}{fields.\-h}.
+
+
+
+\subsection{Macro Definition Documentation}
+\hypertarget{fields_8h_a742eb2b2de51e39b1ce4e1ceb3bdc8f1}{\index{fields.\-h@{fields.\-h}!B\-V\-E\-S@{B\-V\-E\-S}}
+\index{B\-V\-E\-S@{B\-V\-E\-S}!fields.h@{fields.\-h}}
+\subsubsection[{B\-V\-E\-S}]{\setlength{\rightskip}{0pt plus 5cm}\#define B\-V\-E\-S~1}}\label{fields_8h_a742eb2b2de51e39b1ce4e1ceb3bdc8f1}
+
+
+Definition at line 119 of file fields.\-h.
+
+\hypertarget{fields_8h_a409c319ef6d95e23dbb99a707cc531a8}{\index{fields.\-h@{fields.\-h}!D\-E\-N\-S@{D\-E\-N\-S}}
+\index{D\-E\-N\-S@{D\-E\-N\-S}!fields.h@{fields.\-h}}
+\subsubsection[{D\-E\-N\-S}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\-E\-N\-S~0}}\label{fields_8h_a409c319ef6d95e23dbb99a707cc531a8}
+
+
+Definition at line 118 of file fields.\-h.
+
+\hypertarget{fields_8h_acc998936c8c53109a36722f057e21352}{\index{fields.\-h@{fields.\-h}!G\-L\-U\-C@{G\-L\-U\-C}}
+\index{G\-L\-U\-C@{G\-L\-U\-C}!fields.h@{fields.\-h}}
+\subsubsection[{G\-L\-U\-C}]{\setlength{\rightskip}{0pt plus 5cm}\#define G\-L\-U\-C~4}}\label{fields_8h_acc998936c8c53109a36722f057e21352}
+
+
+Definition at line 122 of file fields.\-h.
+
+\hypertarget{fields_8h_af79ab52a96be6fa7217a13732bf00b27}{\index{fields.\-h@{fields.\-h}!grid@{grid}}
+\index{grid@{grid}!fields.h@{fields.\-h}}
+\subsubsection[{grid}]{\setlength{\rightskip}{0pt plus 5cm}\#define grid(
+\begin{DoxyParamCaption}
+\item[{}]{i, }
+\item[{}]{j, }
+\item[{}]{k}
+\end{DoxyParamCaption}
+)~({\bf grid\-Buffer}\mbox{[}grid\-Size.\-y$\ast$grid\-Size.\-z$\ast$i+grid\-Size.\-z$\ast$j+k\mbox{]})}}\label{fields_8h_af79ab52a96be6fa7217a13732bf00b27}
+
+
+Definition at line 50 of file fields.\-h.
+
+\hypertarget{fields_8h_a985ad19b505d54de3ae5d490dfb2e8c5}{\index{fields.\-h@{fields.\-h}!H\-Y\-D\-R@{H\-Y\-D\-R}}
+\index{H\-Y\-D\-R@{H\-Y\-D\-R}!fields.h@{fields.\-h}}
+\subsubsection[{H\-Y\-D\-R}]{\setlength{\rightskip}{0pt plus 5cm}\#define H\-Y\-D\-R~5}}\label{fields_8h_a985ad19b505d54de3ae5d490dfb2e8c5}
+
+
+Definition at line 123 of file fields.\-h.
+
+\hypertarget{fields_8h_af4afd37668ae33da6377a17adff33029}{\index{fields.\-h@{fields.\-h}!N\-C\-H\-E\-M@{N\-C\-H\-E\-M}}
+\index{N\-C\-H\-E\-M@{N\-C\-H\-E\-M}!fields.h@{fields.\-h}}
+\subsubsection[{N\-C\-H\-E\-M}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\-C\-H\-E\-M~3}}\label{fields_8h_af4afd37668ae33da6377a17adff33029}
+
+
+Definition at line 30 of file fields.\-h.
+
+\hypertarget{fields_8h_a7986f01c038f396ce7df280bb2903099}{\index{fields.\-h@{fields.\-h}!N\-F\-I\-E\-L\-D\-S@{N\-F\-I\-E\-L\-D\-S}}
+\index{N\-F\-I\-E\-L\-D\-S@{N\-F\-I\-E\-L\-D\-S}!fields.h@{fields.\-h}}
+\subsubsection[{N\-F\-I\-E\-L\-D\-S}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\-F\-I\-E\-L\-D\-S~6}}\label{fields_8h_a7986f01c038f396ce7df280bb2903099}
+
+
+Definition at line 27 of file fields.\-h.
+
+\hypertarget{fields_8h_aa40ca56600c708a797a77c1db484958d}{\index{fields.\-h@{fields.\-h}!N\-G\-L\-O\-B@{N\-G\-L\-O\-B}}
+\index{N\-G\-L\-O\-B@{N\-G\-L\-O\-B}!fields.h@{fields.\-h}}
+\subsubsection[{N\-G\-L\-O\-B}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\-G\-L\-O\-B~3}}\label{fields_8h_aa40ca56600c708a797a77c1db484958d}
+
+
+Definition at line 29 of file fields.\-h.
+
+\hypertarget{fields_8h_a1afe765b4510add91239ee23e5a89ba4}{\index{fields.\-h@{fields.\-h}!N\-I\-F@{N\-I\-F}}
+\index{N\-I\-F@{N\-I\-F}!fields.h@{fields.\-h}}
+\subsubsection[{N\-I\-F}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\-I\-F~2 /$\ast$ number of fields that need to be interpolated from discrete data $\ast$/}}\label{fields_8h_a1afe765b4510add91239ee23e5a89ba4}
+
+
+Definition at line 28 of file fields.\-h.
+
+\hypertarget{fields_8h_a5e74e9586fb0eac40835526c74bcb0bc}{\index{fields.\-h@{fields.\-h}!O\-X\-Y\-G@{O\-X\-Y\-G}}
+\index{O\-X\-Y\-G@{O\-X\-Y\-G}!fields.h@{fields.\-h}}
+\subsubsection[{O\-X\-Y\-G}]{\setlength{\rightskip}{0pt plus 5cm}\#define O\-X\-Y\-G~3}}\label{fields_8h_a5e74e9586fb0eac40835526c74bcb0bc}
+
+
+Definition at line 121 of file fields.\-h.
+
+\hypertarget{fields_8h_a5f8e3ee6c3157997836b1bbbecfba795}{\index{fields.\-h@{fields.\-h}!S\-C\-A\-L\-A\-R\-\_\-\-F\-I\-E\-L\-D@{S\-C\-A\-L\-A\-R\-\_\-\-F\-I\-E\-L\-D}}
+\index{S\-C\-A\-L\-A\-R\-\_\-\-F\-I\-E\-L\-D@{S\-C\-A\-L\-A\-R\-\_\-\-F\-I\-E\-L\-D}!fields.h@{fields.\-h}}
+\subsubsection[{S\-C\-A\-L\-A\-R\-\_\-\-F\-I\-E\-L\-D}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\-C\-A\-L\-A\-R\-\_\-\-F\-I\-E\-L\-D~1}}\label{fields_8h_a5f8e3ee6c3157997836b1bbbecfba795}
+
+
+Definition at line 31 of file fields.\-h.
+
+\hypertarget{fields_8h_a10bed19ceedeb2c12c5aad6de1d3b1a1}{\index{fields.\-h@{fields.\-h}!T\-E\-M\-P@{T\-E\-M\-P}}
+\index{T\-E\-M\-P@{T\-E\-M\-P}!fields.h@{fields.\-h}}
+\subsubsection[{T\-E\-M\-P}]{\setlength{\rightskip}{0pt plus 5cm}\#define T\-E\-M\-P~2}}\label{fields_8h_a10bed19ceedeb2c12c5aad6de1d3b1a1}
+
+
+Definition at line 120 of file fields.\-h.
+
+\hypertarget{fields_8h_ad7476aeb700c263682abe57af0fd3828}{\index{fields.\-h@{fields.\-h}!V\-E\-C\-T\-O\-R\-\_\-\-F\-I\-E\-L\-D@{V\-E\-C\-T\-O\-R\-\_\-\-F\-I\-E\-L\-D}}
+\index{V\-E\-C\-T\-O\-R\-\_\-\-F\-I\-E\-L\-D@{V\-E\-C\-T\-O\-R\-\_\-\-F\-I\-E\-L\-D}!fields.h@{fields.\-h}}
+\subsubsection[{V\-E\-C\-T\-O\-R\-\_\-\-F\-I\-E\-L\-D}]{\setlength{\rightskip}{0pt plus 5cm}\#define V\-E\-C\-T\-O\-R\-\_\-\-F\-I\-E\-L\-D~2}}\label{fields_8h_ad7476aeb700c263682abe57af0fd3828}
+
+
+Definition at line 32 of file fields.\-h.
+
+
+
+\subsection{Variable Documentation}
+\hypertarget{fields_8h_a341ea6bceeddfb9adf95b0f259c74f54}{\index{fields.\-h@{fields.\-h}!box\-Volume@{box\-Volume}}
+\index{box\-Volume@{box\-Volume}!fields.h@{fields.\-h}}
+\subsubsection[{box\-Volume}]{\setlength{\rightskip}{0pt plus 5cm}double box\-Volume}}\label{fields_8h_a341ea6bceeddfb9adf95b0f259c74f54}
+
+
+Definition at line 54 of file fields.\-h.
+
+\hypertarget{fields_8h_adb9b18c97bd0384bf977ee57e604626a}{\index{fields.\-h@{fields.\-h}!chem\-Field@{chem\-Field}}
+\index{chem\-Field@{chem\-Field}!fields.h@{fields.\-h}}
+\subsubsection[{chem\-Field}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ chem\-Field\mbox{[}{\bf N\-C\-H\-E\-M}\mbox{]}}}\label{fields_8h_adb9b18c97bd0384bf977ee57e604626a}
+
+
+Definition at line 104 of file fields.\-h.
+
+\hypertarget{fields_8h_a8cd0c6c0aae2776dba1259c9780d5ba7}{\index{fields.\-h@{fields.\-h}!chem\-Gradient@{chem\-Gradient}}
+\index{chem\-Gradient@{chem\-Gradient}!fields.h@{fields.\-h}}
+\subsubsection[{chem\-Gradient}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ chem\-Gradient\mbox{[}{\bf N\-C\-H\-E\-M}\mbox{]}}}\label{fields_8h_a8cd0c6c0aae2776dba1259c9780d5ba7}
+
+
+Definition at line 105 of file fields.\-h.
+
+\hypertarget{fields_8h_a6f2153921f2cf97a60e41a347ecaeb39}{\index{fields.\-h@{fields.\-h}!field\-Addr@{field\-Addr}}
+\index{field\-Addr@{field\-Addr}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Addr}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ field\-Addr\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a6f2153921f2cf97a60e41a347ecaeb39}
+
+
+Definition at line 58 of file fields.\-h.
+
+\hypertarget{fields_8h_a80c6ee80e0f056adba2430ab0d21e58f}{\index{fields.\-h@{fields.\-h}!field\-B\-C@{field\-B\-C}}
+\index{field\-B\-C@{field\-B\-C}!fields.h@{fields.\-h}}
+\subsubsection[{field\-B\-C}]{\setlength{\rightskip}{0pt plus 5cm}double field\-B\-C\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a80c6ee80e0f056adba2430ab0d21e58f}
+
+
+Definition at line 69 of file fields.\-h.
+
+\hypertarget{fields_8h_aa36e8f59ad94c5b7629ce29e6d3edc7e}{\index{fields.\-h@{fields.\-h}!field\-Consumption@{field\-Consumption}}
+\index{field\-Consumption@{field\-Consumption}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Consumption}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Consumption\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_aa36e8f59ad94c5b7629ce29e6d3edc7e}
+
+
+Definition at line 83 of file fields.\-h.
+
+\hypertarget{fields_8h_a3d0360f40f207ac596765b891c46b285}{\index{fields.\-h@{fields.\-h}!field\-Critical\-Level1@{field\-Critical\-Level1}}
+\index{field\-Critical\-Level1@{field\-Critical\-Level1}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Critical\-Level1}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Critical\-Level1\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a3d0360f40f207ac596765b891c46b285}
+
+
+Definition at line 91 of file fields.\-h.
+
+\hypertarget{fields_8h_a5534681dc803f20910d872026257fd75}{\index{fields.\-h@{fields.\-h}!field\-Critical\-Level2@{field\-Critical\-Level2}}
+\index{field\-Critical\-Level2@{field\-Critical\-Level2}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Critical\-Level2}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Critical\-Level2\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a5534681dc803f20910d872026257fd75}
+
+
+Definition at line 92 of file fields.\-h.
+
+\hypertarget{fields_8h_ad4870e0beb9744bd643b6501c4505d81}{\index{fields.\-h@{fields.\-h}!field\-Diff\-Coef@{field\-Diff\-Coef}}
+\index{field\-Diff\-Coef@{field\-Diff\-Coef}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Diff\-Coef}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Diff\-Coef\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_ad4870e0beb9744bd643b6501c4505d81}
+
+
+Definition at line 67 of file fields.\-h.
+
+\hypertarget{fields_8h_ae21d99cc23aefdfc02fbe62cd28784fb}{\index{fields.\-h@{fields.\-h}!field\-Dt@{field\-Dt}}
+\index{field\-Dt@{field\-Dt}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Dt}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Dt\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_ae21d99cc23aefdfc02fbe62cd28784fb}
+
+
+Definition at line 72 of file fields.\-h.
+
+\hypertarget{fields_8h_ad0fb86debb3e1b138683ff94a2f51f5b}{\index{fields.\-h@{fields.\-h}!field\-I\-C\-Mean@{field\-I\-C\-Mean}}
+\index{field\-I\-C\-Mean@{field\-I\-C\-Mean}!fields.h@{fields.\-h}}
+\subsubsection[{field\-I\-C\-Mean}]{\setlength{\rightskip}{0pt plus 5cm}double field\-I\-C\-Mean\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_ad0fb86debb3e1b138683ff94a2f51f5b}
+
+
+Definition at line 70 of file fields.\-h.
+
+\hypertarget{fields_8h_ad7e273c70cc0bf1510948fce547960f4}{\index{fields.\-h@{fields.\-h}!field\-I\-C\-Var@{field\-I\-C\-Var}}
+\index{field\-I\-C\-Var@{field\-I\-C\-Var}!fields.h@{fields.\-h}}
+\subsubsection[{field\-I\-C\-Var}]{\setlength{\rightskip}{0pt plus 5cm}double field\-I\-C\-Var\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_ad7e273c70cc0bf1510948fce547960f4}
+
+
+Definition at line 71 of file fields.\-h.
+
+\hypertarget{fields_8h_a2fe4102c6ceed6e01ff5b2f47eb0828d}{\index{fields.\-h@{fields.\-h}!field\-Lambda@{field\-Lambda}}
+\index{field\-Lambda@{field\-Lambda}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Lambda}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Lambda\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a2fe4102c6ceed6e01ff5b2f47eb0828d}
+
+
+Definition at line 68 of file fields.\-h.
+
+\hypertarget{fields_8h_afa26584ead914a9e160c467308ed156a}{\index{fields.\-h@{fields.\-h}!field\-Max@{field\-Max}}
+\index{field\-Max@{field\-Max}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Max}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Max\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_afa26584ead914a9e160c467308ed156a}
+
+
+Definition at line 97 of file fields.\-h.
+
+\hypertarget{fields_8h_adc4b9b908fa47243451f8725e6210e34}{\index{fields.\-h@{fields.\-h}!field\-Min@{field\-Min}}
+\index{field\-Min@{field\-Min}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Min}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Min\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_adc4b9b908fa47243451f8725e6210e34}
+
+
+Definition at line 96 of file fields.\-h.
+
+\hypertarget{fields_8h_a1a12b04329495ce82cf21a9d42b71f1c}{\index{fields.\-h@{fields.\-h}!field\-Name@{field\-Name}}
+\index{field\-Name@{field\-Name}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Name}]{\setlength{\rightskip}{0pt plus 5cm}char field\-Name\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}\mbox{[}128\mbox{]}}}\label{fields_8h_a1a12b04329495ce82cf21a9d42b71f1c}
+
+
+Definition at line 57 of file fields.\-h.
+
+\hypertarget{fields_8h_a85197b124a49c00481ff421a2293ebf2}{\index{fields.\-h@{fields.\-h}!field\-Number\-Of\-Critical\-Levels@{field\-Number\-Of\-Critical\-Levels}}
+\index{field\-Number\-Of\-Critical\-Levels@{field\-Number\-Of\-Critical\-Levels}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Number\-Of\-Critical\-Levels}]{\setlength{\rightskip}{0pt plus 5cm}int field\-Number\-Of\-Critical\-Levels\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a85197b124a49c00481ff421a2293ebf2}
+
+
+Definition at line 88 of file fields.\-h.
+
+\hypertarget{fields_8h_a7bef183ed63be648c7c1f4a63652cb41}{\index{fields.\-h@{fields.\-h}!field\-Production@{field\-Production}}
+\index{field\-Production@{field\-Production}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Production}]{\setlength{\rightskip}{0pt plus 5cm}double field\-Production\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a7bef183ed63be648c7c1f4a63652cb41}
+
+
+Definition at line 84 of file fields.\-h.
+
+\hypertarget{fields_8h_a978db43304285c6d893667023bd6bfb9}{\index{fields.\-h@{fields.\-h}!fields\-Patches@{fields\-Patches}}
+\index{fields\-Patches@{fields\-Patches}!fields.h@{fields.\-h}}
+\subsubsection[{fields\-Patches}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$$\ast$ fields\-Patches}}\label{fields_8h_a978db43304285c6d893667023bd6bfb9}
+
+
+Definition at line 109 of file fields.\-h.
+
+\hypertarget{fields_8h_af5c78cf0ef851175243d9f71767efe50}{\index{fields.\-h@{fields.\-h}!fields\-Patches\-Comm\-Buff@{fields\-Patches\-Comm\-Buff}}
+\index{fields\-Patches\-Comm\-Buff@{fields\-Patches\-Comm\-Buff}!fields.h@{fields.\-h}}
+\subsubsection[{fields\-Patches\-Comm\-Buff}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$$\ast$ fields\-Patches\-Comm\-Buff}}\label{fields_8h_af5c78cf0ef851175243d9f71767efe50}
+
+
+Definition at line 108 of file fields.\-h.
+
+\hypertarget{fields_8h_a45d95417be1408a38916e94c79cb9e02}{\index{fields.\-h@{fields.\-h}!field\-Type@{field\-Type}}
+\index{field\-Type@{field\-Type}!fields.h@{fields.\-h}}
+\subsubsection[{field\-Type}]{\setlength{\rightskip}{0pt plus 5cm}int field\-Type\mbox{[}{\bf N\-F\-I\-E\-L\-D\-S}\mbox{]}}}\label{fields_8h_a45d95417be1408a38916e94c79cb9e02}
+
+
+Definition at line 60 of file fields.\-h.
+
+\hypertarget{fields_8h_abe4692639a5f11507faff09f2d37efa8}{\index{fields.\-h@{fields.\-h}!gfields@{gfields}}
+\index{gfields@{gfields}!fields.h@{fields.\-h}}
+\subsubsection[{gfields}]{\setlength{\rightskip}{0pt plus 5cm}int gfields}}\label{fields_8h_abe4692639a5f11507faff09f2d37efa8}
+
+
+Definition at line 39 of file fields.\-h.
+
+\hypertarget{fields_8h_a3b16f16741e1e72c3829e9944c5537f4}{\index{fields.\-h@{fields.\-h}!global\-Grid\-Size@{global\-Grid\-Size}}
+\index{global\-Grid\-Size@{global\-Grid\-Size}!fields.h@{fields.\-h}}
+\subsubsection[{global\-Grid\-Size}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf double\-Vector3d} global\-Grid\-Size}}\label{fields_8h_a3b16f16741e1e72c3829e9944c5537f4}
+
+
+Definition at line 53 of file fields.\-h.
+
+\hypertarget{fields_8h_aa70f92ad44ec1687a70b41b3c3e5fa45}{\index{fields.\-h@{fields.\-h}!glucose@{glucose}}
+\index{glucose@{glucose}!fields.h@{fields.\-h}}
+\subsubsection[{glucose}]{\setlength{\rightskip}{0pt plus 5cm}int glucose}}\label{fields_8h_aa70f92ad44ec1687a70b41b3c3e5fa45}
+
+
+Definition at line 41 of file fields.\-h.
+
+\hypertarget{fields_8h_a74ba67ff9d715f5cc482b96ad9fdfe1e}{\index{fields.\-h@{fields.\-h}!grad\-Addr@{grad\-Addr}}
+\index{grad\-Addr@{grad\-Addr}!fields.h@{fields.\-h}}
+\subsubsection[{grad\-Addr}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ grad\-Addr\mbox{[}{\bf N\-C\-H\-E\-M}\mbox{]}}}\label{fields_8h_a74ba67ff9d715f5cc482b96ad9fdfe1e}
+
+
+Definition at line 59 of file fields.\-h.
+
+\hypertarget{fields_8h_a1c1a6cf56a04a8b0eae7801ff8ac941b}{\index{fields.\-h@{fields.\-h}!grid\-Buffer@{grid\-Buffer}}
+\index{grid\-Buffer@{grid\-Buffer}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-Buffer}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf double\-Vector3d}$\ast$ grid\-Buffer}}\label{fields_8h_a1c1a6cf56a04a8b0eae7801ff8ac941b}
+
+
+Definition at line 49 of file fields.\-h.
+
+\hypertarget{fields_8h_a1d13a1c43b1a6eb6ca088b79ee681b48}{\index{fields.\-h@{fields.\-h}!grid\-End\-Idx@{grid\-End\-Idx}}
+\index{grid\-End\-Idx@{grid\-End\-Idx}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-End\-Idx}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf int64\-Vector3d} $\ast$ grid\-End\-Idx}}\label{fields_8h_a1d13a1c43b1a6eb6ca088b79ee681b48}
+
+
+Definition at line 48 of file fields.\-h.
+
+\hypertarget{fields_8h_a05417d7423c6910043c021f274f313e9}{\index{fields.\-h@{fields.\-h}!grid\-I@{grid\-I}}
+\index{grid\-I@{grid\-I}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-I}]{\setlength{\rightskip}{0pt plus 5cm}int64\-\_\-t grid\-I}}\label{fields_8h_a05417d7423c6910043c021f274f313e9}
+
+
+Definition at line 46 of file fields.\-h.
+
+\hypertarget{fields_8h_a82988efc62eb48ce01aff7e477f133ee}{\index{fields.\-h@{fields.\-h}!grid\-J@{grid\-J}}
+\index{grid\-J@{grid\-J}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-J}]{\setlength{\rightskip}{0pt plus 5cm}int64\-\_\-t grid\-J}}\label{fields_8h_a82988efc62eb48ce01aff7e477f133ee}
+
+
+Definition at line 46 of file fields.\-h.
+
+\hypertarget{fields_8h_ab9578aa866429a39273874dc7d3d9046}{\index{fields.\-h@{fields.\-h}!grid\-K@{grid\-K}}
+\index{grid\-K@{grid\-K}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-K}]{\setlength{\rightskip}{0pt plus 5cm}int64\-\_\-t grid\-K}}\label{fields_8h_ab9578aa866429a39273874dc7d3d9046}
+
+
+Definition at line 46 of file fields.\-h.
+
+\hypertarget{fields_8h_a1c1b24172891a639f9cad84edebeaee9}{\index{fields.\-h@{fields.\-h}!grid\-Resolution@{grid\-Resolution}}
+\index{grid\-Resolution@{grid\-Resolution}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-Resolution}]{\setlength{\rightskip}{0pt plus 5cm}double grid\-Resolution}}\label{fields_8h_a1c1b24172891a639f9cad84edebeaee9}
+
+
+Definition at line 51 of file fields.\-h.
+
+\hypertarget{fields_8h_ae67bb9d09bd0919a0ccbc27b387cec72}{\index{fields.\-h@{fields.\-h}!grid\-Size@{grid\-Size}}
+\index{grid\-Size@{grid\-Size}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-Size}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf int64\-Vector3d} grid\-Size}}\label{fields_8h_ae67bb9d09bd0919a0ccbc27b387cec72}
+
+
+Definition at line 47 of file fields.\-h.
+
+\hypertarget{fields_8h_a9154f33f7786c05c61f4d519da14d501}{\index{fields.\-h@{fields.\-h}!grid\-Start\-Idx@{grid\-Start\-Idx}}
+\index{grid\-Start\-Idx@{grid\-Start\-Idx}!fields.h@{fields.\-h}}
+\subsubsection[{grid\-Start\-Idx}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf int64\-Vector3d}$\ast$ grid\-Start\-Idx}}\label{fields_8h_a9154f33f7786c05c61f4d519da14d501}
+
+
+Definition at line 48 of file fields.\-h.
+
+\hypertarget{fields_8h_aa455b936396c224d389201ecf4b94368}{\index{fields.\-h@{fields.\-h}!halo\-R\-X0@{halo\-R\-X0}}
+\index{halo\-R\-X0@{halo\-R\-X0}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-R\-X0}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ halo\-R\-X0}}\label{fields_8h_aa455b936396c224d389201ecf4b94368}
+
+
+Definition at line 112 of file fields.\-h.
+
+\hypertarget{fields_8h_a028e4eb118e3c99a36504c722fdd498f}{\index{fields.\-h@{fields.\-h}!halo\-R\-X1@{halo\-R\-X1}}
+\index{halo\-R\-X1@{halo\-R\-X1}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-R\-X1}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-R\-X1}}\label{fields_8h_a028e4eb118e3c99a36504c722fdd498f}
+
+
+Definition at line 112 of file fields.\-h.
+
+\hypertarget{fields_8h_a361933efde31efd4609c2ced0f74f4e1}{\index{fields.\-h@{fields.\-h}!halo\-R\-Y0@{halo\-R\-Y0}}
+\index{halo\-R\-Y0@{halo\-R\-Y0}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-R\-Y0}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-R\-Y0}}\label{fields_8h_a361933efde31efd4609c2ced0f74f4e1}
+
+
+Definition at line 112 of file fields.\-h.
+
+\hypertarget{fields_8h_ae3b1497d0e550e0ae7f11870a12886f5}{\index{fields.\-h@{fields.\-h}!halo\-R\-Y1@{halo\-R\-Y1}}
+\index{halo\-R\-Y1@{halo\-R\-Y1}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-R\-Y1}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-R\-Y1}}\label{fields_8h_ae3b1497d0e550e0ae7f11870a12886f5}
+
+
+Definition at line 112 of file fields.\-h.
+
+\hypertarget{fields_8h_a8f084698e89cc616937d46dcb1308a1b}{\index{fields.\-h@{fields.\-h}!halo\-R\-Z0@{halo\-R\-Z0}}
+\index{halo\-R\-Z0@{halo\-R\-Z0}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-R\-Z0}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-R\-Z0}}\label{fields_8h_a8f084698e89cc616937d46dcb1308a1b}
+
+
+Definition at line 112 of file fields.\-h.
+
+\hypertarget{fields_8h_afc3a2c260c70eaca8afbf0785ab283f7}{\index{fields.\-h@{fields.\-h}!halo\-R\-Z1@{halo\-R\-Z1}}
+\index{halo\-R\-Z1@{halo\-R\-Z1}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-R\-Z1}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-R\-Z1}}\label{fields_8h_afc3a2c260c70eaca8afbf0785ab283f7}
+
+
+Definition at line 112 of file fields.\-h.
+
+\hypertarget{fields_8h_a5b1a6ed0ad91a58cc9c9e48eba217643}{\index{fields.\-h@{fields.\-h}!halo\-S\-X0@{halo\-S\-X0}}
+\index{halo\-S\-X0@{halo\-S\-X0}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-S\-X0}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ halo\-S\-X0}}\label{fields_8h_a5b1a6ed0ad91a58cc9c9e48eba217643}
+
+
+Definition at line 111 of file fields.\-h.
+
+\hypertarget{fields_8h_abcd411d2d371bb75abb7c2d89aac1265}{\index{fields.\-h@{fields.\-h}!halo\-S\-X1@{halo\-S\-X1}}
+\index{halo\-S\-X1@{halo\-S\-X1}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-S\-X1}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-S\-X1}}\label{fields_8h_abcd411d2d371bb75abb7c2d89aac1265}
+
+
+Definition at line 111 of file fields.\-h.
+
+\hypertarget{fields_8h_ab8d502d0d87b4e406600573e62b06f28}{\index{fields.\-h@{fields.\-h}!halo\-S\-Y0@{halo\-S\-Y0}}
+\index{halo\-S\-Y0@{halo\-S\-Y0}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-S\-Y0}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-S\-Y0}}\label{fields_8h_ab8d502d0d87b4e406600573e62b06f28}
+
+
+Definition at line 111 of file fields.\-h.
+
+\hypertarget{fields_8h_af601c47ad6c97b079ce66bba7e7b2a24}{\index{fields.\-h@{fields.\-h}!halo\-S\-Y1@{halo\-S\-Y1}}
+\index{halo\-S\-Y1@{halo\-S\-Y1}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-S\-Y1}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-S\-Y1}}\label{fields_8h_af601c47ad6c97b079ce66bba7e7b2a24}
+
+
+Definition at line 111 of file fields.\-h.
+
+\hypertarget{fields_8h_a421410f629046ce8c9eaea51123ae34d}{\index{fields.\-h@{fields.\-h}!halo\-S\-Z0@{halo\-S\-Z0}}
+\index{halo\-S\-Z0@{halo\-S\-Z0}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-S\-Z0}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-S\-Z0}}\label{fields_8h_a421410f629046ce8c9eaea51123ae34d}
+
+
+Definition at line 111 of file fields.\-h.
+
+\hypertarget{fields_8h_a4e1a5f725f1e3695a8b11d27ac45b905}{\index{fields.\-h@{fields.\-h}!halo\-S\-Z1@{halo\-S\-Z1}}
+\index{halo\-S\-Z1@{halo\-S\-Z1}!fields.h@{fields.\-h}}
+\subsubsection[{halo\-S\-Z1}]{\setlength{\rightskip}{0pt plus 5cm}double $\ast$ halo\-S\-Z1}}\label{fields_8h_a4e1a5f725f1e3695a8b11d27ac45b905}
+
+
+Definition at line 111 of file fields.\-h.
+
+\hypertarget{fields_8h_a0bd8292376c22b63b67fc99aa6f51986}{\index{fields.\-h@{fields.\-h}!hydrogen\-Ion@{hydrogen\-Ion}}
+\index{hydrogen\-Ion@{hydrogen\-Ion}!fields.h@{fields.\-h}}
+\subsubsection[{hydrogen\-Ion}]{\setlength{\rightskip}{0pt plus 5cm}int hydrogen\-Ion}}\label{fields_8h_a0bd8292376c22b63b67fc99aa6f51986}
+
+
+Definition at line 42 of file fields.\-h.
+
+\hypertarget{fields_8h_a953f8f470db9ca200532190d1ab644a3}{\index{fields.\-h@{fields.\-h}!nchem@{nchem}}
+\index{nchem@{nchem}!fields.h@{fields.\-h}}
+\subsubsection[{nchem}]{\setlength{\rightskip}{0pt plus 5cm}int nchem}}\label{fields_8h_a953f8f470db9ca200532190d1ab644a3}
+
+
+Definition at line 37 of file fields.\-h.
+
+\hypertarget{fields_8h_a6a44392df035942bf1234e9e4414cdf5}{\index{fields.\-h@{fields.\-h}!nfields@{nfields}}
+\index{nfields@{nfields}!fields.h@{fields.\-h}}
+\subsubsection[{nfields}]{\setlength{\rightskip}{0pt plus 5cm}int nfields}}\label{fields_8h_a6a44392df035942bf1234e9e4414cdf5}
+
+
+Definition at line 34 of file fields.\-h.
+
+\hypertarget{fields_8h_af81eeddf84c06fb2a9d57b1ddbd7fae5}{\index{fields.\-h@{fields.\-h}!nglob@{nglob}}
+\index{nglob@{nglob}!fields.h@{fields.\-h}}
+\subsubsection[{nglob}]{\setlength{\rightskip}{0pt plus 5cm}int nglob}}\label{fields_8h_af81eeddf84c06fb2a9d57b1ddbd7fae5}
+
+
+Definition at line 36 of file fields.\-h.
+
+\hypertarget{fields_8h_ad68c6985dce5a3d709f854778dedee19}{\index{fields.\-h@{fields.\-h}!nif@{nif}}
+\index{nif@{nif}!fields.h@{fields.\-h}}
+\subsubsection[{nif}]{\setlength{\rightskip}{0pt plus 5cm}int nif}}\label{fields_8h_ad68c6985dce5a3d709f854778dedee19}
+
+
+Definition at line 35 of file fields.\-h.
+
+\hypertarget{fields_8h_a67dd60f843bcdd47eb1503456d0da5de}{\index{fields.\-h@{fields.\-h}!oxygen@{oxygen}}
+\index{oxygen@{oxygen}!fields.h@{fields.\-h}}
+\subsubsection[{oxygen}]{\setlength{\rightskip}{0pt plus 5cm}int oxygen}}\label{fields_8h_a67dd60f843bcdd47eb1503456d0da5de}
+
+
+Definition at line 40 of file fields.\-h.
+
+\hypertarget{fields_8h_a4067b0240f9168c992e3e5e81d6bf4f2}{\index{fields.\-h@{fields.\-h}!req\-F\-G\-Recv@{req\-F\-G\-Recv}}
+\index{req\-F\-G\-Recv@{req\-F\-G\-Recv}!fields.h@{fields.\-h}}
+\subsubsection[{req\-F\-G\-Recv}]{\setlength{\rightskip}{0pt plus 5cm}M\-P\-I\-\_\-\-Request req\-F\-G\-Recv\mbox{[}6\mbox{]}}}\label{fields_8h_a4067b0240f9168c992e3e5e81d6bf4f2}
+
+
+Definition at line 116 of file fields.\-h.
+
+\hypertarget{fields_8h_aa0e8b4fb8fd6e43d53d341cdfb7c34ef}{\index{fields.\-h@{fields.\-h}!req\-F\-G\-Send@{req\-F\-G\-Send}}
+\index{req\-F\-G\-Send@{req\-F\-G\-Send}!fields.h@{fields.\-h}}
+\subsubsection[{req\-F\-G\-Send}]{\setlength{\rightskip}{0pt plus 5cm}M\-P\-I\-\_\-\-Request req\-F\-G\-Send\mbox{[}6\mbox{]}}}\label{fields_8h_aa0e8b4fb8fd6e43d53d341cdfb7c34ef}
+
+
+Definition at line 115 of file fields.\-h.
+
+\hypertarget{fields_8h_af04702287d6dec57802c81071212423f}{\index{fields.\-h@{fields.\-h}!r\-X0@{r\-X0}}
+\index{r\-X0@{r\-X0}!fields.h@{fields.\-h}}
+\subsubsection[{r\-X0}]{\setlength{\rightskip}{0pt plus 5cm}int r\-X0}}\label{fields_8h_af04702287d6dec57802c81071212423f}
+
+
+Definition at line 113 of file fields.\-h.
+
+\hypertarget{fields_8h_a7c990eb627c166f119dddf7d0fe33285}{\index{fields.\-h@{fields.\-h}!r\-X1@{r\-X1}}
+\index{r\-X1@{r\-X1}!fields.h@{fields.\-h}}
+\subsubsection[{r\-X1}]{\setlength{\rightskip}{0pt plus 5cm}int r\-X1}}\label{fields_8h_a7c990eb627c166f119dddf7d0fe33285}
+
+
+Definition at line 113 of file fields.\-h.
+
+\hypertarget{fields_8h_ac41b308e7a718a159727b7a08340b577}{\index{fields.\-h@{fields.\-h}!r\-Y0@{r\-Y0}}
+\index{r\-Y0@{r\-Y0}!fields.h@{fields.\-h}}
+\subsubsection[{r\-Y0}]{\setlength{\rightskip}{0pt plus 5cm}int r\-Y0}}\label{fields_8h_ac41b308e7a718a159727b7a08340b577}
+
+
+Definition at line 113 of file fields.\-h.
+
+\hypertarget{fields_8h_a72bac0e9dbb96427052c46a5dbb5675c}{\index{fields.\-h@{fields.\-h}!r\-Y1@{r\-Y1}}
+\index{r\-Y1@{r\-Y1}!fields.h@{fields.\-h}}
+\subsubsection[{r\-Y1}]{\setlength{\rightskip}{0pt plus 5cm}int r\-Y1}}\label{fields_8h_a72bac0e9dbb96427052c46a5dbb5675c}
+
+
+Definition at line 113 of file fields.\-h.
+
+\hypertarget{fields_8h_af48da71f2b169dce2e4ae8da64f79cea}{\index{fields.\-h@{fields.\-h}!r\-Z0@{r\-Z0}}
+\index{r\-Z0@{r\-Z0}!fields.h@{fields.\-h}}
+\subsubsection[{r\-Z0}]{\setlength{\rightskip}{0pt plus 5cm}int r\-Z0}}\label{fields_8h_af48da71f2b169dce2e4ae8da64f79cea}
+
+
+Definition at line 113 of file fields.\-h.
+
+\hypertarget{fields_8h_a6698e8930956f935b86bf825e333f82e}{\index{fields.\-h@{fields.\-h}!r\-Z1@{r\-Z1}}
+\index{r\-Z1@{r\-Z1}!fields.h@{fields.\-h}}
+\subsubsection[{r\-Z1}]{\setlength{\rightskip}{0pt plus 5cm}int r\-Z1}}\label{fields_8h_a6698e8930956f935b86bf825e333f82e}
+
+
+Definition at line 113 of file fields.\-h.
+
+\hypertarget{fields_8h_a0ac2a299549fcca3cd14e4c1ac2087d2}{\index{fields.\-h@{fields.\-h}!temperature@{temperature}}
+\index{temperature@{temperature}!fields.h@{fields.\-h}}
+\subsubsection[{temperature}]{\setlength{\rightskip}{0pt plus 5cm}int temperature}}\label{fields_8h_a0ac2a299549fcca3cd14e4c1ac2087d2}
+
+
+Definition at line 43 of file fields.\-h.
+
+\hypertarget{fields_8h_afffa6ff788240a58e074a58603f3d11e}{\index{fields.\-h@{fields.\-h}!temp\-Field@{temp\-Field}}
+\index{temp\-Field@{temp\-Field}!fields.h@{fields.\-h}}
+\subsubsection[{temp\-Field}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ temp\-Field}}\label{fields_8h_afffa6ff788240a58e074a58603f3d11e}
+
+
+Definition at line 103 of file fields.\-h.
+
+\hypertarget{fields_8h_a55b7734feef0881a48041f5c8b0fe434}{\index{fields.\-h@{fields.\-h}!tissue\-Field@{tissue\-Field}}
+\index{tissue\-Field@{tissue\-Field}!fields.h@{fields.\-h}}
+\subsubsection[{tissue\-Field}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ tissue\-Field}}\label{fields_8h_a55b7734feef0881a48041f5c8b0fe434}
+
+
+Definition at line 101 of file fields.\-h.
+
+\hypertarget{fields_8h_a4cd0d7a69ff25d3b90621720a512b524}{\index{fields.\-h@{fields.\-h}!upper\-Grid\-Corner@{upper\-Grid\-Corner}}
+\index{upper\-Grid\-Corner@{upper\-Grid\-Corner}!fields.h@{fields.\-h}}
+\subsubsection[{upper\-Grid\-Corner}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf double\-Vector3d} lower\-Grid\-Corner upper\-Grid\-Corner}}\label{fields_8h_a4cd0d7a69ff25d3b90621720a512b524}
+
+
+Definition at line 52 of file fields.\-h.
+
+\hypertarget{fields_8h_a6ef295c3b0816bc488287d089220ac10}{\index{fields.\-h@{fields.\-h}!vessel\-Field@{vessel\-Field}}
+\index{vessel\-Field@{vessel\-Field}!fields.h@{fields.\-h}}
+\subsubsection[{vessel\-Field}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ vessel\-Field}}\label{fields_8h_a6ef295c3b0816bc488287d089220ac10}
+
+
+Definition at line 102 of file fields.\-h.
+

@@ -1,0 +1,614 @@
+\hypertarget{potential_8c}{\section{potential.\-c File Reference}
+\label{potential_8c}\index{potential.\-c@{potential.\-c}}
+}
+
+
+contains functions that compute the potential  
+
+
+{\ttfamily \#include $<$stdio.\-h$>$}\\*
+{\ttfamily \#include $<$stdlib.\-h$>$}\\*
+{\ttfamily \#include $<$float.\-h$>$}\\*
+{\ttfamily \#include $<$math.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}global.\-h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}octree.\-h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}fields.\-h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}inline.\-h\char`\"{}}\\*
+Include dependency graph for potential.\-c\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{potential_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} double \hyperlink{potential_8c_afc372ff09291715cb67dc2c107581c9b}{cc\-Pot} (int p1, int p2, int mode, double $\ast$mindist)
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} void \hyperlink{potential_8c_ac7aa3d6bad50d0aeec842c955c0a6fbc}{comp\-Pot} ()
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} void \hyperlink{potential_8c_abccd029519c0cc81a9dd6fa83c8c22d3}{comp\-R\-Pot} ()
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} void \hyperlink{potential_8c_aae47c5f13dfa21cb56b8b7868b1fc9b3}{cc\-Pot\-Grad} (int p1, int p2, int mode)
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} void \hyperlink{potential_8c_a47f626f2b9ed30f1256ea1299104b80f}{comp\-Pot\-Grad} ()
+\item 
+\hyperlink{global_8h_a6134d67e4df19bf6929a4c1322ae7f9b}{M\-I\-C\-\_\-\-A\-T\-T\-R} void \hyperlink{potential_8c_aca855eaeb32567dd0a1bb832ad85749d}{comp\-R\-Pot\-Grad} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+contains functions that compute the potential 
+
+Definition in file \hyperlink{potential_8c_source}{potential.\-c}.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{potential_8c_afc372ff09291715cb67dc2c107581c9b}{\index{potential.\-c@{potential.\-c}!cc\-Pot@{cc\-Pot}}
+\index{cc\-Pot@{cc\-Pot}!potential.c@{potential.\-c}}
+\subsubsection[{cc\-Pot}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} double cc\-Pot (
+\begin{DoxyParamCaption}
+\item[{int}]{p1, }
+\item[{int}]{p2, }
+\item[{int}]{mode, }
+\item[{double $\ast$}]{mindist}
+\end{DoxyParamCaption}
+)}}\label{potential_8c_afc372ff09291715cb67dc2c107581c9b}
+This function computes potential for two neighbour cells. mode=0 -\/ computations for two local cells mode=1 -\/ computations for one local and one remote cell 
+
+Definition at line 42 of file potential.\-c.
+
+
+
+References cells, csize, cell\-Data\-::ctype, part\-Data\-::ctype, cell\-Data\-::density, h, h2, h3, recv\-Data, sdim, cell\-Data\-::size, part\-Data\-::size, x, cell\-Data\-::x, part\-Data\-::x, cell\-Data\-::y, part\-Data\-::y, uint\-Vector3d\-::y, cell\-Data\-::young, part\-Data\-::young, cell\-Data\-::z, part\-Data\-::z, and uint\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+43 \{
+44   \textcolor{keywordtype}{double} pot;
+45   \textcolor{keywordtype}{double} dist=0.0;
+46   \textcolor{keywordtype}{double} size;
+47   \textcolor{keywordtype}{double} \hyperlink{tempf_8c_a1780e9c70637026d6fab31f63b3a193e}{x}, \hyperlink{structuintVector3d_ac30de26db5f6d1c18c63913729adca7d}{y}, \hyperlink{structuintVector3d_a3d99b005d0fb73033dce14d4a135d01f}{z};
+48   \textcolor{keywordtype}{double} xc;
+49   \textcolor{keywordtype}{double} D;
+50   \textcolor{keywordtype}{double} poisson = 0.33;
+51   \textcolor{keywordtype}{double} young;
+52   \textcolor{keywordtype}{int} ctype;
+53 
+54 
+55   \textcolor{keywordflow}{if} (mode == 0 && p1 == p2)
+56     \textcolor{keywordflow}{return} 0.0;
+57 
+58   \textcolor{keywordflow}{if} (mode == 0) \{
+59     x = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+60     y = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y};
+61     z = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+62     size = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size};
+63     young = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_ad0bd87a264e65d1c17ecc07049819f2c}{young};
+64     ctype = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_a13fbf3c17594503f639a7ef768ea73bb}{ctype};
+65   \}
+66   \textcolor{keywordflow}{if} (mode == 1) \{
+67     x = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+68     y = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_ab927965981178aa1fba979a37168db2a}{y};
+69     z = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+70     size = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_aba3c5d750d5dbd6e86c11ecaca62885e}{size};
+71     young = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_a47ec3689b1fd89ba8e75d9a9975ba63f}{young};
+72     ctype = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_a13fbf3c17594503f639a7ef768ea73bb}{ctype};
+73   \}
+74 
+75   \textcolor{comment}{/* compute the distance between two cells */}
+76   \textcolor{keywordflow}{if} (\hyperlink{global_8h_a9fad6472ef73b07a138721c11022697a}{sdim} == 2)
+77     dist =
+78       sqrt((x - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].x) * (x - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].x) +
+79            (y - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].y) * (y - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].y));
+80   \textcolor{keywordflow}{if} (\hyperlink{global_8h_a9fad6472ef73b07a138721c11022697a}{sdim} == 3)
+81     dist =
+82       sqrt((x - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].x) * (x - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].x) +
+83            (y - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].y) * (y - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].y) +
+84            (z - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].z) * (z - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].z));
+85 
+86   \textcolor{keywordflow}{if} (mindist[0] > dist && ctype!=1 && \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].ctype!=1) \{
+87     mindist[0] = dist;
+88   \}
+89 
+90   \textcolor{keywordflow}{if} (dist <= \hyperlink{global_8h_adae58efd3b7d9072a77aff9c63040d05}{h}) \{
+91 
+92     \textcolor{keywordtype}{double} r01, r02;
+93     \textcolor{keywordtype}{double} area;
+94     \textcolor{keywordtype}{double} sc=1.0;
+95 
+96     \textcolor{keywordflow}{if} (\hyperlink{global_8h_a9fad6472ef73b07a138721c11022697a}{sdim} == 2)
+97       sc = \hyperlink{global_8h_a4c889e0d3615336fbb39aaa8d83bcbc9}{h2};
+98     \textcolor{keywordflow}{if} (\hyperlink{global_8h_a9fad6472ef73b07a138721c11022697a}{sdim} == 3)
+99       sc = \hyperlink{global_8h_a15027906d09956cf6cba51d6d24d6769}{h3};
+100 
+101     \textcolor{keywordflow}{if} (mode == 0) \{
+102       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_a6f8c052f8417728038991f7f2826d38d}{density} +=
+103         sc * (\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size} / \hyperlink{global_8h_a39fd0cf73801b603ea78d20e05d8cfd3}{csize}) * sph\_kernel(dist);
+104     \}
+105     \textcolor{keywordflow}{if} (mode == 1) \{
+106 \textcolor{preprocessor}{      #pragma omp atomic}
+107 \textcolor{preprocessor}{}      \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_a6f8c052f8417728038991f7f2826d38d}{density} += sc * (size / \hyperlink{global_8h_a39fd0cf73801b603ea78d20e05d8cfd3}{csize}) * sph\_kernel(dist);
+108     \}
+109 
+110     xc = size + \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size} - dist;
+111 
+112     \textcolor{keywordflow}{if} (xc <= 0.0)
+113       \textcolor{keywordflow}{return} 0.0;
+114 
+115     D = 0.75 * ((1.0 - poisson * poisson) / young +
+116                 (1.0 - poisson * poisson / \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].young));
+117 
+118     \textcolor{comment}{/* adhesion */}
+119     r01 =
+120       (size * size - \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size} * \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size} +
+121        dist * dist) / (2 * dist);
+122     r02 = dist - r01;
+123 
+124     area =
+125       M\_PI *
+126       ((size * size * (size - r01) -
+127         (size * size * size - r01 * r01 * r01) / 3) +
+128        (\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].size * \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].size * (\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].size - r02) -
+129         (\hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size} * \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size} * \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size} -
+130          r02 * r02 * r02) / 3));
+131 
+132     \textcolor{comment}{/* compute potential */}
+133     pot =
+134       (2.0 * pow(xc, 5 / 2) / (5.0 * D)) * sqrt((size * \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].size) /
+135           (size +
+136            \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].size)) +
+137       area * 0.1;
+138 
+139     \textcolor{keywordflow}{if}(ctype==1 && \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].ctype==1) pot = 0.0;
+140 
+141     \textcolor{keywordflow}{return} pot;
+142 
+143   \} \textcolor{keywordflow}{else}
+144     \textcolor{keywordflow}{return} 0.0;
+145 
+146 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{potential_8c_afc372ff09291715cb67dc2c107581c9b_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{potential_8c_aae47c5f13dfa21cb56b8b7868b1fc9b3}{\index{potential.\-c@{potential.\-c}!cc\-Pot\-Grad@{cc\-Pot\-Grad}}
+\index{cc\-Pot\-Grad@{cc\-Pot\-Grad}!potential.c@{potential.\-c}}
+\subsubsection[{cc\-Pot\-Grad}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} void cc\-Pot\-Grad (
+\begin{DoxyParamCaption}
+\item[{int}]{p1, }
+\item[{int}]{p2, }
+\item[{int}]{mode}
+\end{DoxyParamCaption}
+)}}\label{potential_8c_aae47c5f13dfa21cb56b8b7868b1fc9b3}
+This function computes potential gradient for two neighbour cells. mode=0 -\/ computations for local cells mode=1 -\/ computations for remote cells 
+
+Definition at line 256 of file potential.\-c.
+
+
+
+References cells, csize, cell\-Data\-::ctype, part\-Data\-::ctype, cell\-Data\-::density, dens\-Pot\-Data\-::density, m, recv\-Data, recv\-Dens\-Pot\-Data, sdim, cell\-Data\-::size, part\-Data\-::size, cell\-Data\-::v, dens\-Pot\-Data\-::v, v, velocity, cell\-Data\-::x, part\-Data\-::x, double\-Vector3d\-::x, cell\-Data\-::y, part\-Data\-::y, double\-Vector3d\-::y, cell\-Data\-::z, part\-Data\-::z, and double\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+257 \{
+258   \textcolor{keywordtype}{double} grad[3];
+259   \textcolor{comment}{/* we assume that cells' mass is always 1.0 */}
+260   \textcolor{keywordtype}{double} \hyperlink{global_8h_ac51334f57ef8b81c0629c9421798c344}{m} = 1.0;
+261   \textcolor{keywordtype}{double} sc;
+262   \textcolor{keywordtype}{double} x1, x2, y1, y2, z1, z2;
+263   \textcolor{keywordtype}{double} \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v}, density, size;
+264   \textcolor{keywordtype}{double} dist;
+265   \textcolor{keywordtype}{int} ctype;
+266 
+267   \textcolor{keywordflow}{if} (p1 == p2 && mode == 0)
+268     \textcolor{keywordflow}{return};
+269 
+270   \textcolor{keywordflow}{if} (mode == 0) \{
+271     x1 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+272     x2 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+273     y1 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y};
+274     y2 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y};
+275     z1 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+276     z2 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+277     v = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_a3b90d5a73541ab9402511d87bed076ef}{v};
+278     density = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_a6f8c052f8417728038991f7f2826d38d}{density};
+279     size = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_aba3c5d750d5dbd6e86c11ecaca62885e}{size};
+280     ctype = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p1].\hyperlink{structcellData_a13fbf3c17594503f639a7ef768ea73bb}{ctype};
+281   \}
+282   \textcolor{keywordflow}{if} (mode == 1) \{
+283     x1 = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+284     x2 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_af88b946fb90d5f08b5fb740c70e98c10}{x};
+285     y1 = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_ab927965981178aa1fba979a37168db2a}{y};
+286     y2 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_ab927965981178aa1fba979a37168db2a}{y};
+287     z1 = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+288     z2 = \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p2].\hyperlink{structcellData_ab3e6ed577a7c669c19de1f9c1b46c872}{z};
+289     v = \hyperlink{global_8h_acf6348786f3c9c222f2ce4894382bcd4}{recvDensPotData}[p1].\hyperlink{structdensPotData_a3b90d5a73541ab9402511d87bed076ef}{v};
+290     density = \hyperlink{global_8h_acf6348786f3c9c222f2ce4894382bcd4}{recvDensPotData}[p1].\hyperlink{structdensPotData_a6f8c052f8417728038991f7f2826d38d}{density};
+291     size = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_aba3c5d750d5dbd6e86c11ecaca62885e}{size};
+292     ctype = \hyperlink{global_8h_a9909963356d98bc262c21fed8a950cc2}{recvData}[p1].\hyperlink{structpartData_a13fbf3c17594503f639a7ef768ea73bb}{ctype};
+293   \}
+294 
+295   \textcolor{keywordflow}{if} (\hyperlink{global_8h_a9fad6472ef73b07a138721c11022697a}{sdim} == 2)
+296     dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+297   \textcolor{keywordflow}{if} (\hyperlink{global_8h_a9fad6472ef73b07a138721c11022697a}{sdim} == 3)
+298     dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) +
+299                 (z1 - z2) * (z1 - z2));
+300 
+301   grad[0] = 0.0;
+302   grad[1] = 0.0;
+303   grad[2] = 0.0;
+304 
+305   \textcolor{comment}{/* compute the gradient of SPH kernel function */}
+306   sph\_kernel\_gradient(p1, p2, grad, mode, dist);
+307 
+308   \textcolor{keywordflow}{if} (density == 0.0)
+309     sc = 0.0;
+310   \textcolor{keywordflow}{else} \{
+311     m = size / \hyperlink{global_8h_a39fd0cf73801b603ea78d20e05d8cfd3}{csize};
+312     sc = (m / density) * v;
+313   \}
+314 
+315   \textcolor{comment}{/* update forces */}
+316   \textcolor{keywordflow}{if} (mode == 0) \{
+317     \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p1].\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x} += sc * grad[0];
+318     \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p1].\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y} += sc * grad[1];
+319     \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p1].\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z} += sc * grad[2];
+320   \} \textcolor{keywordflow}{else} \{
+321 \textcolor{preprocessor}{    #pragma omp atomic}
+322 \textcolor{preprocessor}{}    \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p2].\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x} -= sc * grad[0];
+323 \textcolor{preprocessor}{    #pragma omp atomic}
+324 \textcolor{preprocessor}{}    \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p2].\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y} -= sc * grad[1];
+325 \textcolor{preprocessor}{    #pragma omp atomic}
+326 \textcolor{preprocessor}{}    \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p2].\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z} -= sc * grad[2];
+327   \}
+328 \}
+\end{DoxyCode}
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{potential_8c_aae47c5f13dfa21cb56b8b7868b1fc9b3_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{potential_8c_ac7aa3d6bad50d0aeec842c955c0a6fbc}{\index{potential.\-c@{potential.\-c}!comp\-Pot@{comp\-Pot}}
+\index{comp\-Pot@{comp\-Pot}!potential.c@{potential.\-c}}
+\subsubsection[{comp\-Pot}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} void comp\-Pot (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{potential_8c_ac7aa3d6bad50d0aeec842c955c0a6fbc}
+This function implements tree walk algorithm for each local cell. Function cc\-Pot(..) is called for each pair of neighbours. 
+
+Definition at line 152 of file potential.\-c.
+
+
+
+References cc\-Pot(), cells, \-\_\-oct\-Node\-::child, \-\_\-oct\-Node\-::data, cell\-Data\-::density, lnc, statistics\-Data\-::mindist, nx, oct\-Compute\-Box(), oct\-Heap\-Free(), oct\-Heap\-Init(), oct\-Heap\-Pop(), oct\-Heap\-Push(), oct\-Locate\-Region(), octree, s, statistics, tnc, and cell\-Data\-::v.
+
+
+\begin{DoxyCode}
+153 \{
+154   \textcolor{keywordflow}{if}(\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}<=1) \textcolor{keywordflow}{return};
+155 \textcolor{preprocessor}{  #pragma omp parallel}
+156 \textcolor{preprocessor}{}  \{
+157     \textcolor{keywordtype}{int} p;
+158     \textcolor{keywordtype}{double} mindist;
+159     mindist=\hyperlink{global_8h_a5ff16f483e01fddca329425a21a8b219}{nx};
+160 
+161 \textcolor{preprocessor}{    #pragma omp for schedule(dynamic,64)}
+162 \textcolor{preprocessor}{}    \textcolor{keywordflow}{for} (p = 0; p < \hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; p++) \{
+163       int64\_t cellIdx;
+164       \textcolor{keywordtype}{int} newIdx;
+165       \textcolor{keywordtype}{int} \hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s};
+166       \textcolor{keywordtype}{int} octIndex;
+167       \textcolor{keyword}{struct }\hyperlink{structuintVector3d}{uintVector3d} minLocCode,maxLocCode;
+168       \hyperlink{struct__octHeap}{octHeap} octh;
+169       \hyperlink{octree_8c_a95956477641a199cf4e32e2677cfa0c1}{octHeapInit}(&octh);
+170 
+171       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p].\hyperlink{structcellData_a6f8c052f8417728038991f7f2826d38d}{density} = 0.0;
+172       \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p].\hyperlink{structcellData_a3b90d5a73541ab9402511d87bed076ef}{v} = 0.0;
+173 
+174       \hyperlink{octree_8c_a282cb66db7aebdecf7a63a39ab410f43}{octComputeBox}(p,&minLocCode,&maxLocCode);
+175       octIndex=\hyperlink{octree_8c_ad868a4549e255fff18ccb3a00c541cba}{octLocateRegion}(minLocCode,maxLocCode);
+176 
+177       \textcolor{keywordflow}{for}(s=0; s<\hyperlink{global_8h_ace8c09599079e718c7fb9fc6ab9b0726}{tnc}; s++) \{
+178         \textcolor{keywordtype}{int} idx;
+179         idx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIndex].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[\hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s}];
+180         \textcolor{keywordflow}{if}(idx!=-1 && octNodeIntersection(idx,minLocCode,maxLocCode))
+181           \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,idx);
+182       \}
+183 
+184       \textcolor{keywordflow}{while}(octh.count>0) \{
+185         \textcolor{keywordtype}{int} idx;
+186         idx=\hyperlink{octree_8c_aa13995841341f9f38845b72b57330047}{octHeapPop}(&octh);
+187         cellIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data};
+188         \textcolor{keywordflow}{if}(cellIdx>=0) \{
+189           \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[p].\hyperlink{structcellData_a3b90d5a73541ab9402511d87bed076ef}{v} += \hyperlink{potential_8c_afc372ff09291715cb67dc2c107581c9b}{ccPot}(p,cellIdx,0,&mindist);
+190         \} \textcolor{keywordflow}{else} \{
+191           \textcolor{keywordflow}{for}(s=0; s<\hyperlink{global_8h_ace8c09599079e718c7fb9fc6ab9b0726}{tnc}; s++) \{
+192             newIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[\hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s}];
+193             \textcolor{keywordflow}{if}(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
+194               \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,newIdx);
+195           \}
+196         \}
+197       \}
+198       \hyperlink{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af}{octHeapFree}(&octh);
+199     \}
+200 \textcolor{preprocessor}{    #pragma omp critical}
+201 \textcolor{preprocessor}{}    \hyperlink{global_8h_aa28392f90ce59a6b79b9b939fd364a9a}{statistics}.\hyperlink{structstatisticsData_a78455d23ec97258967b76cbb2332b7be}{mindist}=(\hyperlink{global_8h_aa28392f90ce59a6b79b9b939fd364a9a}{statistics}.\hyperlink{structstatisticsData_a78455d23ec97258967b76cbb2332b7be}{mindist}>mindist?mindist:
+      \hyperlink{global_8h_aa28392f90ce59a6b79b9b939fd364a9a}{statistics}.\hyperlink{structstatisticsData_a78455d23ec97258967b76cbb2332b7be}{mindist});
+202   \}
+203 \}
+\end{DoxyCode}
+
+
+Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{potential_8c_ac7aa3d6bad50d0aeec842c955c0a6fbc_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=320pt]{potential_8c_ac7aa3d6bad50d0aeec842c955c0a6fbc_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{potential_8c_a47f626f2b9ed30f1256ea1299104b80f}{\index{potential.\-c@{potential.\-c}!comp\-Pot\-Grad@{comp\-Pot\-Grad}}
+\index{comp\-Pot\-Grad@{comp\-Pot\-Grad}!potential.c@{potential.\-c}}
+\subsubsection[{comp\-Pot\-Grad}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} void comp\-Pot\-Grad (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{potential_8c_a47f626f2b9ed30f1256ea1299104b80f}
+This function implements tree walk algorithm for each local cell to compute potential gradient. Function cc\-Pot\-Grad(..) is called for each pair of neighbours. 
+
+Definition at line 334 of file potential.\-c.
+
+
+
+References cc\-Pot\-Grad(), \-\_\-oct\-Node\-::child, \-\_\-oct\-Node\-::data, lnc, oct\-Compute\-Box(), oct\-Heap\-Free(), oct\-Heap\-Init(), oct\-Heap\-Pop(), oct\-Heap\-Push(), oct\-Locate\-Region(), octree, s, tnc, velocity, double\-Vector3d\-::x, double\-Vector3d\-::y, and double\-Vector3d\-::z.
+
+
+\begin{DoxyCode}
+335 \{
+336   \textcolor{keywordtype}{int} p;
+337   \textcolor{keywordflow}{if}(\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}<=1) \textcolor{keywordflow}{return};
+338 \textcolor{preprocessor}{  #pragma omp parallel for schedule(dynamic,64)}
+339 \textcolor{preprocessor}{}  \textcolor{keywordflow}{for}(p=0; p<\hyperlink{global_8h_a7065c019590815f10169c219f358e7d0}{lnc}; p++) \{
+340     int64\_t cellIdx;
+341     \textcolor{keywordtype}{int} newIdx;
+342     \textcolor{keywordtype}{int} \hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s};
+343     \textcolor{keywordtype}{int} octIndex;
+344     \textcolor{keyword}{struct }\hyperlink{structuintVector3d}{uintVector3d} minLocCode,maxLocCode;
+345     \hyperlink{struct__octHeap}{octHeap} octh;
+346 
+347     \hyperlink{octree_8c_a95956477641a199cf4e32e2677cfa0c1}{octHeapInit}(&octh);
+348     \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p].\hyperlink{structdoubleVector3d_af88b946fb90d5f08b5fb740c70e98c10}{x}=0.0;
+349     \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p].\hyperlink{structdoubleVector3d_ab927965981178aa1fba979a37168db2a}{y}=0.0;
+350     \hyperlink{global_8h_a5ccb3d82df0a6670a0dee2ccd768c0dd}{velocity}[p].\hyperlink{structdoubleVector3d_ab3e6ed577a7c669c19de1f9c1b46c872}{z}=0.0;
+351 
+352     \hyperlink{octree_8c_a282cb66db7aebdecf7a63a39ab410f43}{octComputeBox}(p,&minLocCode,&maxLocCode);
+353     octIndex=\hyperlink{octree_8c_ad868a4549e255fff18ccb3a00c541cba}{octLocateRegion}(minLocCode,maxLocCode);
+354 
+355     \textcolor{keywordflow}{for}(s=0; s<\hyperlink{global_8h_ace8c09599079e718c7fb9fc6ab9b0726}{tnc}; s++) \{
+356       \textcolor{keywordtype}{int} idx;
+357       idx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[octIndex].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[\hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s}];
+358       \textcolor{keywordflow}{if}(idx!=-1 && octNodeIntersection(idx,minLocCode,maxLocCode))
+359         \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,idx);
+360     \}
+361 
+362     \textcolor{keywordflow}{while}(octh.count>0) \{
+363       \textcolor{keywordtype}{int} idx;
+364       idx=\hyperlink{octree_8c_aa13995841341f9f38845b72b57330047}{octHeapPop}(&octh);
+365       cellIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data};
+366       \textcolor{keywordflow}{if}(cellIdx>=0) \{
+367         \hyperlink{potential_8c_aae47c5f13dfa21cb56b8b7868b1fc9b3}{ccPotGrad}(p,cellIdx,0);
+368       \} \textcolor{keywordflow}{else} \{
+369         \textcolor{keywordflow}{for}(s=0; s<\hyperlink{global_8h_ace8c09599079e718c7fb9fc6ab9b0726}{tnc}; s++) \{
+370           newIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[\hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s}];
+371           \textcolor{keywordflow}{if}(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
+372             \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,newIdx);
+373         \}
+374       \}
+375     \}
+376     \hyperlink{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af}{octHeapFree}(&octh);
+377   \}
+378 \}
+\end{DoxyCode}
+
+
+Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{potential_8c_a47f626f2b9ed30f1256ea1299104b80f_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=342pt]{potential_8c_a47f626f2b9ed30f1256ea1299104b80f_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{potential_8c_abccd029519c0cc81a9dd6fa83c8c22d3}{\index{potential.\-c@{potential.\-c}!comp\-R\-Pot@{comp\-R\-Pot}}
+\index{comp\-R\-Pot@{comp\-R\-Pot}!potential.c@{potential.\-c}}
+\subsubsection[{comp\-R\-Pot}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} void comp\-R\-Pot (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{potential_8c_abccd029519c0cc81a9dd6fa83c8c22d3}
+This function implements tree walk algorithm for each remote cell. Function cc\-Pot(..) is called for each pair of neighbours. 
+
+Definition at line 209 of file potential.\-c.
+
+
+
+References cc\-Pot(), cells, \-\_\-oct\-Node\-::child, \-\_\-oct\-Node\-::data, statistics\-Data\-::mindist, num\-Imp, nx, oct\-Compute\-Box\-R(), oct\-Heap\-Free(), oct\-Heap\-Init(), oct\-Heap\-Pop(), oct\-Heap\-Push(), octree, s, statistics, tnc, cell\-Data\-::v, and v.
+
+
+\begin{DoxyCode}
+210 \{
+211   \textcolor{keywordtype}{int} rp;
+212   \textcolor{keywordflow}{if}(\hyperlink{global_8h_a07792d8e2788e030124304f47e8cf1f6}{numImp}<=0) \textcolor{keywordflow}{return};
+213 \textcolor{preprocessor}{  #pragma omp parallel}
+214 \textcolor{preprocessor}{}  \{
+215     \textcolor{keywordtype}{double} mindist;
+216     mindist=\hyperlink{global_8h_a5ff16f483e01fddca329425a21a8b219}{nx};
+217 \textcolor{preprocessor}{    #pragma omp for schedule(dynamic,64)}
+218 \textcolor{preprocessor}{}    \textcolor{keywordflow}{for} (rp = 0; rp < \hyperlink{global_8h_a07792d8e2788e030124304f47e8cf1f6}{numImp}; rp++) \{
+219       int64\_t cellIdx;
+220       \textcolor{keywordtype}{int} newIdx;
+221       \textcolor{keywordtype}{int} \hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s};
+222       \textcolor{keywordtype}{double} \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v};
+223       \textcolor{keyword}{struct }\hyperlink{structuintVector3d}{uintVector3d} minLocCode,maxLocCode;
+224       \hyperlink{struct__octHeap}{octHeap} octh;
+225       \hyperlink{octree_8c_a95956477641a199cf4e32e2677cfa0c1}{octHeapInit}(&octh);
+226       \hyperlink{octree_8c_a2b9b682e42d53652d70046be6ba37da0}{octComputeBoxR}(rp,&minLocCode,&maxLocCode);
+227       \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,0);
+228       \textcolor{keywordflow}{while}(octh.count>0) \{
+229         \textcolor{keywordtype}{int} idx;
+230         idx=\hyperlink{octree_8c_aa13995841341f9f38845b72b57330047}{octHeapPop}(&octh);
+231         cellIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data};
+232         \textcolor{keywordflow}{if}(cellIdx>=0) \{
+233           v=\hyperlink{potential_8c_afc372ff09291715cb67dc2c107581c9b}{ccPot}(rp,cellIdx,1,&mindist);
+234 \textcolor{preprocessor}{          #pragma omp atomic}
+235 \textcolor{preprocessor}{}          \hyperlink{global_8h_a3ea537bde8d64e54770a2bd81e3f00be}{cells}[cellIdx].\hyperlink{structcellData_a3b90d5a73541ab9402511d87bed076ef}{v} += \hyperlink{global_8h_a48d9522e58fa05906c6dba23e5745a72}{v};
+236         \} \textcolor{keywordflow}{else} \{
+237           \textcolor{keywordflow}{for}(s=0; s<\hyperlink{global_8h_ace8c09599079e718c7fb9fc6ab9b0726}{tnc}; s++) \{
+238             newIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[\hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s}];
+239             \textcolor{keywordflow}{if}(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
+240               \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,newIdx);
+241           \}
+242         \}
+243       \}
+244       \hyperlink{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af}{octHeapFree}(&octh);
+245     \}
+246 \textcolor{preprocessor}{    #pragma omp critical}
+247 \textcolor{preprocessor}{}    \hyperlink{global_8h_aa28392f90ce59a6b79b9b939fd364a9a}{statistics}.\hyperlink{structstatisticsData_a78455d23ec97258967b76cbb2332b7be}{mindist}=(\hyperlink{global_8h_aa28392f90ce59a6b79b9b939fd364a9a}{statistics}.\hyperlink{structstatisticsData_a78455d23ec97258967b76cbb2332b7be}{mindist}>mindist?mindist:
+      \hyperlink{global_8h_aa28392f90ce59a6b79b9b939fd364a9a}{statistics}.\hyperlink{structstatisticsData_a78455d23ec97258967b76cbb2332b7be}{mindist});
+248   \}
+249 \}
+\end{DoxyCode}
+
+
+Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=276pt]{potential_8c_abccd029519c0cc81a9dd6fa83c8c22d3_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=328pt]{potential_8c_abccd029519c0cc81a9dd6fa83c8c22d3_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{potential_8c_aca855eaeb32567dd0a1bb832ad85749d}{\index{potential.\-c@{potential.\-c}!comp\-R\-Pot\-Grad@{comp\-R\-Pot\-Grad}}
+\index{comp\-R\-Pot\-Grad@{comp\-R\-Pot\-Grad}!potential.c@{potential.\-c}}
+\subsubsection[{comp\-R\-Pot\-Grad}]{\setlength{\rightskip}{0pt plus 5cm}{\bf M\-I\-C\-\_\-\-A\-T\-T\-R} void comp\-R\-Pot\-Grad (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{potential_8c_aca855eaeb32567dd0a1bb832ad85749d}
+This function implements tree walk algorithm for each remote cell to compute potential gradient. Function cc\-Pot\-Grad(..) is called for each pair of neighbours. 
+
+Definition at line 384 of file potential.\-c.
+
+
+
+References cc\-Pot\-Grad(), \-\_\-oct\-Node\-::child, \-\_\-oct\-Node\-::data, num\-Imp, oct\-Compute\-Box\-R(), oct\-Heap\-Free(), oct\-Heap\-Init(), oct\-Heap\-Pop(), oct\-Heap\-Push(), octree, s, and tnc.
+
+
+\begin{DoxyCode}
+385 \{
+386   \textcolor{keywordtype}{int} rp;
+387   \textcolor{keywordflow}{if}(\hyperlink{global_8h_a07792d8e2788e030124304f47e8cf1f6}{numImp}<=0) \textcolor{keywordflow}{return};
+388 \textcolor{preprocessor}{  #pragma omp parallel for schedule(dynamic,64)}
+389 \textcolor{preprocessor}{}  \textcolor{keywordflow}{for} (rp = 0; rp < \hyperlink{global_8h_a07792d8e2788e030124304f47e8cf1f6}{numImp}; rp++) \{
+390     int64\_t cellIdx;
+391     \textcolor{keywordtype}{int} newIdx;
+392     \textcolor{keywordtype}{int} \hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s};
+393     \textcolor{keyword}{struct }\hyperlink{structuintVector3d}{uintVector3d} minLocCode,maxLocCode;
+394     \hyperlink{struct__octHeap}{octHeap} octh;
+395     \hyperlink{octree_8c_a95956477641a199cf4e32e2677cfa0c1}{octHeapInit}(&octh);
+396     \hyperlink{octree_8c_a2b9b682e42d53652d70046be6ba37da0}{octComputeBoxR}(rp,&minLocCode,&maxLocCode);
+397     \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,0);
+398     \textcolor{keywordflow}{while}(octh.count>0) \{
+399       \textcolor{keywordtype}{int} idx;
+400       idx=\hyperlink{octree_8c_aa13995841341f9f38845b72b57330047}{octHeapPop}(&octh);
+401       cellIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a9eab91667db4d35c7231dcddf7b89a76}{data};
+402       \textcolor{keywordflow}{if}(cellIdx>=0) \{
+403         \hyperlink{potential_8c_aae47c5f13dfa21cb56b8b7868b1fc9b3}{ccPotGrad}(rp,cellIdx,1);
+404       \} \textcolor{keywordflow}{else} \{
+405         \textcolor{keywordflow}{for}(s=0; s<\hyperlink{global_8h_ace8c09599079e718c7fb9fc6ab9b0726}{tnc}; s++) \{
+406           newIdx=\hyperlink{global_8h_a3bfee3c99da0683981b8c1828598dfd7}{octree}[idx].\hyperlink{struct__octNode_a436082644033f00fa1dd628aee81b270}{child}[\hyperlink{global_8h_a874f74a4dc1c9a0cd9c6e0d79c298f55}{s}];
+407           \textcolor{keywordflow}{if}(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
+408             \hyperlink{octree_8c_a55bad651d51d5fd7c085f9dde6eedde9}{octHeapPush}(&octh,newIdx);
+409         \}
+410       \}
+411     \}
+412     \hyperlink{octree_8c_a9c16add0aabe4446e59c7d5e0bef41af}{octHeapFree}(&octh);
+413   \}
+414 \}
+\end{DoxyCode}
+
+
+Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=296pt]{potential_8c_aca855eaeb32567dd0a1bb832ad85749d_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=348pt]{potential_8c_aca855eaeb32567dd0a1bb832ad85749d_icgraph}
+\end{center}
+\end{figure}
+
+

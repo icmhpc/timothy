@@ -1,0 +1,6 @@
+<map id="waitFieldHaloExchange" name="waitFieldHaloExchange">
+<area shape="rect" id="node2" href="$fields_8c.html#ad83000b914316331bf7d3b66c53a289d" title="computeFieldGradient" alt="" coords="213,5,363,32"/>
+<area shape="rect" id="node3" href="$fields_8c.html#a2b1cba77aa657bc348ed055d89bfbe50" title="fieldGradient" alt="" coords="411,5,506,32"/>
+<area shape="rect" id="node4" href="$compute_8c.html#ae9a79d8510c24a987ad95d908ad4eb50" title="computeStep" alt="" coords="555,5,653,32"/>
+<area shape="rect" id="node5" href="$main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="701,5,752,32"/>
+</map>

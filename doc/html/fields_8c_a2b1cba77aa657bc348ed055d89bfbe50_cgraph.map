@@ -1,0 +1,7 @@
+<map id="fieldGradient" name="fieldGradient">
+<area shape="rect" id="node2" href="$fields_8c.html#a582e88e9fb1bce076ff733084b35c115" title="allocateFieldGradient" alt="" coords="153,5,297,32"/>
+<area shape="rect" id="node3" href="$fields_8c.html#ad83000b914316331bf7d3b66c53a289d" title="computeFieldGradient" alt="" coords="151,56,300,83"/>
+<area shape="rect" id="node6" href="$fields_8c.html#a65a21aa9797f80765a167ebccc923c7f" title="initFieldHaloExchange" alt="" coords="149,107,301,133"/>
+<area shape="rect" id="node4" href="$fields_8c.html#ad08174d63d4750c8d6661144e3f3bb1c" title="waitFieldHaloExchange" alt="" coords="350,56,509,83"/>
+<area shape="rect" id="node5" href="$utils_8c.html#a07dd99a04f2723be164531a7a862fb67" title="stopRun" alt="" coords="558,56,629,83"/>
+</map>
