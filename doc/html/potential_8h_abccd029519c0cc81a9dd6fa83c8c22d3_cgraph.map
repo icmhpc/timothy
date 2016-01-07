@@ -1,8 +1,0 @@
-<map id="compRPot" name="compRPot">
-<area shape="rect" id="node2" href="$potential_8c.html#afc372ff09291715cb67dc2c107581c9b" title="ccPot" alt="" coords="175,5,231,32"/>
-<area shape="rect" id="node3" href="$octree_8c.html#a2b9b682e42d53652d70046be6ba37da0" title="octComputeBoxR" alt="" coords="139,56,266,83"/>
-<area shape="rect" id="node4" href="$octree_8c.html#a9c16add0aabe4446e59c7d5e0bef41af" title="octHeapFree" alt="" coords="154,107,251,133"/>
-<area shape="rect" id="node5" href="$octree_8c.html#a95956477641a199cf4e32e2677cfa0c1" title="octHeapInit" alt="" coords="158,157,247,184"/>
-<area shape="rect" id="node6" href="$octree_8c.html#aa13995841341f9f38845b72b57330047" title="octHeapPop" alt="" coords="155,208,250,235"/>
-<area shape="rect" id="node7" href="$octree_8c.html#a55bad651d51d5fd7c085f9dde6eedde9" title="octHeapPush" alt="" coords="152,259,253,285"/>
-</map>
