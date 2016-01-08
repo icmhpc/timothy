@@ -57,6 +57,18 @@ Installation and configure flags used for installation of the prerequisites:
 {\tt ./configure CC=mpiicc CXX=mpiicpc F77=mpiifort --enable-bigint --with-MPI} {\tt --with-openmp --prefix=/home/user/hypre/2.10}
 \end{enumerate}
 
+To visualize simulation results you will need some additional packages:
+\begin{itemize}
+\item povray v.3.7.0 (available at \url{http:/www.povray.org/}).
+\item ffmpg v.2.7.4  (available at \url{https://www.ffmpeg.org/}).
+\end{itemize}
+
+\subsection{Ubuntu}
+
+Most of the packages are available in Ubuntu repository:
+
+{\tt sudo apt-get install build-essential libc6-dev libopenmpi-dev openmpi-bin gfortran libsprng2 libsprng2-dev povray ffmpeg}
+
 \section{Parameter file}
 \label{usage}
 
