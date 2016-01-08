@@ -27,9 +27,10 @@
 #include <inttypes.h>
 #include <sprng.h>
 #include <float.h>
+#include <string.h>
 
 #include "global.h"
-
+#include "bone.h"
 /*! \file bone.c
  *  \brief contains functions defining virtual bone structure
  */

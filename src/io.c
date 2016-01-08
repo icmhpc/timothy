@@ -27,7 +27,8 @@
 #include <inttypes.h>
 #include <float.h>
 #include <math.h>
-
+#include <unistd.h>
+#include <sys/stat.h>
 #define _GNU_SOURCE
 #include <fcntl.h>
 //#include <unistd.h>
@@ -35,11 +36,14 @@
 #include "global.h"
 #include "io.h"
 #include "fields.h"
-
+#include "utils.h"
+#include "random.h"
+#include "domdec.h"
+#include "cells.h"
 /*! \file io.c
  *  \brief contains I/O functions
  */
-
+static int one=1;
 void readRstFile(int argc, char **argv);
 
 /*!
@@ -99,7 +103,7 @@ void printHelp()
 /*!
  * This function initializes all parameters.
  */
-void initParams(int argc, char **argv)
+void initParams(int argc __attribute__((unused)), char **argv __attribute__((unused)))
 {
 
   int nr;

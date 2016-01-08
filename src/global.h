@@ -19,8 +19,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * *************************************************************************/
+#ifndef TIMOTHY_GLOBAL_H
+#define  TIMOTHY_GLOBAL_H
 
 #include <zoltan.h>
+#include<mpi.h>
+#include<stdint.h>
 
 /*! \file global.h
  *  \brief contains the most important global variables, arrays and defines
@@ -348,3 +352,4 @@ typedef struct _octHeap {
 int MIC_ATTR tnc;
 
 int ni;
+#endif

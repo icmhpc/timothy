@@ -29,7 +29,8 @@
 #include "potential.h"
 #include "fields.h"
 #include "inline.h"
-
+#include "interp.h"
+#include "comm.h"
 /*! \file compute.c
  *  \brief contains main computational function called in each time step of the simulation
  */
@@ -37,7 +38,7 @@
 /*!
  * This function calls all important simulation steps (cellular dynamics and global fields computations).
  */
-int computeStep()
+void computeStep()
 {
   int p;
   double dvel,sf;

@@ -22,8 +22,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "global.h"
+#include "domdec.h"
+#include "utils.h"
 
 /*! \file domdec.c
  *  \brief contains domain decomposition functions
@@ -47,7 +50,7 @@ int *exportToPart;		/* partition to which each object will belong */
 /*!
  * Zoltan callback function. This function returns the dimension (2D or 3D) of the system.
  */
-int ztnReturnDimension(void *data, int *ierr)
+int ztnReturnDimension(void *data __attribute__((unused)), int *ierr __attribute__((unused)))
 {
   if (sdim == 3)
     return 3;
@@ -77,7 +80,7 @@ void ztnReturnCoords(void *data, int numGidEntries, int numLidEntries,
 /*!
  * Zoltan callback function. This function returns the number of cells assigned to this process.
  */
-int ztnReturnNumNode(void *data, int *ierr)
+int ztnReturnNumNode(void *data __attribute__((unused)), int *ierr __attribute__((unused)))
 {
   return lnc;
 }

@@ -23,6 +23,9 @@
 /*! \file io.h
  *  \brief contains defines and declarations for I/O functions
  */
+#ifndef TIMOTHY_IO_H
+#define TIMOTHY_IO_H
+#include<stdint.h>
 
 //#define NPAR 34
 #define NPAR 70
@@ -74,7 +77,6 @@ double rstH;
 double rstCsize;
 
 
-int one=1;
 
 char params[NPAR][64];
 char desc[NPAR][512];
@@ -101,3 +103,19 @@ typedef struct colormap_t {
 
 colormap *cmaps;
 float beta;
+
+void ioWriteStepVTK(int);
+void ioWriteStepPovRay(int, int);
+void ioWriteFields(int);
+void printStepNum();
+void saveRstFile();
+void printBasicInfo();
+void initParams();
+void printHelp();
+void printExecInfo();
+void readParams(int argc, char** argv);
+void defineColormaps();
+void switchStdOut();
+void revertStdOut();
+#endif // TIMOTHY_IO_H
+

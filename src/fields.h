@@ -23,7 +23,10 @@
 /*! \file fields.h
  *  \brief contains variables and arrays for global fields
  */
-
+#ifndef TIMOTHY_FIELDS_H
+#define TIMOTHY_FIELDS_H
+#include <mpi.h>
+#include <stdint.h>
 #define NFIELDS 6 //5
 #define NIF 2 /* number of fields that need to be interpolated from discrete data */
 #define NGLOB 3
@@ -121,3 +124,7 @@ MPI_Request reqFGRecv[6];
 #define OXYG 3
 #define GLUC 4
 #define HYDR 5
+void fieldsInit();
+void fieldsSolve();
+void fieldGradient();
+#endif /* ifndef TIMOTHY_FIELDS_H */

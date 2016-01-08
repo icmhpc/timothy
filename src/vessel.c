@@ -29,7 +29,7 @@
 #include <float.h>
 
 #include "global.h"
-
+#include "vessel.h"
 /*! \file vessel.c
  *  \brief contains functions defining virtual vessels
  */

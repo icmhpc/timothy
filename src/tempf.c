@@ -27,7 +27,8 @@
 
 #include "global.h"
 #include "fields.h"
-
+#include "tempf.h"
+#include "io.h"
 /*! \file tempf.c
  *  \brief contains functions used for solving temperature field
  */
@@ -49,9 +50,9 @@ HYPRE_Solver tempPrecond;
 
 int tempObjectType;
 
-long long tempLower[3], tempUpper[3];
-long long bcLower[3];
-long long bcUpper[3];
+HYPRE_Int tempLower[3], tempUpper[3];
+HYPRE_Int bcLower[3];
+HYPRE_Int bcUpper[3];
 
 double dt;
 double tempLambda = 0.25;
@@ -128,7 +129,7 @@ void tempEnvInitSystem()
   int i,j;
   double z;
   int entry;
-  long long offsets[7][3] = {
+  HYPRE_Int offsets[7][3] = {
     {0, 0, 0}, {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {
       0, 0,
       -1
@@ -184,7 +185,7 @@ void tempEnvInitSystem()
   long long nentries = 7;
   long long nvalues;
   double *values;
-  long long stencil_indices[7];
+  HYPRE_Int stencil_indices[7];
 
   nvalues = nentries * gridSize.x * gridSize.y * gridSize.z;
   /* create an empty matrix object */
@@ -276,7 +277,7 @@ void tempEnvInitBC()
 
   /* Robin conditions */
   nentries = 3;
-  long long stencilRindices[3];
+  HYPRE_Int stencilRindices[3];
   int Nmax;
   Nmax = 0;
   Nmax = (Nmax < gridSize.x ? gridSize.x : Nmax);
@@ -400,7 +401,7 @@ void tempEnvInitBC()
   if (MPIcoords[MPIrank][0] == 0) {
 
     int nentries = 1;
-    long long stencilDindices[1];
+    HYPRE_Int stencilDindices[1];
     nvalues = nentries * gridSize.y * gridSize.z;
     values = calloc(nvalues, sizeof(double));
     bvalues = calloc(nvalues, sizeof(double));
