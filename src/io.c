@@ -922,7 +922,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].density;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].density - (int64_t) & cells[0].density;
+         (& cells[1].density) - (& cells[0].density);
     else
       jumpOut[nfOut] = 0;
 
@@ -934,7 +934,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].size;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].size - (int64_t) & cells[0].size;
+        (& cells[1].size) - ( & cells[0].size);
     else
       jumpOut[nfOut] = 0;
 
@@ -954,7 +954,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].phase;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].phase - (int64_t) & cells[0].phase;
+        (& cells[1].phase) - ( & cells[0].phase);
     else
       jumpOut[nfOut] = 0;
 
@@ -966,7 +966,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].tumor;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].tumor - (int64_t) & cells[0].tumor;
+        (& cells[1].tumor) - ( & cells[0].tumor);
     else
       jumpOut[nfOut] = 0;
 
@@ -978,7 +978,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].halo;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].halo - (int64_t) & cells[0].halo;
+        (& cells[1].halo) - (& cells[0].halo);
     else
       jumpOut[nfOut] = 0;
 
@@ -989,7 +989,7 @@ void ioDefineOutputFields()
     typeOut[nfOut] = REAL;
     addrOut[nfOut] = &velocity[0];
     if (lnc > 1)
-      jumpOut[nfOut] = (int64_t) & velocity[1] - (int64_t) & velocity[0];
+      jumpOut[nfOut] = (& velocity[1]) - ( & velocity[0]);
     else
       jumpOut[nfOut] = 0;
 
@@ -1000,7 +1000,7 @@ void ioDefineOutputFields()
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cells[0].age;
     if (lnc > 1)
-      jumpOut[nfOut] = (int64_t) & cells[1].age - (int64_t) & cells[0].age;
+      jumpOut[nfOut] = (& cells[1].age) - (& cells[0].age);
     else
       jumpOut[nfOut] = 0;
 
@@ -1012,8 +1012,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].scalarField;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].scalarField -
-        (int64_t) & cells[0].scalarField;
+        (& cells[1].scalarField) -  (& cells[0].scalarField);
     else
       jumpOut[nfOut] = 0;
 
@@ -1025,8 +1024,8 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].ctype;
     if(lnc>1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].ctype -
-        (int64_t) & cells[0].ctype;
+        (& cells[1].ctype) -
+        (& cells[0].ctype);
     else
       jumpOut[nfOut] = 0;
 
@@ -1038,8 +1037,8 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].scstage;
     if(lnc>1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].scstage -
-        (int64_t) & cells[0].scstage;
+        (& cells[1].scstage) -
+        (& cells[0].scstage);
     else
       jumpOut[nfOut] = 0;
 
