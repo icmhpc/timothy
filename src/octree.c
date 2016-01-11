@@ -37,7 +37,7 @@
 void octEmptyNode(int64_t father,int level,unsigned int xbit,unsigned int ybit,unsigned int zbit)
 {
   int i;
-  unsigned int bit;
+  unsigned int bit; //TODO Check
   unsigned int len;
   if(father==-1) {
     octree[octSize].xcode=0;
@@ -316,7 +316,9 @@ void octFree()
   free(locCode);
 }
 
+#ifdef __MIC__
 #pragma offload_attribute(push,target(mic))
+#endif
 
 /*!
  * This function initializes heap for tree traversal.
@@ -358,5 +360,6 @@ void octHeapFree(octHeap *ttHeap)
 {
   free(ttHeap->data);
 }
-
+#ifdef __MIC__
 #pragma offload_attribute(pop)
+#endif

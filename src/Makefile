@@ -88,7 +88,7 @@ endif
 
 # General GNU x86 configuration
 ifeq ($(SYSTYPE),gnu-x86)
-CC = mpicc -g
+CC = mpicc -g -Wall -Wextra
 OPT = -O2 -fopenmp  -ffast-math -ftree-vectorize -finline-functions -Winline 
 DEFS = #-DDEBUG
 INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)

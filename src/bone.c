@@ -50,7 +50,7 @@ int initBone()
   char text[256];
   int ***data;
   int d1,d2;
-  int ret;
+  int ret; //TODO ?? why?
 
   double minx,miny,minz;
   double maxx,maxy,maxz;
@@ -80,6 +80,7 @@ int initBone()
     ret=fscanf(fh2,"%*[^\n]\n");
     /* read dimensions */
     ret=fscanf(fh2,"%s",text);
+    //TODO why? where else? 
     if(strcmp(text,"dims")==0) {
       ret=fscanf(fh2,"%d %d %d\n",&ax,&ay,&az);
     }
@@ -151,6 +152,7 @@ int initBone()
             cells[lnc].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
             cells[lnc].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
             cells[lnc].s = s * (1 + (sprng(stream) * 2 - 1) * v);
+            //TODO bug bug bug variable m is uninitialized
             cells[lnc].m = m * (1 + (sprng(stream) * 2 - 1) * v);
             cells[lnc].phasetime = 0.0;
             cells[lnc].age = 0;

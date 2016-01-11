@@ -262,7 +262,7 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
   double x1, x2, y1, y2, z1, z2;
   double v, density, size;
   double dist;
-  int ctype;
+  int ctype; // TODO Check
 
   if (p1 == p2 && mode == 0)
     return;
@@ -290,8 +290,9 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
     density = recvDensPotData[p1].density;
     size = recvData[p1].size;
     ctype = recvData[p1].ctype;
-  }
-
+  } // Is possible to have more modes, why not else?
+  
+  dist = 1; // TODO check
   if (sdim == 2)
     dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
   if (sdim == 3)

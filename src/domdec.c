@@ -62,10 +62,11 @@ int ztnReturnDimension(void *data __attribute__((unused)), int *ierr __attribute
 /*!
  * Zoltan callback function. This function returns the spatial coordinates of the cell identified by its global and local id.
  */
-void ztnReturnCoords(void *data, int numGidEntries, int numLidEntries,
-                     ZOLTAN_ID_PTR globalId, ZOLTAN_ID_PTR localId,
-                     double *geomVec, int *ierr)
+void ztnReturnCoords(void *data, int numGidEntries __attribute__((unused)), int numLidEntries __attribute__ ((unused)),
+                     ZOLTAN_ID_PTR globalId __attribute__((unused)), ZOLTAN_ID_PTR localId,
+                     double *geomVec, int *ierr __attribute__((unused)))
 {
+  struct cellData * cells = (struct cellData *) data;
   if (sdim == 3) {
     geomVec[0] = cells[localId[0]].x;
     geomVec[1] = cells[localId[0]].y;
@@ -219,7 +220,7 @@ void decompositionInit(int argc, char **argv, MPI_Comm Comm)
   Zoltan_Set_Fn(ztn, ZOLTAN_GEOM_FN_TYPE, (void (*)()) ztnReturnCoords,
                 cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_NUM_OBJ_FN_TYPE, (void (*)()) ztnReturnNumNode,
-                cells);
+                localCellCount);
   Zoltan_Set_Fn(ztn, ZOLTAN_OBJ_LIST_FN_TYPE,
                 (void (*)()) ztnReturnOwnedNodes, cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_OBJ_SIZE_FN_TYPE,

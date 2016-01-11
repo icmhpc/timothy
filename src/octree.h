@@ -28,7 +28,7 @@ MIC_ATTR int octLocateRegion(struct uintVector3d minLocCode,struct uintVector3d 
 MIC_ATTR void octHeapPush(octHeap *ttHeap,int idx);
 MIC_ATTR int octHeapPop(octHeap *ttHeap);
 MIC_ATTR void octHeapFree(octHeap *ttHeap);
-MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode);
+//MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode);
 MIC_ATTR void octComputeBoxR(int64_t c,struct uintVector3d *minLocCode,struct uintVector3d *maxLocCode);
 
 void octBuild();
