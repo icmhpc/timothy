@@ -21,6 +21,17 @@
 # *
 # * *************************************************************************/
 
+display_usage() { 
+	echo "This script is generating PNG and movie's from Timothy"
+	echo "\nUsage:\n$0 RESULTS_DIRECTORY PROC_NUMBER\n" 
+}
+
+if [ "$#" != '2' ] 
+	then 
+		display_usage
+		exit 0
+	fi
+
 VISDIR=$1
 NPROCS=$2
 cd $VISDIR
