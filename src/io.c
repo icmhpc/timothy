@@ -29,6 +29,7 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <inttypes.h>
 #define _GNU_SOURCE
 #include <fcntl.h>
 //#include <unistd.h>
@@ -1827,7 +1828,7 @@ void ioWriteFields(int step)
     if(MPIrank==0) {
       fh3=fopen(fstname3,"w");
       fprintf(fh3,"#VisNow regular field\n");
-      fprintf(fh3,"field %s%08d, dim %ld %ld %ld, coords\n",nameOut[f],step,gridI,gridJ,gridK);
+      fprintf(fh3,"field %s%08d, dim %" PRId64 " %" PRId64 " %" PRId64 ", coords\n",nameOut[f],step,gridI,gridJ,gridK);
       if(dimOut[f]==SCALAR) fprintf(fh3,"component %s float\n",nameOut[f]);
       else fprintf(fh3,"component %s float, vector 3\n",nameOut[f]);
       fprintf(fh3,"file=%s%08dcoords.bin binary ",nameOut[f],step);
