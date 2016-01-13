@@ -224,7 +224,7 @@ void tempEnvInitSystem()
 void tempEnvInitBC()
 {
   int i, j, k;
-  int m;
+  int mi;
   int nvalues;
   int nentries;
   double *values, *bvalues;
@@ -251,22 +251,22 @@ void tempEnvInitBC()
   HYPRE_SStructVectorInitialize(x);
 
   /* set the values */
-  m = 0;
+  mi = 0;
   for (k = tempLower[2]; k <= tempUpper[2]; k++)
     for (j = tempLower[1]; j <= tempUpper[1]; j++)
       for (i = tempLower[0]; i <= tempUpper[0]; i++) {
-        values[m] = fieldICMean[TEMP];
-        m++;
+        values[mi] = fieldICMean[TEMP];
+        mi++;
       }
 
   HYPRE_SStructVectorSetBoxValues(b, 0, tempLower, tempUpper, 0, values);
 
-  m = 0;
+  mi = 0;
   for (k = tempLower[2]; k <= tempUpper[2]; k++)
     for (j = tempLower[1]; j <= tempUpper[1]; j++)
       for (i = tempLower[0]; i <= tempUpper[0]; i++) {
-        values[m] = fieldICMean[TEMP];
-        m++;
+        values[mi] = fieldICMean[TEMP];
+        mi++;
       }
 
   HYPRE_SStructVectorSetBoxValues(x, 0, tempLower, tempUpper, 0, values);

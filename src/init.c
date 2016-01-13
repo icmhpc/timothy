@@ -167,7 +167,7 @@ void simulationInit(int argc, char **argv)
     cellsRandomInit();
     //initVessel();
     /* decomposition - initialization */
-    decompositionInit(argc, argv, MPI_COMM_WORLD);
+    decompositionInit(argc, argv);
   }
 
   /* maximum distance cell can travel in 1 sec */

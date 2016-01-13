@@ -37,7 +37,6 @@
 void octEmptyNode(int64_t father,int level,unsigned int xbit,unsigned int ybit,unsigned int zbit)
 {
   int i;
-  unsigned int bit; //TODO Check
   unsigned int len;
   if(father==-1) {
     octree[octSize].xcode=0;
@@ -47,7 +46,6 @@ void octEmptyNode(int64_t father,int level,unsigned int xbit,unsigned int ybit,u
     octree[octSize].ylimit=1<<level;
     octree[octSize].zlimit=1<<level;
   } else {
-    bit=1<<level;
     octree[octSize].xcode=octree[father].xcode|xbit;
     octree[octSize].ycode=octree[father].ycode|ybit;
     octree[octSize].zcode=octree[father].zcode|zbit;

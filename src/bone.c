@@ -41,24 +41,22 @@
 int initBone()
 {
   int i,j,k;
-  int m;
   int ax,ay,az;
   double ox,oy,oz;
   double v0x,v0y,v0z;
   double v1x,v1y,v1z;
   double v2x,v2y,v2z;
   char text[256];
-  int ***data;
   int d1,d2;
   int ret; //TODO ?? why?
-
-  double minx,miny,minz;
-  double maxx,maxy,maxz;
 
   bnc=0;
   lbnc=0;
 
   if(MPIrank==0) {
+    int ***data;
+    double minx,miny,minz;
+    double maxx,maxy,maxz;
     FILE *fh1,*fh2;
     if(!(fh1=fopen("bones.txt","r"))) {
       printf("File bones.txt not found\n");
@@ -152,7 +150,6 @@ int initBone()
             cells[lnc].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
             cells[lnc].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
             cells[lnc].s = s * (1 + (sprng(stream) * 2 - 1) * v);
-            //TODO bug bug bug variable m is uninitialized
             cells[lnc].m = m * (1 + (sprng(stream) * 2 - 1) * v);
             cells[lnc].phasetime = 0.0;
             cells[lnc].age = 0;
@@ -169,24 +166,25 @@ int initBone()
         }
     fclose(fh1);
     fclose(fh2);
-  }
 
-  for(i=0; i<lnc; i++) {
-    cells[i].x-=minx;
-    cells[i].y-=miny;
-    cells[i].z-=minz;
+    for(i=0; i<lnc; i++) {
+      cells[i].x-=minx;
+      cells[i].y-=miny;
+      cells[i].z-=minz;
+    }
+
+    /* free data */
+    for(i=0; i<ax; i++) {
+      for(j=0; j<ay; j++)
+        free(data[i][j]);
+      free(data[i]);
+    }
+    free(data);
+
   }
 
   MPI_Allreduce(localCellCount, totalCellCount, numberOfCounts,
                 MPI_INT64_T, MPI_SUM, MPI_COMM_WORLD);
-
-  /* free data */
-  for(i=0; i<ax; i++) {
-    for(j=0; j<ay; j++)
-      free(data[i][j]);
-    free(data[i]);
-  }
-  free(data);
 
   return 0;
 }

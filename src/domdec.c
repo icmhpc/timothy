@@ -192,7 +192,7 @@ void ztnUnpack(void *data, int numGIdEntries, ZOLTAN_ID_PTR globalId,
  * This function initializes the Zoltan library.
  * It is called at the beginning of the simulation.
  */
-void decompositionInit(int argc, char **argv, MPI_Comm Comm)
+void decompositionInit(int argc, char **argv)
 {
   int rc;
   float version;

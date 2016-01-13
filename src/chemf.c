@@ -264,7 +264,7 @@ void chemEnvCellPC(int nch)
 void chemEnvInitBC(int nch)
 {
   int i, j, k;
-  int m;
+  int mi;
   int nentries = 1;
   HYPRE_Int stencil_indices[1];
   long long nvalues = gridSize.x * gridSize.y * gridSize.z;
@@ -293,23 +293,23 @@ void chemEnvInitBC(int nch)
   HYPRE_SStructVectorInitialize(chemx[nch]);
 
   /* set the values */
-  m = 0;
+  mi = 0;
   for (k = chemLower[2]; k <= chemUpper[2]; k++)
     for (j = chemLower[1]; j <= chemUpper[1]; j++)
       for (i = chemLower[0]; i <= chemUpper[0]; i++) {
-        values[m] = fieldICMean[nch + NGLOB];
-        m++;
+        values[mi] = fieldICMean[nch + NGLOB];
+        mi++;
       }
 
   HYPRE_SStructVectorSetBoxValues(chemb[nch], 0, chemLower, chemUpper, 0,
                                   values);
 
-  m = 0;
+  mi = 0;
   for (k = chemLower[2]; k <= chemUpper[2]; k++)
     for (j = chemLower[1]; j <= chemUpper[1]; j++)
       for (i = chemLower[0]; i <= chemUpper[0]; i++) {
-        values[m] = fieldICMean[nch + NGLOB];
-        m++;
+        values[mi] = fieldICMean[nch + NGLOB];
+        mi++;
       }
 
   HYPRE_SStructVectorSetBoxValues(chemx[nch], 0, chemLower, chemUpper, 0,

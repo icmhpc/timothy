@@ -1708,7 +1708,7 @@ void readRstFile(int argc, char **argv)
   MPI_File_close(&fh);
 
   MPI_Barrier(MPI_COMM_WORLD);
-  decompositionInit(argc, argv, MPI_COMM_WORLD);
+  decompositionInit(argc, argv);
 
 }
 
