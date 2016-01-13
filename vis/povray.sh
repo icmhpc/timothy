@@ -29,7 +29,7 @@ display_usage() {
 if [ "$#" != '2' ] 
 	then 
 		display_usage
-		exit 0
+		exit 1
 	fi
 
 VISDIR=$1
