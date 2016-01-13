@@ -25,14 +25,24 @@
 #SYSTYPE = intel-mic
 SYSTYPE = gnu-x86
 
-# My laptop configuration (gnu-x86)
-ZOLTANLIB=-L/home/czaki/zoltan/3.82/lib -lzoltan
+# Czaki laptop configuration (gnu-x86)
+#ZOLTANLIB=-L/home/czaki/zoltan/3.82/lib -lzoltan
+#SPRNGLIB=-L/usr/lib -lsprng
+#GMPLIB=-lgmp
+#HYPRELIB=-L/home/czaki/hypre/2.10/lib -lHYPRE
+#ZOLTANINC=-I/home/czaki/zoltan/3.82/include
+#SPRNGINC=-I/usr/include/sprng
+#HYPREINC= -I/home/czaki/hypre/2.10/include
+#MPIINC=-I/usr/include/mpi
+
+# MC laptop configuration
+ZOLTANLIB=-L/opt/zoltan/3.81/lib -lzoltan
 SPRNGLIB=-L/usr/lib -lsprng
 GMPLIB=-lgmp
-HYPRELIB=-L/home/czaki/hypre/2.10/lib -lHYPRE
-ZOLTANINC=-I/home/czaki/zoltan/3.82/include
+HYPRELIB=-L/opt/hypre/2.9.0b/lib -lHYPRE -lblas -llapack
+ZOLTANINC=-I/opt/zoltan/3.81/include
 SPRNGINC=-I/usr/include/sprng
-HYPREINC= -I/home/czaki/hypre/2.10/include
+HYPREINC=-I/opt/hypre/2.9.0b/include
 MPIINC=-I/usr/include/mpi
 
 # Nostromo (ibm-bgq) system configuration
