@@ -1,7 +1,7 @@
 #ifndef TIMOTHY_DOMDEC_H
 #define TIMOTHY_DOMDEC_H
 #include <mpi.h>
-void decompositionInit(int argc, char **argv, MPI_Comm Comm);
+void decompositionInit(int argc, char **argv);
 void decompositionExecute();
 void decompositionFinalize();
 
