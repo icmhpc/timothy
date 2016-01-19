@@ -2350,6 +2350,9 @@ void ioWriteStepPovRay(int step, int type)
         color = 1.0;
     }
 
+    if(color<0.0) color=0.0;
+    if(color>1.0) color=1.0;
+
     for (i = 1; i < cmaps[cm].ncp; i++) {
       float d, dr, dg, db;
       d = cmaps[cm].cp[i].position - cmaps[cm].cp[i - 1].position;
