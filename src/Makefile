@@ -26,24 +26,24 @@
 SYSTYPE = gnu-x86
 
 # Czaki laptop configuration (gnu-x86)
-#ZOLTANLIB=-L/home/czaki/zoltan/3.82/lib -lzoltan
-#SPRNGLIB=-L/usr/lib -lsprng
-#GMPLIB=-lgmp
-#HYPRELIB=-L/home/czaki/hypre/2.10/lib -lHYPRE
-#ZOLTANINC=-I/home/czaki/zoltan/3.82/include
-#SPRNGINC=-I/usr/include/sprng
-#HYPREINC= -I/home/czaki/hypre/2.10/include
-#MPIINC=-I/usr/include/mpi
-
-# MC laptop configuration
-ZOLTANLIB=-L/opt/zoltan/3.81/lib -lzoltan
+ZOLTANLIB=-L/home/czaki/zoltan/3.82/lib -lzoltan
 SPRNGLIB=-L/usr/lib -lsprng
 GMPLIB=-lgmp
-HYPRELIB=-L/opt/hypre/2.9.0b/lib -lHYPRE -lblas -llapack
-ZOLTANINC=-I/opt/zoltan/3.81/include
+HYPRELIB=-L/home/czaki/hypre/2.10/lib -lHYPRE
+ZOLTANINC=-I/home/czaki/zoltan/3.82/include
 SPRNGINC=-I/usr/include/sprng
-HYPREINC=-I/opt/hypre/2.9.0b/include
+HYPREINC= -I/home/czaki/hypre/2.10/include
 MPIINC=-I/usr/include/mpi
+
+# MC laptop configuration
+#ZOLTANLIB=-L/opt/zoltan/3.81/lib -lzoltan
+#SPRNGLIB=-L/usr/lib -lsprng
+#GMPLIB=-lgmp
+#HYPRELIB=-L/opt/hypre/2.9.0b/lib -lHYPRE -lblas -llapack
+#ZOLTANINC=-I/opt/zoltan/3.81/include
+#SPRNGINC=-I/usr/include/sprng
+#HYPREINC=-I/opt/hypre/2.9.0b/include
+#MPIINC=-I/usr/include/mpi
 
 # Nostromo (ibm-bgq) system configuration
 #ZOLTANLIB=-L/opt/zoltan/3.8/lib -lzoltan
@@ -131,7 +131,7 @@ OPTIONS = $(OPT) $(DEFS)
 
 OBJS = main.o io.o utils.o cells.o domdec.o octree.o potential.o comm.o stats.o random.o init.o grid.o interp.o fields.o tempf.o chemf.o vessel.o bone.o compute.o
 
-INCL = global.h io.h inline.h fields.h potential.h octree.h
+INCL = bone.h  cells.h  chemf.h  comm.h  compute.h  domdec.h  fields.h  global.h  grid.h  init.h  inline.h  interp.h  io.h  octree.h  potential.h  random.h  stats.h  tempf.h  utils.h  vessel.h
 
 CFLAGS = $(OPTIONS) $(INCLUDES) 
 

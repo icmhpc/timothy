@@ -67,33 +67,33 @@ struct cellData {
   int lifetime;         /* age of the cell */
   int phase;            /* actual phase of the cell (0=G0,1=G1,2=S,3=G2,4=M,5=Necrotic) */
   int age;              /* cell's age */
-  int death;
-  int halo;
+  int death;		/* 1 - dead cell, 0 - living cell */
+  int halo;		/* cell on the border of parallel region */
   float phasetime;      /* actual phase time */
-  float g1;
-  float s;
-  float g2;
-  float m;
-  float young;
-  ZOLTAN_ID_TYPE gid;    /* global ID of the particle */
-  double x;              /* x coordinate of the particle position */
-  double y;              /* y coordinate of the particle position */
-  double z;              /* z coordinate of the particle position */
-  double size;           /* radius of the cell */
-  double h;              /* neighbourhood of the cell */
-  double v;              /* particle potential */
-  double density;        /* particle density */
-  double scalarField;    /* additional scalar field which can be used for analysis of results (printed to the output VTK files) */
-  int ctype;		 /* cell type 1=endothelial */
-  int scstage;           /* stem cells stage (in the course of differentiation) */
-  unsigned char tumor;
+  float g1;		/* g1 phase lenght - randomly selected for each new cell */ 
+  float s;		/* s phase lenght - randomly selected for each new cell */
+  float g2;		/* g2 phase lenght - randomly selected for each new cell */
+  float m;		/* m phase lenght - randomly selected for each new cell */
+  float young;		/* Young modulus - randomly selected for each new cell */
+  ZOLTAN_ID_TYPE gid;   /* global ID of the particle */
+  double x;             /* x coordinate of the particle position */
+  double y;             /* y coordinate of the particle position */
+  double z;             /* z coordinate of the particle position */
+  double size;          /* radius of the cell */
+  double h;             /* neighbourhood of the cell */
+  double v;             /* particle potential */
+  double density;       /* particle density */
+  double scalarField;   /* additional scalar field which can be used for analysis of results (printed to the output VTK files) */
+  int ctype;		/* cell type 1=endothelial */
+  int scstage;          /* stem cells stage (in the course of differentiation) */
+  unsigned char tumor;	/* 1 - tumor cell, 0 - healthly cell */
 };
 
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 /* the most important data */
-MIC_ATTR struct cellData *cells;
-double **cellFields;
-MIC_ATTR struct doubleVector3d *velocity;
+MIC_ATTR struct cellData *cells;		/* main array for keeping cell data */
+double **cellFields;				/* fields value for each cell - interpolated from global fields in each step */
+MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
 int64_t maxCells;
@@ -130,10 +130,10 @@ int scsim;
 int bvsim;
 int bnsim;
 
-int nscstages; /* number of stem cells stages */
-double *sctprob; /* stem cells stages transition probabilities */
-int64_t *nscinst; /* local number of stem cells in different stages */
-int64_t *gnscinst; /* global number of stem cells in different stages */
+int nscstages; 		/* number of stem cells stages */
+double *sctprob; 	/* stem cells stages transition probabilities */
+int64_t *nscinst; 	/* local number of stem cells in different stages */
+int64_t *gnscinst; 	/* global number of stem cells in different stages */
 int64_t localbc;
 int64_t globalbc;
 
