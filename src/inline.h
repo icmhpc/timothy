@@ -77,8 +77,7 @@ MIC_ATTR static inline int sph_kernel_gradient(int p1, int p2, double grad[3],in
     y2=cells[p2].y;
     z1=cells[p1].z;
     z2=cells[p2].z;
-  }
-  if(mode==1) {
+  } else {
     x1=recvData[p1].x;
     x2=cells[p2].x;
     y1=recvData[p1].y;
