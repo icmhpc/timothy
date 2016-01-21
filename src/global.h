@@ -70,7 +70,7 @@ struct cellData {
   int death;		/* 1 - dead cell, 0 - living cell */
   int halo;		/* cell on the border of parallel region */
   float phasetime;      /* actual phase time */
-  float g1;		/* g1 phase lenght - randomly selected for each new cell */ 
+  float g1;		/* g1 phase lenght - randomly selected for each new cell */
   float s;		/* s phase lenght - randomly selected for each new cell */
   float g2;		/* g2 phase lenght - randomly selected for each new cell */
   float m;		/* m phase lenght - randomly selected for each new cell */

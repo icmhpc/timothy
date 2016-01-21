@@ -50,7 +50,7 @@ void initVessel()
 
   vc=0;
   lvc=0;
-  lnc=0;  
+  lnc=0;
 
   if (MPIrank == 0) {
     FILE *fh;

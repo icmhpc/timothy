@@ -47,6 +47,18 @@ ZOLTAN_ID_PTR exportLocalGids;	/* local IDs of the objects I must send */
 int *exportProcs;		/* process to which I send each of the objects */
 int *exportToPart;		/* partition to which each object will belong */
 
+struct ztnMidData {
+  struct cellData *c;
+  int64_t * localCellCount;
+};
+static struct ztnMidData  ztnMidData;
+
+struct ztnPostData {
+  int64_t * localCellCount;
+  int64_t * tlnc;
+};
+static struct ztnPostData ztnPostData;
+
 /*!
  * Zoltan callback function. This function returns the dimension (2D or 3D) of the system.
  */
@@ -83,6 +95,7 @@ void ztnReturnCoords(void *data, int numGidEntries __attribute__((unused)), int 
  */
 int ztnReturnNumNode(void *data __attribute__((unused)), int *ierr __attribute__((unused)))
 {
+  int64_t * localCellCount = (int64_t *) data;
   return lnc;
 }
 
@@ -91,10 +104,11 @@ int ztnReturnNumNode(void *data __attribute__((unused)), int *ierr __attribute__
  */
 void ztnReturnOwnedNodes(void *data, int numGIdEntries, int numLIdEntries,
                          ZOLTAN_ID_PTR globalIds, ZOLTAN_ID_PTR localIds,
-                         int wgtDim, float *objWgts, int *ierr)
+                         int wgtDim, float *objWgts, int *ierr __attribute__((unused)))
 {
+  struct cellData * cells = (struct cellData *) data;
   int i;
-  for (i = 0; i < lnc; i++) {
+  for (i = 0; i < lnc; i++) { //TODO maybe use wgtDim instead of lnc?
     globalIds[i * numGIdEntries] = cells[i].gid;
     localIds[i * numLIdEntries] = i;
     objWgts[i] = 1.0;
@@ -106,9 +120,9 @@ void ztnReturnOwnedNodes(void *data, int numGIdEntries, int numLIdEntries,
 /*!
  * Zoltan callback function. This function returns the size of a data structure used for keeping the data of a single cell.
  */
-int ztnReturnParticleDataSize(void *data, int numGIdEntries,
-                              int numLIdEntries, ZOLTAN_ID_PTR globalId,
-                              ZOLTAN_ID_PTR localId, int *ierr)
+int ztnReturnParticleDataSize(void *data __attribute__((unused)), int numGIdEntries __attribute__((unused)),
+                              int numLIdEntries __attribute__((unused)), ZOLTAN_ID_PTR globalId __attribute__((unused)),
+                              ZOLTAN_ID_PTR localId __attribute__((unused)), int *ierr __attribute__((unused)))
 {
   return sizeof(struct cellData);
 }
@@ -116,9 +130,9 @@ int ztnReturnParticleDataSize(void *data, int numGIdEntries,
 /*!
  * Zoltan callback function. This function packs data into a send buffer before migration.
  */
-void ztnPack(void *data, int numGIdEntries, int numLIdEntries,
-             ZOLTAN_ID_PTR globalId, ZOLTAN_ID_PTR localId, int dest,
-             int size, char *buf, int *ierr)
+void ztnPack(void *data, int numGIdEntries __attribute__((unused)), int numLIdEntries __attribute__((unused)),
+             ZOLTAN_ID_PTR globalId __attribute__((unused)), ZOLTAN_ID_PTR localId, int dest __attribute__((unused)),
+             int size __attribute__((unused)), char *buf, int *ierr __attribute__((unused)))
 {
   struct cellData *c = (struct cellData *) data;
   memcpy(buf, &(c[localId[0]]), sizeof(struct cellData));
@@ -128,12 +142,12 @@ void ztnPack(void *data, int numGIdEntries, int numLIdEntries,
 /*!
  * Zoltan callback function. This function is executed before migration of data between processes.
  */
-void ztnPre(void *data, int numGIdEntries, int numLIdEntries,
-            int numImport, ZOLTAN_ID_PTR importGlobalIds,
-            ZOLTAN_ID_PTR importLocalIds, int *importProcs,
-            int *importToPart, int numExport,
-            ZOLTAN_ID_PTR exportGlobalIds, ZOLTAN_ID_PTR exportLocalIds,
-            int *exportProcs, int *exportToPart, int *ierr)
+void ztnPre(void *data __attribute__((unused)), int numGIdEntries __attribute__((unused)), int numLIdEntries __attribute__((unused)),
+            int numImport __attribute__((unused)), ZOLTAN_ID_PTR importGlobalIds __attribute__((unused)),
+            ZOLTAN_ID_PTR importLocalIds __attribute__((unused)), int *importProcs __attribute__((unused)),
+            int *importToPart __attribute__((unused)), int numExport __attribute__((unused)),
+            ZOLTAN_ID_PTR exportGlobalIds __attribute__((unused)), ZOLTAN_ID_PTR exportLocalIds __attribute__((unused)),
+            int *exportProcs __attribute__((unused)), int *exportToPart __attribute__((unused)), int *ierr __attribute__((unused)))
 {
   /* any pre communication operations should go here */
 }
@@ -141,21 +155,23 @@ void ztnPre(void *data, int numGIdEntries, int numLIdEntries,
 /*!
  * Zoltan callback function. This function is executed after packing of send buffer and unpacking of receive buffer during migration.
  */
-void ztnMid(void *data, int numGIdEntries, int numLIdEntries,
-            int numImport, ZOLTAN_ID_PTR importGlobalIds,
-            ZOLTAN_ID_PTR importLocalIds, int *importProcs,
-            int *importToPart, int numExport,
-            ZOLTAN_ID_PTR exportGlobalIds, ZOLTAN_ID_PTR exportLocalIds,
-            int *exportProcs, int *exportToPart, int *ierr)
+void ztnMid(void *data, int numGIdEntries __attribute__((unused)), int numLIdEntries __attribute__((unused)),
+            int numImport __attribute__((unused)), ZOLTAN_ID_PTR importGlobalIds __attribute__((unused)),
+            ZOLTAN_ID_PTR importLocalIds __attribute__((unused)), int *importProcs __attribute__((unused)),
+            int *importToPart __attribute__((unused)), int numExport,
+            ZOLTAN_ID_PTR exportGlobalIds __attribute__((unused)), ZOLTAN_ID_PTR exportLocalIds __attribute__((unused)),
+            int *exportProcs __attribute__((unused)), int *exportToPart __attribute__((unused)), int *ierr __attribute__((unused)))
 {
   int pos, i;
-  struct cellData *c = (struct cellData *) data;
+  struct ztnMidData * d = (struct ztnMidData * ) data;
+  struct cellData *c = d->c;
+  int64_t * localCellCount = d->localCellCount;
   pos = 0;
   for (i = 0; i < lnc; i++) {
-    if (i != pos && c[i].gid != -1) {
+    if (i != pos && c[i].gid != (unsigned long) -1) { //TODO why compare unsigned long with -1?
       c[pos] = c[i];
     }
-    if (c[i].gid != -1)
+    if (c[i].gid != (unsigned long) -1)
       pos++;
   }
   lnc = lnc - numExport;
@@ -164,26 +180,32 @@ void ztnMid(void *data, int numGIdEntries, int numLIdEntries,
 /*!
  * Zoltan callback function. This function is executed after migration of data between processes.
  */
-void ztnPost(void *data, int numGIdEntries, int numLIdEntries,
-             int numImport, ZOLTAN_ID_PTR importGlobalIds,
-             ZOLTAN_ID_PTR importLocalIds, int *importProcs,
-             int *importToPart, int numExport,
-             ZOLTAN_ID_PTR exportGlobalIds, ZOLTAN_ID_PTR exportLocalIds,
-             int *exportProcs, int *exportToPart, int *ierr)
+void ztnPost(void *data, int numGIdEntries __attribute__((unused)), int numLIdEntries __attribute__((unused)),
+             int numImport __attribute__((unused)), ZOLTAN_ID_PTR importGlobalIds __attribute__((unused)),
+             ZOLTAN_ID_PTR importLocalIds __attribute__((unused)), int *importProcs __attribute__((unused)),
+             int *importToPart __attribute__((unused)), int numExport __attribute__((unused)),
+             ZOLTAN_ID_PTR exportGlobalIds __attribute__((unused)), ZOLTAN_ID_PTR exportLocalIds __attribute__((unused)),
+             int *exportProcs __attribute__((unused)), int *exportToPart __attribute__((unused)), int *ierr __attribute__((unused)))
 {
+  struct ztnPostData *d = (struct ztnPostData *) data;
+  int64_t * localCellCount = d->localCellCount;
+  int64_t * tlnc = d->tlnc;
   /* any post communication operations should go here */
   /* gather number of cells from each process */
-  MPI_Allgather(&lnc, 1, MPI_LONG_LONG, tlnc, 1, MPI_LONG_LONG,
+  MPI_Allgather(&lnc, 1, MPI_INT64_T, tlnc, 1, MPI_INT64_T,
                 MPI_COMM_WORLD);
 }
 
 /*!
  * Zoltan callback function. This function unpacks data from the receive buffer.
  */
-void ztnUnpack(void *data, int numGIdEntries, ZOLTAN_ID_PTR globalId,
-               int size, char *buf, int *ierr)
+void ztnUnpack(void *data, int numGIdEntries __attribute__((unused)), ZOLTAN_ID_PTR globalId __attribute__((unused)),
+               int size __attribute__((unused)), char *buf, int *ierr __attribute__((unused)))
 {
-  struct cellData *c = (struct cellData *) data;
+  struct ztnMidData * d = (struct ztnMidData * ) data;
+  struct cellData *c = d->c;
+  int64_t * localCellCount = d->localCellCount;
+  //struct cellData *c = (struct cellData *) data;
   memcpy(&c[lnc], buf, sizeof(struct cellData));
   lnc++;
 }
@@ -206,6 +228,11 @@ void decompositionInit(int argc, char **argv)
 
   ztn = Zoltan_Create(MPI_COMM_WORLD);
 
+  ztnMidData.c = cells;
+  ztnMidData.localCellCount = localCellCount;
+  ztnPostData.localCellCount = localCellCount;
+  ztnPostData.tlnc = tlnc;
+
   Zoltan_Set_Param(ztn, "IMBALANCE_TOL", "1.4");
   Zoltan_Set_Param(ztn, "LB_METHOD", "HSFC");	/* Hilbert Space-Filling Curve Partitioning */
   Zoltan_Set_Param(ztn, "NUM_GID_ENTRIES", "1");	/* global ID is 1 integer */
@@ -227,13 +254,13 @@ void decompositionInit(int argc, char **argv)
                 (void (*)()) ztnReturnParticleDataSize, cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_PACK_OBJ_FN_TYPE, (void (*)()) ztnPack, cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_UNPACK_OBJ_FN_TYPE, (void (*)()) ztnUnpack,
-                cells);
+                &ztnMidData);
   Zoltan_Set_Fn(ztn, ZOLTAN_PRE_MIGRATE_PP_FN_TYPE, (void (*)()) ztnPre,
                 cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_MID_MIGRATE_PP_FN_TYPE, (void (*)()) ztnMid,
-                cells);
+                &ztnMidData);
   Zoltan_Set_Fn(ztn, ZOLTAN_POST_MIGRATE_PP_FN_TYPE, (void (*)()) ztnPost,
-                cells);
+                &ztnPostData);
 
 }
 

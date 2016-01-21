@@ -24,7 +24,7 @@
  *  \brief contains various Timothy inline functions
  */
 #ifndef TIMOTHY_INLINE_H
-#define TIMOTHY_INLINE_H 
+#define TIMOTHY_INLINE_H
 #include <math.h>
 #include "global.h"
 MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode)
