@@ -103,14 +103,22 @@ struct cellCountInfo{
   int64_t number_of_cells;
   int64_t g0_phase_number_of_cells;
   int64_t g1_phase_number_of_cells;
+  int64_t s_phase_number_of_cells2;
   int64_t g2_phase_number_of_cells;
-  //TODO complet lost fields
+  int64_t m_phase_number_of_cells2;
+  int64_t number_of_cancer_cells;
+  int64_t number_of_normal_cells;
+  int64_t number_of_vessel_cells;
+  int64_t number_of_bone_cells;
+
+  //TODO check names, alle neded?
 };
 
 struct cellsInfo{
   struct cellCountInfo localCellCount;
   struct cellCountInfo totalCellCount;
   struct cellData * cells;
+  double ** cellFields;
 };
 
 MIC_ATTR int64_t localCellCount[numberOfCounts];
