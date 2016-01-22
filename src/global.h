@@ -96,7 +96,27 @@ double **cellFields;				/* fields value for each cell - interpolated from global
 MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
-<<<<<<< HEAD
+struct cellCountInfo{
+  int64_t number_of_cells;
+  int64_t g0_phase_number_of_cells;
+  int64_t g1_phase_number_of_cells;
+  int64_t s_phase_number_of_cells2;
+  int64_t g2_phase_number_of_cells;
+  int64_t m_phase_number_of_cells2;
+  int64_t number_of_cancer_cells;
+  int64_t number_of_necrotic_cells;
+  int64_t number_of_vessel_cells;
+  int64_t number_of_bone_cells;
+
+  //TODO check names, all needed?
+};
+
+struct cellsInfo{
+  struct cellCountInfo localCellCount;
+  struct cellCountInfo totalCellCount;
+  struct cellData * cells;
+  double ** cellFields;
+};
 #define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
 
 MIC_ATTR int64_t localCellCount[numberOfCounts];	/* array storing local cell counts */
@@ -125,63 +145,6 @@ int64_t totalCellCount[numberOfCounts];			/* array storing global cell counts */
 #define lbnc  localCellCount[9]	/* local number of bone cells */
 
 int64_t *tlnc;		/* array storing information about local number of cells on all parallel processes */ 
-=======
-int64_t maxCells;
-#define numberOfCounts 10
-
-struct cellCountInfo{
-  int64_t number_of_cells;
-  int64_t g0_phase_number_of_cells;
-  int64_t g1_phase_number_of_cells;
-  int64_t s_phase_number_of_cells2;
-  int64_t g2_phase_number_of_cells;
-  int64_t m_phase_number_of_cells2;
-  int64_t number_of_cancer_cells;
-  int64_t number_of_normal_cells;
-  int64_t number_of_vessel_cells;
-  int64_t number_of_bone_cells;
-
-  //TODO check names, alle neded?
-};
-
-struct cellsInfo{
-  struct cellCountInfo localCellCount;
-  struct cellCountInfo totalCellCount;
-  struct cellData * cells;
-  double ** cellFields;
-};
-
-MIC_ATTR int64_t localCellCount[numberOfCounts];
-int64_t totalCellCount[numberOfCounts];
-
-#define nc   totalCellCount[0]
-#define g0nc totalCellCount[1]
-#define g1nc totalCellCount[2]
-#define snc  totalCellCount[3]
-#define g2nc totalCellCount[4]
-#define mnc  totalCellCount[5]
-#define cnc  totalCellCount[6]
-#define nnc  totalCellCount[7]
-#define vc   totalCellCount[8]
-#define bnc  totalCellCount[9]
-
-#define lnc   localCellCount[0]
-#define lg0nc localCellCount[1]
-#define lg1nc localCellCount[2]
-#define lsnc  localCellCount[3]
-#define lg2nc localCellCount[4]
-#define lmnc  localCellCount[5]
-#define lcnc  localCellCount[6]
-#define lnnc  localCellCount[7]
-#define lvc   localCellCount[8]
-#define lbnc  localCellCount[9]
-
-int64_t *tlnc;
-
-int scsim;
-int bvsim;
-int bnsim;
->>>>>>> 782ea2f97bdfe60ff11953ab0eea1a9e3afdda8c
 
 int nscstages; 		/* number of stem cells stages */
 double *sctprob; 	/* stem cells stages transition probabilities */
