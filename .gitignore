@@ -2,6 +2,7 @@ timothy
 *.kate-swp
 result
 timothy.kdev4
+*.orig
 # Created by https://www.gitignore.io/api/c++,c,vim,latex,intellij,cmake
 
 ### C++ ###

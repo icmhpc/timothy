@@ -923,7 +923,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].density;
     if (lnc > 1)
       jumpOut[nfOut] =
-         (& cells[1].density) - (& cells[0].density);
+        (& cells[1].density) - (& cells[0].density);
     else
       jumpOut[nfOut] = 0;
 

@@ -78,7 +78,7 @@ int initBone()
     ret=fscanf(fh2,"%*[^\n]\n");
     /* read dimensions */
     ret=fscanf(fh2,"%s",text);
-    //TODO why? where else? 
+    //TODO why? where else?
     if(strcmp(text,"dims")==0) {
       ret=fscanf(fh2,"%d %d %d\n",&ax,&ay,&az);
     }

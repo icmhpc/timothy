@@ -3,5 +3,5 @@
 void tempEnvInitSystem();
 void tempEnvInitBC();
 void tempEnvInitSolver();
-void tempEnvSolve(); 
+void tempEnvSolve();
 #endif /* ifndef TIMOTHY_TEMPF_H */

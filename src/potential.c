@@ -285,8 +285,8 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
     v = recvDensPotData[p1].v;
     density = recvDensPotData[p1].density;
     size = recvData[p1].size;
-  } 
-  
+  }
+
   dist = 1; // TODO check
   if (sdim == 2)
     dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
