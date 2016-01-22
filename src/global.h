@@ -96,48 +96,43 @@ double **cellFields;				/* fields value for each cell - interpolated from global
 MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
-int64_t maxCells;
-#define numberOfCounts 10
+#define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
 
-MIC_ATTR int64_t localCellCount[numberOfCounts];
-int64_t totalCellCount[numberOfCounts];
+MIC_ATTR int64_t localCellCount[numberOfCounts];	/* array storing local cell counts */
+int64_t totalCellCount[numberOfCounts];			/* array storing global cell counts */
 
-#define nc   totalCellCount[0]
-#define g0nc totalCellCount[1]
-#define g1nc totalCellCount[2]
-#define snc  totalCellCount[3]
-#define g2nc totalCellCount[4]
-#define mnc  totalCellCount[5]
-#define cnc  totalCellCount[6]
-#define nnc  totalCellCount[7]
-#define vc   totalCellCount[8]
-#define bnc  totalCellCount[9]
+#define nc   totalCellCount[0]	/* global number of cells */
+#define g0nc totalCellCount[1]	/* global number of cells in G0 phase */
+#define g1nc totalCellCount[2]	/* global number of cells in G1 phase */
+#define snc  totalCellCount[3]	/* global number of cells in S phase */
+#define g2nc totalCellCount[4]	/* global number of cells in G2 phase */
+#define mnc  totalCellCount[5]	/* global number of cells in M phase */
+#define cnc  totalCellCount[6]	/* global number of cancer cells */
+#define nnc  totalCellCount[7]	/* global number of necrotic cells */
+#define vc   totalCellCount[8]	/* global number of vessel cells */
+#define bnc  totalCellCount[9]	/* global number of bone cells */
 
-#define lnc   localCellCount[0]
-#define lg0nc localCellCount[1]
-#define lg1nc localCellCount[2]
-#define lsnc  localCellCount[3]
-#define lg2nc localCellCount[4]
-#define lmnc  localCellCount[5]
-#define lcnc  localCellCount[6]
-#define lnnc  localCellCount[7]
-#define lvc   localCellCount[8]
-#define lbnc  localCellCount[9]
+#define lnc   localCellCount[0]	/* local number of cells */
+#define lg0nc localCellCount[1]	/* local number of cells in G0 phase */
+#define lg1nc localCellCount[2]	/* local number of cells in G1 phase */
+#define lsnc  localCellCount[3]	/* local number of cells in S phase */
+#define lg2nc localCellCount[4]	/* local number of cells in G2 phase */
+#define lmnc  localCellCount[5]	/* local number of cells in M phase */
+#define lcnc  localCellCount[6]	/* local number of cancer cells */
+#define lnnc  localCellCount[7]	/* local number of necrotic cells */
+#define lvc   localCellCount[8]	/* local number of vessel cells */
+#define lbnc  localCellCount[9]	/* local number of bone cells */
 
-int64_t *tlnc;
-
-int scsim;
-int bvsim;
-int bnsim;
+int64_t *tlnc;		/* array storing information about local number of cells on all parallel processes */ 
 
 int nscstages; 		/* number of stem cells stages */
 double *sctprob; 	/* stem cells stages transition probabilities */
 int64_t *nscinst; 	/* local number of stem cells in different stages */
 int64_t *gnscinst; 	/* global number of stem cells in different stages */
-int64_t localbc;
-int64_t globalbc;
+int64_t localbc;	/* local number of blood cells, used in stem cells simulation only */
+int64_t globalbc;	/* global number of blood cells, used in stem cells simulation only */
 
-int64_t middleCellIdx;
+int64_t middleCellIdx;	/* index of a cell closest to the center of mass of the simulation */
 /* Parallelization */
 
 //#pragma pack(1)
@@ -337,12 +332,6 @@ struct doubleVector3d MIC_ATTR affShift;
 double MIC_ATTR affScale;
 int64_t root;
 
-/*typedef struct _heap {
-  int size;
-  int count;
-  struct bht_node **data;
-} heap;
-*/
 typedef struct _octHeap {
   int size;
   int count;
@@ -352,4 +341,13 @@ typedef struct _octHeap {
 int MIC_ATTR tnc;
 
 int ni;
+
+
+/* GLOBAL SETTINGS */
+int64_t maxCells;	/* maximal number of cells (set in parameter file) */
+int scsim;		/* if =1 <- stem cell simulation */
+int bvsim;		/* if =1 <- blood vessel simulation */
+int bnsim;		/* if =1 <- bone simulation */
+
+
 #endif
