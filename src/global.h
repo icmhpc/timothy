@@ -99,6 +99,20 @@ MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each c
 int64_t maxCells;
 #define numberOfCounts 10
 
+struct cellCountInfo{
+  int64_t number_of_cells;
+  int64_t g0_phase_number_of_cells;
+  int64_t g1_phase_number_of_cells;
+  int64_t g2_phase_number_of_cells;
+  //TODO complet lost fields
+};
+
+struct cellsInfo{
+  struct cellCountInfo localCellCount;
+  struct cellCountInfo totalCellCount;
+  struct cellData * cells;
+};
+
 MIC_ATTR int64_t localCellCount[numberOfCounts];
 int64_t totalCellCount[numberOfCounts];
 
@@ -155,6 +169,10 @@ struct partData { /* this structure keeps cell data needed in potential computat
 struct densPotData { /* this structure keeps additional cell data (potential & density) */
   double v;
   double density;
+};
+
+struct settings{
+
 };
 
 //#define MAX_CELLS_PER_PROC 10485760
