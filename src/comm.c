@@ -71,7 +71,7 @@ void createExportList()
 
   numExp = 0;
   numImp = 0;
-  if (nc < MPIsize || MPIsize == 1)
+  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
     return;
 
   expList =
@@ -90,7 +90,7 @@ void createExportList()
 
     cells[p].halo = 0;
 
-    if (nc < MPIsize)
+    if (nc < MPIsize*MIN_CELLS_PER_PROC)
       continue;
 
     r = h * 1.5;
@@ -156,7 +156,7 @@ void createExportList()
  */
 void commCleanup()
 {
-  if (nc < MPIsize || MPIsize == 1)
+  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
     return;
 
 #ifdef __MIC__
@@ -184,7 +184,7 @@ void cellsExchangeInit()
 {
   int i;
 
-  if (nc < MPIsize || MPIsize == 1)
+  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
     return;
 
   /* allocate communication buffers */
@@ -236,7 +236,7 @@ void cellsExchangeWait()
   int i;
   MPI_Status status;
 
-  if (nc < MPIsize || MPIsize == 1)
+  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
     return;
 
   /* wait for send completion */
@@ -269,7 +269,7 @@ void densPotExchangeInit()
 {
   int i;
 
-  if (nc < MPIsize || MPIsize == 1)
+  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
     return;
 
   /* allocate communication buffers */
@@ -319,7 +319,7 @@ void densPotExchangeWait()
   int i;
   MPI_Status status;
 
-  if (nc < MPIsize || MPIsize == 1)
+  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
     return;
 
   // Wait for send completion

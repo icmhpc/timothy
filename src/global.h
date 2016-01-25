@@ -61,6 +61,7 @@
 #define CPUARCH "x86_32"
 #endif
 
+
 /* cell data structure */
 //#pragma pack(1)
 struct cellData {
@@ -96,8 +97,21 @@ double **cellFields;				/* fields value for each cell - interpolated from global
 MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
-<<<<<<< HEAD
 #define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
+
+struct cellCountInfo{
+  int64_t number_of_cells;
+  int64_t g0_phase_number_of_cells;
+  int64_t g1_phase_number_of_cells;
+  int64_t g2_phase_number_of_cells;
+  //TODO complet lost fields
+};
+
+struct cellsInfo{
+  struct cellCountInfo localCellCount;
+  struct cellCountInfo totalCellCount;
+  struct cellData * cells;
+};
 
 MIC_ATTR int64_t localCellCount[numberOfCounts];	/* array storing local cell counts */
 int64_t totalCellCount[numberOfCounts];			/* array storing global cell counts */
@@ -125,55 +139,6 @@ int64_t totalCellCount[numberOfCounts];			/* array storing global cell counts */
 #define lbnc  localCellCount[9]	/* local number of bone cells */
 
 int64_t *tlnc;		/* array storing information about local number of cells on all parallel processes */ 
-=======
-int64_t maxCells;
-#define numberOfCounts 10
-
-struct cellCountInfo{
-  int64_t number_of_cells;
-  int64_t g0_phase_number_of_cells;
-  int64_t g1_phase_number_of_cells;
-  int64_t g2_phase_number_of_cells;
-  //TODO complet lost fields
-};
-
-struct cellsInfo{
-  struct cellCountInfo localCellCount;
-  struct cellCountInfo totalCellCount;
-  struct cellData * cells;
-};
-
-MIC_ATTR int64_t localCellCount[numberOfCounts];
-int64_t totalCellCount[numberOfCounts];
-
-#define nc   totalCellCount[0]
-#define g0nc totalCellCount[1]
-#define g1nc totalCellCount[2]
-#define snc  totalCellCount[3]
-#define g2nc totalCellCount[4]
-#define mnc  totalCellCount[5]
-#define cnc  totalCellCount[6]
-#define nnc  totalCellCount[7]
-#define vc   totalCellCount[8]
-#define bnc  totalCellCount[9]
-
-#define lnc   localCellCount[0]
-#define lg0nc localCellCount[1]
-#define lg1nc localCellCount[2]
-#define lsnc  localCellCount[3]
-#define lg2nc localCellCount[4]
-#define lmnc  localCellCount[5]
-#define lcnc  localCellCount[6]
-#define lnnc  localCellCount[7]
-#define lvc   localCellCount[8]
-#define lbnc  localCellCount[9]
-
-int64_t *tlnc;
-
-int scsim;
-int bvsim;
-int bnsim;
->>>>>>> 782ea2f97bdfe60ff11953ab0eea1a9e3afdda8c
 
 int nscstages; 		/* number of stem cells stages */
 double *sctprob; 	/* stem cells stages transition probabilities */
@@ -206,6 +171,8 @@ struct settings{
 
 };
 
+#define MIN_CELLS_PER_PROC 128
+
 //#define MAX_CELLS_PER_PROC 10485760
 int maxCellsPerProc;
 
@@ -234,43 +201,15 @@ MIC_ATTR int numImp;
 /* system */
 int endian;		/* =0 - big endian, =1 - little endian */
 
-/* model setup */
-int MIC_ATTR sdim; 		/* dimensionality of the system */
-int mitrand; 		/* mitosis random direction */
-int MIC_ATTR nx; 		/* box x size */
-int ny; 		/* box y size */
-int nz; 		/* box z size */
-char rstFileName[128]; 	/* restart file name */
-char outdir[128];	/* output directory */
-char logdir[128];       /* log directory */
-char rng[3]; 		/* type of the Random Number Generator */
-int nsteps; 		/* number of simulation steps */
-
 /* simulation */
 int simStart;  	        /* start simulation flag */
 int step; 		/* step number */
 float tstep; 		/* time step size */
 float simTime;          /* time of the simulation */
-float maxSpeed;         /* maximal displacement of cells in a single time step given by fraction of cell size */
 float maxSpeedInUnits;  /* maximal displacement in cm/s */
-char cOutType[3];
-char fOutType[3];
 int vtkout;
 int povout;
 int vnfout;
-
-/* cell cycle */
-float g1;               /* mean duration of G1 phase - healthy tissue */
-float s;                /* mean duration of S phase - healthy tissue */
-float g2;               /* mean duration of G2 phase - healthy tissue */
-float m;                /* mean duration of M phase - healthy tissue */
-float v;                /* variability of duration of cell cycles */
-float rd;               /* random death probability */
-
-float cg1;              /* mean duration of G1 phase - cancer cells */
-float cs;               /* mean duration of S phase - cancer cells */
-float cg2;              /* mean duration of G2 phase - cancer cells */
-float cm;               /* mean duration of M phase - cancer cells */
 
 double MIC_ATTR csize;           /* cell initial size, no units */
 double csizeInUnits;    /* cell size in micrometers */
@@ -287,15 +226,10 @@ double densityCriticalLevel1;
 double densityCriticalLevel2;
 
 int rst;
-int rstReset;
 
 int statOutStep;
 int rstOutStep;
 int vtkOutStep;
-
-int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
-
-int tgs;		/* - tumor growth simulation, 0 - no tumor growth */
 
 struct doubleVector3d {
   double x;
@@ -330,10 +264,6 @@ float dummy; /* dummy float parameter in the restart file (it can be used if nec
 double boxmin[3],boxmax[3];
 double boxsize;
 
-float secondsPerStep;
-
-float gfDt;
-float gfH;
 
 int gfIter;
 int gfIterPerStep;
@@ -402,6 +332,38 @@ int64_t maxCells;	/* maximal number of cells (set in parameter file) */
 int scsim;		/* if =1 <- stem cell simulation */
 int bvsim;		/* if =1 <- blood vessel simulation */
 int bnsim;		/* if =1 <- bone simulation */
+int MIC_ATTR sdim;	/* dimensionality of the system */
+int mitrand;            /* mitosis random direction */
+int MIC_ATTR nx;	/* box x size */
+int ny;                 /* box y size */
+int nz;                 /* box z size */
+char rstFileName[128];  /* restart file name */
+char outdir[128];       /* output directory */
+char logdir[128];       /* log directory */
+char rng[3];            /* type of the Random Number Generator */
+int nsteps;             /* number of simulation steps */
+float maxSpeed;         /* maximal displacement of cells in a single time step given by fraction of cell size */
+char cOutType[3];	/* format of cellular data output files (VTK or POV) */
+char fOutType[3];	/* format of fields data output files (currently only VNF) */
+float g1;               /* mean duration of G1 phase - healthy tissue */
+float s;                /* mean duration of S phase - healthy tissue */
+float g2;               /* mean duration of G2 phase - healthy tissue */
+float m;                /* mean duration of M phase - healthy tissue */
+float v;                /* variability of duration of cell cycles */
+float rd;               /* random death probability */
+float cg1;              /* mean duration of G1 phase - cancer cells */
+float cs;               /* mean duration of S phase - cancer cells */
+float cg2;              /* mean duration of G2 phase - cancer cells */
+float cm;               /* mean duration of M phase - cancer cells */
+float secondsPerStep;   /* lenght of a single simulation step in seconds */
+int rstReset;		/* if =1 <- reset simulation parameters of restart file */
+int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
+int tgs;                /* - tumor growth simulation, 0 - no tumor growth */
+int statOutStep;        
+int rstOutStep;
+int vtkOutStep;
+float gfDt;
+float gfH;
 
 
 #endif

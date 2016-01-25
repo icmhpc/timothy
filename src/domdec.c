@@ -272,7 +272,7 @@ void decompositionExecute()
 {
   int rc;
 
-  if (nc < MPIsize)
+  if (nc < MPIsize*MIN_CELLS_PER_PROC)
     return;
 
   rc = Zoltan_LB_Partition(ztn,	/* input (all remaining fields are output) */
