@@ -97,21 +97,28 @@ double **cellFields;				/* fields value for each cell - interpolated from global
 MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
-#define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
-
 struct cellCountInfo{
   int64_t number_of_cells;
   int64_t g0_phase_number_of_cells;
   int64_t g1_phase_number_of_cells;
+  int64_t s_phase_number_of_cells2;
   int64_t g2_phase_number_of_cells;
-  //TODO complet lost fields
+  int64_t m_phase_number_of_cells2;
+  int64_t number_of_cancer_cells;
+  int64_t number_of_necrotic_cells;
+  int64_t number_of_vessel_cells;
+  int64_t number_of_bone_cells;
+
+  //TODO check names, all needed?
 };
 
 struct cellsInfo{
   struct cellCountInfo localCellCount;
   struct cellCountInfo totalCellCount;
   struct cellData * cells;
+  double ** cellFields;
 };
+#define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
 
 MIC_ATTR int64_t localCellCount[numberOfCounts];	/* array storing local cell counts */
 int64_t totalCellCount[numberOfCounts];			/* array storing global cell counts */
@@ -167,9 +174,7 @@ struct densPotData { /* this structure keeps additional cell data (potential & d
   double density;
 };
 
-struct settings{
 
-};
 
 #define MIN_CELLS_PER_PROC 128
 
@@ -207,10 +212,35 @@ int step; 		/* step number */
 float tstep; 		/* time step size */
 float simTime;          /* time of the simulation */
 float maxSpeedInUnits;  /* maximal displacement in cm/s */
-int vtkout;
-int povout;
-int vnfout;
+int vtkout; //TODO [czaki] setings?
+int povout; //TODO [czaki] setings?
+int vnfout; //TODO [czaki] setings?
 
+/* cell cycle */
+
+struct cellTypeData{
+  float g1;               /* mean duration of G1 phase - healthy tissue */
+  float s;                /* mean duration of S phase - healthy tissue */
+  float g2;               /* mean duration of G2 phase - healthy tissue */
+  float m;                /* mean duration of M phase - healthy tissue */
+  float v;                /* variability of duration of cell cycles */
+  float rd;               /* random death probability */
+  char * name;
+};
+
+float g1;               /* mean duration of G1 phase - healthy tissue */
+float s;                /* mean duration of S phase - healthy tissue */
+float g2;               /* mean duration of G2 phase - healthy tissue */
+float m;                /* mean duration of M phase - healthy tissue */
+float v;                /* variability of duration of cell cycles */
+float rd;               /* random death probability */
+
+float cg1;              /* mean duration of G1 phase - cancer cells */
+float cs;               /* mean duration of S phase - cancer cells */
+float cg2;              /* mean duration of G2 phase - cancer cells */
+float cm;               /* mean duration of M phase - cancer cells */
+
+//TODO [czaki] next variables should be global or specyfic for each cell type?
 double MIC_ATTR csize;           /* cell initial size, no units */
 double csizeInUnits;    /* cell size in micrometers */
 double cellVolume;      /* cell volume */
@@ -220,16 +250,12 @@ double MIC_ATTR h3;              /* 3rd power of h */
 double MIC_ATTR h4;              /* 4th power of h */
 
 int cancer;
-int64_t rsum;
+int64_t rsum; //TODO [czaki] explanation need  
 
-double densityCriticalLevel1;
-double densityCriticalLevel2;
+double densityCriticalLevel1; //TODO [czaki] setings?
+double densityCriticalLevel2; //TODO [czaki] setings? 
 
 int rst;
-
-int statOutStep;
-int rstOutStep;
-int vtkOutStep;
 
 struct doubleVector3d {
   double x;
@@ -324,8 +350,14 @@ typedef struct _octHeap {
 
 int MIC_ATTR tnc;
 
-int ni;
+int ni; //TODO [czaki] what it is?
 
+struct settings{
+  int64_t maxCells;	/* maximal number of cells (set in parameter file) */
+  int scsim;		/* if =1 <- stem cell simulation */
+  int bvsim;		/* if =1 <- blood vessel simulation */
+  int bnsim;		/* if =1 <- bone simulation */
+};
 
 /* GLOBAL SETTINGS */
 int64_t maxCells;	/* maximal number of cells (set in parameter file) */
