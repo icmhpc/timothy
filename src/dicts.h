@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../../../../../../usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h"
+#include "../../../../../../usr/include/string.h"
+
 struct str_uint16_pair{
   char * first;
   uint16_t second;
@@ -64,8 +67,32 @@ str_uint16_dict * create_dict(str_uint16_pair * in_data, size_t size){
 int32_t get_value(str_uint16_dict * dict, char* key){
   str_uint16_pair * res = bsearch(key, dict->members, dict->size, sizeof(str_uint16_pair), compare_str_and_str_uint16_pair);
   if (res == NULL)
-    return -1;
-  return res->second;
+    return  (int32_t) -1;
+  return (int32_t) res->second;
+}
+
+/*!
+ * Function to calculate total size of dictionary. Useful to send wia MPI or network
+ */
+size_t sizeof_dict(str_uint16_dict * dict){
+  size_t result = sizeof(str_uint16_dict);
+  result += sizeof(str_uint16_pair) * sizeof(str_uint16_pair);
+  for(size_t i = 0; i < dict->size; i++){
+    result += strlen(dict->members[i].first);
+  }
+  return result;
+}
+
+/*!
+ * Function to set properly pointers inside struct
+ */
+void regenerate_dict(str_uint16_dict * dict){
+  dict->members = (str_uint16_pair *) (dict + 1);
+  char * strings = (char*) (dict->members + dict->size);
+  for (size_t i = 0; i < dict->size; i++){
+    dict->members[i].first = strings;
+    strings += strlen(strings) + 1;
+  }
 }
 
 #endif /* ifndef TIMOTHY_DICTS */
