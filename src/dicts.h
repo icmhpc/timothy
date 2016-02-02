@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../../../../../../usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h"
-#include "../../../../../../usr/include/string.h"
 
 struct str_uint16_pair{
   char * first;
