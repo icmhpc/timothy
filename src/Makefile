@@ -26,13 +26,13 @@
 SYSTYPE = gnu-x86
 
 # Czaki laptop configuration (gnu-x86)
-ZOLTANLIB=-L/home/czaki/zoltan/3.82/lib -lzoltan
+ZOLTANLIB=-L/home/czaki/libs/zoltan/3.82/lib -lzoltan
 SPRNGLIB=-L/usr/lib -lsprng
 GMPLIB=-lgmp
-HYPRELIB=-L/home/czaki/hypre/2.10/lib -lHYPRE
-ZOLTANINC=-I/home/czaki/zoltan/3.82/include
+HYPRELIB=-L/home/czaki/libs/hypre/2.10/lib -lHYPRE
+ZOLTANINC=-I/home/czaki/libs/zoltan/3.82/include
 SPRNGINC=-I/usr/include/sprng
-HYPREINC= -I/home/czaki/hypre/2.10/include
+HYPREINC= -I/home/czaki/libs/hypre/2.10/include
 MPIINC=-I/usr/include/mpi
 
 # MC laptop configuration
@@ -98,8 +98,8 @@ endif
 
 # General GNU x86 configuration
 ifeq ($(SYSTYPE),gnu-x86)
-CC = mpicc -g -Wall -Wextra
-OPT = -O2 -fopenmp  -ffast-math -ftree-vectorize -finline-functions -Winline 
+CC = mpicc 
+OPT = -O2 -fopenmp  -ffast-math -ftree-vectorize -finline-functions -Winline -Wall -Wextra -g
 DEFS = #-DDEBUG
 INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)
 LIBS = -lm $(ZOLTANLIB) $(SPRNGLIB) $(GMPLIB) $(HYPRELIB)
@@ -126,6 +126,9 @@ INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)
 
 
 EXEC = ../timothy
+VALIDATOR = ../validator
+
+all: $(EXEC) $(VALIDATOR)
 
 OPTIONS = $(OPT) $(DEFS)
 
@@ -140,8 +143,24 @@ $(EXEC): $(OBJS)
 
 $(OBJS): $(INCL)
 
+VALIDATOR_FLAGS = -O0 -Winline -Wall -Wextra -g
+
+VALIDATOR_OBJS = validator.o ini_parser/ini_parser.o
+
+VALIDATOR_INLC = global.h ini_parser/ini_parser.h
+
+$(VALIDATOR): $(VALIDATOR_OBJS)
+	gcc -Wall -Wextra $(VALIDATOR_OBJS) -o $(VALIDATOR)
+
+validator.o: validator.c ini_parser/ini_parser.h
+	cc -c $(VALIDATOR_FLAGS) $< -o $@
+
+ini_parser/ini_parser.o: ini_parser/ini_parser.c ini_parser/ini_parser.h
+	cc -c $(VALIDATOR_FLAGS) $< -o $@
+
+.PHONY: clean
 clean:
-	rm -f $(OBJS); rm -f $(EXEC)
+	rm -f $(OBJS); rm -f $(EXEC); rm -f $(VALIDATOR_OBJS); rm -f $(VALIDATOR)
 
 doc:
 	doxygen Doxyfile
