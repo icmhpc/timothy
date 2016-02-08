@@ -133,28 +133,7 @@ enum parse_error readField(FILE * f, struct fields_of_ini * field, int *line_num
     }
     goto name_copy;
   }
-  bool is_all_digit = true;
-  bool can_be_float = true;
-  int sep_num = 0;
-  pos = 0;
-  if (value_buffer[pos] == '+' || value_buffer[pos] == '-') pos++;
-  while (value_buffer[pos] != '\0'){
-    is_all_digit = is_all_digit && isdigit(value_buffer[pos]);
-    can_be_float = can_be_float && (isdigit(value_buffer[pos]) || value_buffer[pos] == ',' || value_buffer[pos] == '.');
-    if (value_buffer[pos] == ',' || value_buffer[pos] == '.')
-      sep_num += 1;
-    pos += 1;
-  }
-  if (is_all_digit){
-    field->type = NUMBER_FIELD;
-    field->data.i = atoi(value_buffer);
-    goto name_copy;
-  }
-  if (can_be_float && sep_num < 2){
-    field->type = FLOAT_FIELD;
-    field->data.d = atof(value_buffer);
-    goto name_copy;
-  }
+
 
   if (isalpha(value_buffer[0])){
     if ('T' == value_buffer[0] && (strcmp(value_buffer, "TRUE") || strcmp(value_buffer, "True"))){
@@ -175,6 +154,23 @@ enum parse_error readField(FILE * f, struct fields_of_ini * field, int *line_num
     if ('f' == value_buffer[0] && strcmp(value_buffer, "false")){
       field->type = BOOLEAN_FIELD;
       field->data.i = false;
+      goto name_copy;
+    }
+  }
+  {
+    int int_res;
+    double float_res;
+    int len, len2;
+    sscanf(value_buffer, "%lf%n", &float_res, &len);
+    sscanf(value_buffer, "%d%n", &int_res, &len2);
+    if (strlen(value_buffer) == (size_t) len){
+      if (strlen(value_buffer) == (size_t) len2){
+        field->type = NUMBER_FIELD;
+        field->data.i = int_res;
+      } else {
+        field->type = FLOAT_FIELD;
+        field->data.d = float_res;
+      }
       goto name_copy;
     }
   }

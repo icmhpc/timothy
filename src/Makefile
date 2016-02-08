@@ -23,17 +23,17 @@
 #SYSTYPE = ibm-p775
 #SYSTYPE = ibm-bgq
 #SYSTYPE = intel-mic
-SYSTYPE = gnu-x86
+#SYSTYPE = gnu-x86
 
 # Czaki laptop configuration (gnu-x86)
-ZOLTANLIB=-L/home/czaki/libs/zoltan/3.82/lib -lzoltan
-SPRNGLIB=-L/usr/lib -lsprng
-GMPLIB=-lgmp
-HYPRELIB=-L/home/czaki/libs/hypre/2.10/lib -lHYPRE
-ZOLTANINC=-I/home/czaki/libs/zoltan/3.82/include
-SPRNGINC=-I/usr/include/sprng
-HYPREINC= -I/home/czaki/libs/hypre/2.10/include
-MPIINC=-I/usr/include/mpi
+#ZOLTANLIB=-L/home/czaki/libs/zoltan/3.82/lib -lzoltan
+#SPRNGLIB=-L/usr/lib -lsprng
+#GMPLIB=-lgmp
+#HYPRELIB=-L/home/czaki/libs/hypre/2.10/lib -lHYPRE
+#ZOLTANINC=-I/home/czaki/libs/zoltan/3.82/include
+#SPRNGINC=-I/usr/include/sprng
+#HYPREINC= -I/home/czaki/libs/hypre/2.10/include
+#MPIINC=-I/usr/include/mpi
 
 # MC laptop configuration
 #ZOLTANLIB=-L/opt/zoltan/3.81/lib -lzoltan
@@ -75,6 +75,8 @@ MPIINC=-I/usr/include/mpi
 #HYPREINC=-I/opt/hypre/2.9.0b/bigint_omp/include
 #MPIINC=
 
+include makefile_include/default.mk
+
 #############################################################################
 # Prepare configuration for your system 
 #
@@ -86,6 +88,8 @@ MPIINC=-I/usr/include/mpi
 #LIBS = -lm -L/opt/zoltan/3.81/lib -lzoltan -L/opt/sprng/lib -lsprng -lgmp -L/opt/hypre/2.9.0b/lib -lHYPRE -lblas -llapack
 #endif
 #############################################################################
+
+
 
 # IBM BG/Q configuration
 ifeq ($(SYSTYPE),ibm-bgq)

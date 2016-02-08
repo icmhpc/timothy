@@ -26,7 +26,7 @@ enum ini_fields_type{
 
 union ini_data{
     int i;
-    float f;
+    //float f;
     double d;
     char * str;
 };
