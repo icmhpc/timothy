@@ -110,12 +110,12 @@ void ioWriteFields(int);
 void printStepNum();
 void saveRstFile();
 void printBasicInfo();
-void initParams();
+void initParams(void);
 void printHelp();
 void printExecInfo();
 void readParams(int argc, char** argv);
 void defineColormaps();
-void switchStdOut();
+void switchStdOut(const char *newStream);
 void revertStdOut();
 #endif // TIMOTHY_IO_H
 

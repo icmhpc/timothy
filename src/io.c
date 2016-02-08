@@ -104,7 +104,7 @@ void printHelp()
 /*!
  * This function initializes all parameters.
  */
-void initParams(int argc __attribute__((unused)), char **argv __attribute__((unused)))
+void initParams()
 {
 
   int nr;
