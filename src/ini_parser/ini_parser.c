@@ -400,7 +400,7 @@ int getNumericValue(char * section_name, char * field_name,  struct parsed_confi
 }
 
 int getFieldType(char *section_name, char *field_name, struct parsed_config *c) {
-  struct fields_of_ini * f = getField(section_name, field_name, c)
+  struct fields_of_ini * f = getField(section_name, field_name, c);
   if (NULL == f)
     return -1;
   return f->type;
