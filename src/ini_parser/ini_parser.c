@@ -1,15 +1,15 @@
 //
-// Created by czaki on 02.02.16.
+// Created by Grzegorz Bokota on 02.02.16.
 //
 
 #include "ini_parser.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdbool.h>
 
 static const size_t max_buff_size = 400;
 static const size_t max_buff_value_size = 4000;
+
 
 void flushComment(FILE * f){
   int character;
@@ -138,22 +138,22 @@ enum parse_error readField(FILE * f, struct fields_of_ini * field, int *line_num
   if (isalpha(value_buffer[0])){
     if ('T' == value_buffer[0] && (strcmp(value_buffer, "TRUE") || strcmp(value_buffer, "True"))){
       field->type = BOOLEAN_FIELD;
-      field->data.i = true;
+      field->data.b = true;
       goto name_copy;
     }
     if ('F' == value_buffer[0] && (strcmp(value_buffer, "FALSE") || strcmp(value_buffer, "False"))){
       field->type = BOOLEAN_FIELD;
-      field->data.i = false;
+      field->data.b = false;
       goto name_copy;
     }
     if ('t' == value_buffer[0] && strcmp(value_buffer, "true")){
       field->type = BOOLEAN_FIELD;
-      field->data.i = true;
+      field->data.b = true;
       goto name_copy;
     }
     if ('f' == value_buffer[0] && strcmp(value_buffer, "false")){
       field->type = BOOLEAN_FIELD;
-      field->data.i = false;
+      field->data.b = false;
       goto name_copy;
     }
   }
@@ -310,6 +310,8 @@ int readFromFile(FILE * f, struct parsed_config * res){
         if (err != OK) {
           deleteSectionList(section_list, number_of_section);
           free(section_list);
+          res->number_of_sections = (size_t) err;
+          res->sections_list = NULL;
           return err;
         }
         number_of_section += 1;
@@ -340,22 +342,103 @@ int readFromPath(char * path, struct parsed_config * res)
 };
 
 int sectionExist(char * name, struct parsed_config * c) {
-  return NULL != bsearch(name, c->sections_list, c->number_of_sections, sizeof(struct section_of_ini), sectionNameCompare);
+  return NULL != getSection(name, c);
+}
+
+struct section_of_ini * getSection(char * section_name, struct parsed_config * c){
+  return bsearch(section_name, c->sections_list, c->number_of_sections, sizeof(struct section_of_ini), sectionNameCompare);
+}
+
+struct fields_of_ini * getFieldFromSection(char * field_name, struct section_of_ini* section){
+  return bsearch(field_name, section->fields, section->number_of_fields, sizeof(struct fields_of_ini), fieldNameCompare);
 }
 
 struct fields_of_ini * getField(char * section_name, char * field_name,  struct parsed_config * c){
-  struct section_of_ini * sect = (struct section_of_ini *)
-          bsearch(section_name, c->sections_list, c->number_of_sections, sizeof(struct section_of_ini), sectionNameCompare);
+  struct section_of_ini * sect = getSection(section_name, c);
   if (sect == NULL){
     return NULL;
   }
-  return bsearch(field_name, sect->fields, sect->number_of_fields, sizeof(struct fields_of_ini), fieldNameCompare);
-
+  return getFieldFromSection(field_name, sect);
 }
 
 int fieldExist(char * section_name, char * field_name,  struct parsed_config * c){
   return  NULL != getField(section_name, field_name, c);
 }
+
+int isTypeField(char * section_name, char * field_name,  struct parsed_config * c, enum ini_fields_type t){
+  struct fields_of_ini * field = getField(section_name, field_name, c);
+  if (field == NULL){
+    return false;
+  }
+  return t == field->type;
+}
+
+int isNumberField(char * section_name, char * field_name,  struct parsed_config * c){
+  return isTypeField(section_name, field_name, c, NUMBER_FIELD);
+}
+
+int isFloatField(char * section_name, char * field_name,  struct parsed_config * c){
+  return isTypeField(section_name, field_name, c, FLOAT_FIELD);
+}
+
+int isBooleanField(char * section_name, char * field_name,  struct parsed_config * c){
+  return isTypeField(section_name, field_name, c, BOOLEAN_FIELD);
+}
+
+int isStringField(char * section_name, char * field_name,  struct parsed_config * c){
+  return isTypeField(section_name, field_name, c, STRING_FIELD);
+}
+
+bool getBoolValue(char * section_name, char * field_name,  struct parsed_config * c){
+  return getField(section_name, field_name, c)->data.b;
+}
+double getFloatValue(char * section_name, char * field_name,  struct parsed_config * c){
+  return getField(section_name, field_name, c)->data.d;
+}
+int getNumericValue(char * section_name, char * field_name,  struct parsed_config * c){
+  return getField(section_name, field_name, c)->data.i;
+}
+
+int getFieldType(char *section_name, char *field_name, struct parsed_config *c) {
+  struct fields_of_ini * f = getField(section_name, field_name, c)
+  if (NULL == f)
+    return -1;
+  return f->type;
+}
+
+const char * getStringValue(char * section_name, char * field_name,  struct parsed_config * c){
+  return getField(section_name, field_name, c)->data.str;
+}
+
+char ** getSectionsNamesByPrefix(char * prefix, struct parsed_config *c){
+  size_t len = strlen(prefix);
+  size_t i = 0;
+  size_t begin =0;
+  size_t end = 0;
+  for (; i < c->number_of_sections ; ++i) {
+    if (strncpy(prefix, c->sections_list[i].name, len) == 0){
+      begin = i;
+      break;
+    }
+  }
+  if (i == len){
+    return NULL;
+  }
+  for (; i < c->number_of_sections ; ++i) {
+    if (strncpy(prefix, c->sections_list[i].name, len) != 0){
+      break;
+    }
+  }
+  end = i;
+  char ** res = malloc((end-begin+1) * sizeof(char*));
+  for (i=begin; i<end; i++){
+    res[i] = c->sections_list[i].name;
+  }
+  res[i] = NULL;
+  return res;
+}
+
+
 
 void prettyPrint(FILE *f, struct parsed_config *c){
   for (size_t i = 0; i < c->number_of_sections; i++){
@@ -375,7 +458,6 @@ void prettyPrint(FILE *f, struct parsed_config *c){
     }
   }
 };
-
 
 
 
