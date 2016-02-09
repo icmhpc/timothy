@@ -285,9 +285,10 @@ int readFromFile(FILE * f, struct parsed_config * res){
   while ((character = getc(f)) != EOF){
     switch (character) {
       case ' ' : break;
+      case '\t': break;
       case ';' : flushComment(f); break;
       case '#' : flushComment(f); break;
-      case '\n' : line_number += 1;
+      case '\n' : line_number += 1; break;
       case '[' :
         ungetc(character, f);
         if (number_of_section >= buffer_size) {
@@ -310,14 +311,18 @@ int readFromFile(FILE * f, struct parsed_config * res){
         if (err != OK) {
           deleteSectionList(section_list, number_of_section);
           free(section_list);
-          res->number_of_sections = (size_t) err;
+          res->number_of_sections = (size_t) line_number;
           res->sections_list = NULL;
           return err;
         }
         number_of_section += 1;
 
         break;
-      default:break;
+      default:
+        free(section_list);
+        res->number_of_sections = (size_t) line_number;
+        res->sections_list = NULL;
+        return BAD_FILE_FORMAT;
     }
   }
   qsort(section_list,number_of_section, sizeof(struct section_of_ini), sectionCompare);

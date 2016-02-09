@@ -65,7 +65,7 @@ int readFromFile(FILE * f, struct parsed_config * res);
 int readFromPath(char * path, struct parsed_config * res);
 
 /*!
- * Clean inside structures of parsed_config
+ * Function used to free memory after end of parser use.
  */
 void deleteParsedConfig(struct parsed_config * c);
 
@@ -110,7 +110,7 @@ int isStringField(char * section_name, char * field_name,  struct parsed_config 
 
 /*!
  * Check if given field is numeric
- * \return Field type if field exist, -1 otherwise
+ * \return Field type (enum ini_fields_type) if field exist, -1 otherwise
  */
 int getFieldType(char * section_name, char * field_name,  struct parsed_config * c);
 
