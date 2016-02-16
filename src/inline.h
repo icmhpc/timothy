@@ -23,6 +23,10 @@
 /*! \file inline.h
  *  \brief contains various Timothy inline functions
  */
+#ifndef TIMOTHY_INLINE_H
+#define TIMOTHY_INLINE_H
+#include <math.h>
+#include "global.h"
 MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode)
 {
   if( maxLocCode.x<=octree[idx].xcode || minLocCode.x>=octree[idx].xlimit ) return 0;
@@ -73,8 +77,7 @@ MIC_ATTR static inline int sph_kernel_gradient(int p1, int p2, double grad[3],in
     y2=cells[p2].y;
     z1=cells[p1].z;
     z2=cells[p2].z;
-  }
-  if(mode==1) {
+  } else {
     x1=recvData[p1].x;
     x2=cells[p2].x;
     y1=recvData[p1].y;
@@ -108,3 +111,4 @@ MIC_ATTR static inline int sph_kernel_gradient(int p1, int p2, double grad[3],in
   return 0;
 }
 
+#endif /* ifndef TIMOTHY_INLINE_H  */

@@ -27,7 +27,8 @@
 
 #include "global.h"
 #include "fields.h"
-
+#include "utils.h"
+#include "grid.h"
 /*! \file grid.c
  *  \brief contains functions that build the computational grid
  */

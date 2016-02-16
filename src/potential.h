@@ -19,8 +19,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * *************************************************************************/
-
+#ifndef TIMOTHY_POTENTIAL_H
+#define TIMOTHY_POTENTIAL_H
+#include "global.h"
 MIC_ATTR void compPot();
 MIC_ATTR void compRPot();
 MIC_ATTR void compPotGrad();
+MIC_ATTR void compRPotGrad();
+
+#endif /* ifndef TIMOTHY_POTENTIAL_H
+ */
 

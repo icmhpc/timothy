@@ -26,6 +26,10 @@
 
 #include "global.h"
 #include "fields.h"
+#include "tempf.h"
+#include "chemf.h"
+#include "cells.h"
+#include "utils.h"
 
 /*! \file
  *  \brief contains driving functions for the global fields

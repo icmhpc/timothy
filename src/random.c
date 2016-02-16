@@ -24,7 +24,7 @@
 #include <sprng.h>
 
 #include "global.h"
-
+#include "random.h"
 /*!\file random.c
  * \brief contains functions which handle the RNG
  */

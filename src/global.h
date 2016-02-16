@@ -19,9 +19,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * *************************************************************************/
-
+#ifndef TIMOTHY_GLOBAL_H
+#define  TIMOTHY_GLOBAL_H
 
 #include <zoltan.h>
+#include<mpi.h>
+#include<stdint.h>
 
 /*! \file global.h
  *  \brief contains the most important global variables, arrays and defines
@@ -67,7 +70,7 @@ struct cellData {
   int death;		/* 1 - dead cell, 0 - living cell */
   int halo;		/* cell on the border of parallel region */
   float phasetime;      /* actual phase time */
-  float g1;		/* g1 phase lenght - randomly selected for each new cell */ 
+  float g1;		/* g1 phase lenght - randomly selected for each new cell */
   float s;		/* s phase lenght - randomly selected for each new cell */
   float g2;		/* g2 phase lenght - randomly selected for each new cell */
   float m;		/* m phase lenght - randomly selected for each new cell */
@@ -93,48 +96,64 @@ double **cellFields;				/* fields value for each cell - interpolated from global
 MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
-int64_t maxCells;
-#define numberOfCounts 10
+struct cellCountInfo{
+  int64_t number_of_cells;
+  int64_t g0_phase_number_of_cells;
+  int64_t g1_phase_number_of_cells;
+  int64_t s_phase_number_of_cells2;
+  int64_t g2_phase_number_of_cells;
+  int64_t m_phase_number_of_cells2;
+  int64_t number_of_cancer_cells;
+  int64_t number_of_necrotic_cells;
+  int64_t number_of_vessel_cells;
+  int64_t number_of_bone_cells;
 
-MIC_ATTR int64_t localCellCount[numberOfCounts];
-int64_t totalCellCount[numberOfCounts];
+  //TODO check names, all needed?
+};
 
-#define nc   totalCellCount[0]
-#define g0nc totalCellCount[1]
-#define g1nc totalCellCount[2]
-#define snc  totalCellCount[3]
-#define g2nc totalCellCount[4]
-#define mnc  totalCellCount[5]
-#define cnc  totalCellCount[6]
-#define nnc  totalCellCount[7]
-#define vc   totalCellCount[8]
-#define bnc  totalCellCount[9]
+struct cellsInfo{
+  struct cellCountInfo localCellCount;
+  struct cellCountInfo totalCellCount;
+  struct cellData * cells;
+  double ** cellFields;
+};
+#define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
 
-#define lnc   localCellCount[0]
-#define lg0nc localCellCount[1]
-#define lg1nc localCellCount[2]
-#define lsnc  localCellCount[3]
-#define lg2nc localCellCount[4]
-#define lmnc  localCellCount[5]
-#define lcnc  localCellCount[6]
-#define lnnc  localCellCount[7]
-#define lvc   localCellCount[8]
-#define lbnc  localCellCount[9]
+MIC_ATTR int64_t localCellCount[numberOfCounts];	/* array storing local cell counts */
+int64_t totalCellCount[numberOfCounts];			/* array storing global cell counts */
 
-int64_t *tlnc;
+#define nc   totalCellCount[0]	/* global number of cells */
+#define g0nc totalCellCount[1]	/* global number of cells in G0 phase */
+#define g1nc totalCellCount[2]	/* global number of cells in G1 phase */
+#define snc  totalCellCount[3]	/* global number of cells in S phase */
+#define g2nc totalCellCount[4]	/* global number of cells in G2 phase */
+#define mnc  totalCellCount[5]	/* global number of cells in M phase */
+#define cnc  totalCellCount[6]	/* global number of cancer cells */
+#define nnc  totalCellCount[7]	/* global number of necrotic cells */
+#define vc   totalCellCount[8]	/* global number of vessel cells */
+#define bnc  totalCellCount[9]	/* global number of bone cells */
 
-int scsim;
-int bvsim;
-int bnsim;
+#define lnc   localCellCount[0]	/* local number of cells */
+#define lg0nc localCellCount[1]	/* local number of cells in G0 phase */
+#define lg1nc localCellCount[2]	/* local number of cells in G1 phase */
+#define lsnc  localCellCount[3]	/* local number of cells in S phase */
+#define lg2nc localCellCount[4]	/* local number of cells in G2 phase */
+#define lmnc  localCellCount[5]	/* local number of cells in M phase */
+#define lcnc  localCellCount[6]	/* local number of cancer cells */
+#define lnnc  localCellCount[7]	/* local number of necrotic cells */
+#define lvc   localCellCount[8]	/* local number of vessel cells */
+#define lbnc  localCellCount[9]	/* local number of bone cells */
+
+int64_t *tlnc;		/* array storing information about local number of cells on all parallel processes */ 
 
 int nscstages; 		/* number of stem cells stages */
 double *sctprob; 	/* stem cells stages transition probabilities */
 int64_t *nscinst; 	/* local number of stem cells in different stages */
 int64_t *gnscinst; 	/* global number of stem cells in different stages */
-int64_t localbc;
-int64_t globalbc;
+int64_t localbc;	/* local number of blood cells, used in stem cells simulation only */
+int64_t globalbc;	/* global number of blood cells, used in stem cells simulation only */
 
-int64_t middleCellIdx;
+int64_t middleCellIdx;	/* index of a cell closest to the center of mass of the simulation */
 /* Parallelization */
 
 //#pragma pack(1)
@@ -153,6 +172,8 @@ struct densPotData { /* this structure keeps additional cell data (potential & d
   double v;
   double density;
 };
+
+#define MIN_CELLS_PER_PROC 128
 
 //#define MAX_CELLS_PER_PROC 10485760
 int maxCellsPerProc;
@@ -182,32 +203,28 @@ MIC_ATTR int numImp;
 /* system */
 int endian;		/* =0 - big endian, =1 - little endian */
 
-/* model setup */
-int MIC_ATTR sdim; 		/* dimensionality of the system */
-int mitrand; 		/* mitosis random direction */
-int MIC_ATTR nx; 		/* box x size */
-int ny; 		/* box y size */
-int nz; 		/* box z size */
-char rstFileName[128]; 	/* restart file name */
-char outdir[128];	/* output directory */
-char logdir[128];       /* log directory */
-char rng[3]; 		/* type of the Random Number Generator */
-int nsteps; 		/* number of simulation steps */
-
 /* simulation */
 int simStart;  	        /* start simulation flag */
 int step; 		/* step number */
 float tstep; 		/* time step size */
 float simTime;          /* time of the simulation */
-float maxSpeed;         /* maximal displacement of cells in a single time step given by fraction of cell size */
 float maxSpeedInUnits;  /* maximal displacement in cm/s */
-char cOutType[3];
-char fOutType[3];
-int vtkout;
-int povout;
-int vnfout;
+int vtkout; //TODO [czaki] setings?
+int povout; //TODO [czaki] setings?
+int vnfout; //TODO [czaki] setings?
 
 /* cell cycle */
+
+struct cellTypeData{
+  float g1;               /* mean duration of G1 phase - healthy tissue */
+  float s;                /* mean duration of S phase - healthy tissue */
+  float g2;               /* mean duration of G2 phase - healthy tissue */
+  float m;                /* mean duration of M phase - healthy tissue */
+  float v;                /* variability of duration of cell cycles */
+  float rd;               /* random death probability */
+  char * name;
+};
+
 float g1;               /* mean duration of G1 phase - healthy tissue */
 float s;                /* mean duration of S phase - healthy tissue */
 float g2;               /* mean duration of G2 phase - healthy tissue */
@@ -220,6 +237,7 @@ float cs;               /* mean duration of S phase - cancer cells */
 float cg2;              /* mean duration of G2 phase - cancer cells */
 float cm;               /* mean duration of M phase - cancer cells */
 
+//TODO [czaki] next variables should be global or specyfic for each cell type?
 double MIC_ATTR csize;           /* cell initial size, no units */
 double csizeInUnits;    /* cell size in micrometers */
 double cellVolume;      /* cell volume */
@@ -229,21 +247,12 @@ double MIC_ATTR h3;              /* 3rd power of h */
 double MIC_ATTR h4;              /* 4th power of h */
 
 int cancer;
-int64_t rsum;
+int64_t rsum; //TODO [czaki] explanation need  
 
-double densityCriticalLevel1;
-double densityCriticalLevel2;
+double densityCriticalLevel1; //TODO [czaki] setings?
+double densityCriticalLevel2; //TODO [czaki] setings? 
 
 int rst;
-int rstReset;
-
-int statOutStep;
-int rstOutStep;
-int vtkOutStep;
-
-int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
-
-int tgs;		/* - tumor growth simulation, 0 - no tumor growth */
 
 struct doubleVector3d {
   double x;
@@ -278,10 +287,6 @@ float dummy; /* dummy float parameter in the restart file (it can be used if nec
 double boxmin[3],boxmax[3];
 double boxsize;
 
-float secondsPerStep;
-
-float gfDt;
-float gfH;
 
 int gfIter;
 int gfIterPerStep;
@@ -334,12 +339,6 @@ struct doubleVector3d MIC_ATTR affShift;
 double MIC_ATTR affScale;
 int64_t root;
 
-/*typedef struct _heap {
-  int size;
-  int count;
-  struct bht_node **data;
-} heap;
-*/
 typedef struct _octHeap {
   int size;
   int count;
@@ -348,4 +347,52 @@ typedef struct _octHeap {
 
 int MIC_ATTR tnc;
 
-int ni;
+int ni; //TODO [czaki] what it is?
+
+struct settings{
+  int64_t maxCells;	/* maximal number of cells (set in parameter file) */
+  int scsim;		/* if =1 <- stem cell simulation */
+  int bvsim;		/* if =1 <- blood vessel simulation */
+  int bnsim;		/* if =1 <- bone simulation */
+};
+
+/* GLOBAL SETTINGS */
+int64_t maxCells;	/* maximal number of cells (set in parameter file) */
+int scsim;		/* if =1 <- stem cell simulation */
+int bvsim;		/* if =1 <- blood vessel simulation */
+int bnsim;		/* if =1 <- bone simulation */
+int MIC_ATTR sdim;	/* dimensionality of the system */
+int mitrand;            /* mitosis random direction */
+int MIC_ATTR nx;	/* box x size */
+int ny;                 /* box y size */
+int nz;                 /* box z size */
+char rstFileName[128];  /* restart file name */
+char outdir[128];       /* output directory */
+char logdir[128];       /* log directory */
+char rng[3];            /* type of the Random Number Generator */
+int nsteps;             /* number of simulation steps */
+float maxSpeed;         /* maximal displacement of cells in a single time step given by fraction of cell size */
+char cOutType[3];	/* format of cellular data output files (VTK or POV) */
+char fOutType[3];	/* format of fields data output files (currently only VNF) */
+float g1;               /* mean duration of G1 phase - healthy tissue */
+float s;                /* mean duration of S phase - healthy tissue */
+float g2;               /* mean duration of G2 phase - healthy tissue */
+float m;                /* mean duration of M phase - healthy tissue */
+float v;                /* variability of duration of cell cycles */
+float rd;               /* random death probability */
+float cg1;              /* mean duration of G1 phase - cancer cells */
+float cs;               /* mean duration of S phase - cancer cells */
+float cg2;              /* mean duration of G2 phase - cancer cells */
+float cm;               /* mean duration of M phase - cancer cells */
+float secondsPerStep;   /* lenght of a single simulation step in seconds */
+int rstReset;		/* if =1 <- reset simulation parameters of restart file */
+int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
+int tgs;                /* - tumor growth simulation, 0 - no tumor growth */
+int statOutStep;        
+int rstOutStep;
+int vtkOutStep;
+float gfDt;
+float gfH;
+
+
+#endif

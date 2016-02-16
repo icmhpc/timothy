@@ -23,17 +23,27 @@
 #SYSTYPE = ibm-p775
 #SYSTYPE = ibm-bgq
 #SYSTYPE = intel-mic
-SYSTYPE = gnu-x86
+#SYSTYPE = gnu-x86
 
-# My laptop configuration (gnu-x86)
-ZOLTANLIB=-L/opt/zoltan/3.81/lib -lzoltan
-SPRNGLIB=-L/usr/lib -lsprng
-GMPLIB=-lgmp
-HYPRELIB=-L/opt/hypre/2.9.0b/lib -lHYPRE -lblas -llapack
-ZOLTANINC=-I/opt/zoltan/3.81/include
-SPRNGINC=-I/usr/include/sprng
-HYPREINC=-I/opt/hypre/2.9.0b/include
-MPIINC=-I/usr/include/mpi
+# Czaki laptop configuration (gnu-x86)
+#ZOLTANLIB=-L/home/czaki/libs/zoltan/3.82/lib -lzoltan
+#SPRNGLIB=-L/usr/lib -lsprng
+#GMPLIB=-lgmp
+#HYPRELIB=-L/home/czaki/libs/hypre/2.10/lib -lHYPRE
+#ZOLTANINC=-I/home/czaki/libs/zoltan/3.82/include
+#SPRNGINC=-I/usr/include/sprng
+#HYPREINC= -I/home/czaki/libs/hypre/2.10/include
+#MPIINC=-I/usr/include/mpi
+
+# MC laptop configuration
+#ZOLTANLIB=-L/opt/zoltan/3.81/lib -lzoltan
+#SPRNGLIB=-L/usr/lib -lsprng
+#GMPLIB=-lgmp
+#HYPRELIB=-L/opt/hypre/2.9.0b/lib -lHYPRE -lblas -llapack
+#ZOLTANINC=-I/opt/zoltan/3.81/include
+#SPRNGINC=-I/usr/include/sprng
+#HYPREINC=-I/opt/hypre/2.9.0b/include
+#MPIINC=-I/usr/include/mpi
 
 # Nostromo (ibm-bgq) system configuration
 #ZOLTANLIB=-L/opt/zoltan/3.8/lib -lzoltan
@@ -65,6 +75,8 @@ MPIINC=-I/usr/include/mpi
 #HYPREINC=-I/opt/hypre/2.9.0b/bigint_omp/include
 #MPIINC=
 
+include makefile_include/default.mk
+
 #############################################################################
 # Prepare configuration for your system 
 #
@@ -77,6 +89,8 @@ MPIINC=-I/usr/include/mpi
 #endif
 #############################################################################
 
+
+
 # IBM BG/Q configuration
 ifeq ($(SYSTYPE),ibm-bgq)
 CC = mpixlc_r
@@ -88,8 +102,8 @@ endif
 
 # General GNU x86 configuration
 ifeq ($(SYSTYPE),gnu-x86)
-CC = mpicc -g
-OPT = -O2 -fopenmp  -ffast-math -ftree-vectorize -finline-functions -Winline 
+CC = mpicc 
+OPT = -O2 -fopenmp  -ffast-math -ftree-vectorize -finline-functions -Winline -Wall -Wextra -g
 DEFS = #-DDEBUG
 INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)
 LIBS = -lm $(ZOLTANLIB) $(SPRNGLIB) $(GMPLIB) $(HYPRELIB)
@@ -116,12 +130,15 @@ INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)
 
 
 EXEC = ../timothy
+VALIDATOR = ../validator
+
+all: $(EXEC) $(VALIDATOR)
 
 OPTIONS = $(OPT) $(DEFS)
 
 OBJS = main.o io.o utils.o cells.o domdec.o octree.o potential.o comm.o stats.o random.o init.o grid.o interp.o fields.o tempf.o chemf.o vessel.o bone.o compute.o
 
-INCL = global.h io.h inline.h fields.h potential.h octree.h
+INCL = bone.h  cells.h  chemf.h  comm.h  compute.h  domdec.h  fields.h  global.h  grid.h  init.h  inline.h  interp.h  io.h  octree.h  potential.h  random.h  stats.h  tempf.h  utils.h  vessel.h
 
 CFLAGS = $(OPTIONS) $(INCLUDES) 
 
@@ -130,8 +147,24 @@ $(EXEC): $(OBJS)
 
 $(OBJS): $(INCL)
 
+VALIDATOR_FLAGS = -O0 -Winline -Wall -Wextra -g
+
+VALIDATOR_OBJS = validator.o ini_parser/ini_parser.o
+
+VALIDATOR_INLC = global.h ini_parser/ini_parser.h
+
+$(VALIDATOR): $(VALIDATOR_OBJS)
+	gcc -Wall -Wextra $(VALIDATOR_OBJS) -o $(VALIDATOR)
+
+validator.o: validator.c ini_parser/ini_parser.h
+	cc -c $(VALIDATOR_FLAGS) $< -o $@
+
+ini_parser/ini_parser.o: ini_parser/ini_parser.c ini_parser/ini_parser.h
+	cc -c $(VALIDATOR_FLAGS) $< -o $@
+
+.PHONY: clean
 clean:
-	rm -f $(OBJS); rm -f $(EXEC)
+	rm -f $(OBJS); rm -f $(EXEC); rm -f $(VALIDATOR_OBJS); rm -f $(VALIDATOR)
 
 doc:
 	doxygen Doxyfile

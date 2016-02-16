@@ -29,7 +29,7 @@
 #include <float.h>
 
 #include "global.h"
-
+#include "vessel.h"
 /*! \file vessel.c
  *  \brief contains functions defining virtual vessels
  */
@@ -50,6 +50,7 @@ void initVessel()
 
   vc=0;
   lvc=0;
+  lnc=0;
 
   if (MPIrank == 0) {
     FILE *fh;
@@ -138,6 +139,9 @@ void initVessel()
 
     fclose(fh);
   }
+
+  if(lnc==0) lnc=1;
+
   MPI_Allreduce(localCellCount, totalCellCount, numberOfCounts,
                 MPI_INT64_T, MPI_SUM, MPI_COMM_WORLD);
 }

@@ -27,7 +27,15 @@
 #include<omp.h>
 
 #include "global.h"
-
+#include "io.h"
+#include "init.h"
+#include "domdec.h"
+#include "comm.h"
+#include "octree.h"
+#include "compute.h"
+#include "stats.h"
+#include "cells.h"
+#include "random.h"
 /*! \file main.c
  *  \brief contains the main simulation loop
  */

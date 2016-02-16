@@ -27,7 +27,8 @@
 
 #include "global.h"
 #include "fields.h"
-
+#include "utils.h"
+#include "interp.h"
 /*! \file interp.c
  *  \brief contains grid to cellular data interpolation functions
  */

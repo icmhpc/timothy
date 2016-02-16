@@ -49,7 +49,7 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
   double D;
   double poisson = 0.33;
   double young;
-  int ctype;
+  int ctype=0;
 
 
   if (mode == 0 && p1 == p2)
@@ -62,8 +62,7 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
     size = cells[p1].size;
     young = cells[p1].young;
     ctype = cells[p1].ctype;
-  }
-  if (mode == 1) {
+  } else {
     x = recvData[p1].x;
     y = recvData[p1].y;
     z = recvData[p1].z;
@@ -257,12 +256,11 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
 {
   double grad[3];
   /* we assume that cells' mass is always 1.0 */
-  double m = 1.0;
+  double mass = 1.0;
   double sc;
   double x1, x2, y1, y2, z1, z2;
   double v, density, size;
   double dist;
-  int ctype;
 
   if (p1 == p2 && mode == 0)
     return;
@@ -277,9 +275,7 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
     v = cells[p2].v;
     density = cells[p2].density;
     size = cells[p2].size;
-    ctype = cells[p1].ctype;
-  }
-  if (mode == 1) {
+  } else {
     x1 = recvData[p1].x;
     x2 = cells[p2].x;
     y1 = recvData[p1].y;
@@ -289,9 +285,9 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
     v = recvDensPotData[p1].v;
     density = recvDensPotData[p1].density;
     size = recvData[p1].size;
-    ctype = recvData[p1].ctype;
   }
 
+  dist = 1; // TODO check
   if (sdim == 2)
     dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
   if (sdim == 3)
@@ -308,8 +304,8 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
   if (density == 0.0)
     sc = 0.0;
   else {
-    m = size / csize;
-    sc = (m / density) * v;
+    mass = size / csize;
+    sc = (mass / density) * v;
   }
 
   /* update forces */

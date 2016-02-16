@@ -19,12 +19,21 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * *************************************************************************/
-
+#ifndef TIMOTHY_OCTREE_H
+#define TIMOTHY_OCTREE_H
+#include "global.h"
 MIC_ATTR void octHeapInit(octHeap *ttHeap);
 MIC_ATTR void octComputeBox(int64_t c,struct uintVector3d *minLocCode,struct uintVector3d *maxLocCode);
 MIC_ATTR int octLocateRegion(struct uintVector3d minLocCode,struct uintVector3d maxLocCode);
 MIC_ATTR void octHeapPush(octHeap *ttHeap,int idx);
 MIC_ATTR int octHeapPop(octHeap *ttHeap);
 MIC_ATTR void octHeapFree(octHeap *ttHeap);
-MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode);
+//MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode);
 MIC_ATTR void octComputeBoxR(int64_t c,struct uintVector3d *minLocCode,struct uintVector3d *maxLocCode);
+
+void octBuild();
+void octFree();
+#endif /* ifndef TIMOTHY_OCTREE_H
+ */
+
+

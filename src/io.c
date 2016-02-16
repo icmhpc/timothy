@@ -27,7 +27,9 @@
 #include <inttypes.h>
 #include <float.h>
 #include <math.h>
-
+#include <unistd.h>
+#include <sys/stat.h>
+#include <inttypes.h>
 #define _GNU_SOURCE
 #include <fcntl.h>
 //#include <unistd.h>
@@ -35,11 +37,14 @@
 #include "global.h"
 #include "io.h"
 #include "fields.h"
-
+#include "utils.h"
+#include "random.h"
+#include "domdec.h"
+#include "cells.h"
 /*! \file io.c
  *  \brief contains I/O functions
  */
-
+static int one=1;
 void readRstFile(int argc, char **argv);
 
 /*!
@@ -99,7 +104,7 @@ void printHelp()
 /*!
  * This function initializes all parameters.
  */
-void initParams(int argc, char **argv)
+void initParams()
 {
 
   int nr;
@@ -918,7 +923,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].density;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].density - (int64_t) & cells[0].density;
+        (& cells[1].density) - (& cells[0].density);
     else
       jumpOut[nfOut] = 0;
 
@@ -930,7 +935,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].size;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].size - (int64_t) & cells[0].size;
+        (& cells[1].size) - ( & cells[0].size);
     else
       jumpOut[nfOut] = 0;
 
@@ -950,7 +955,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].phase;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].phase - (int64_t) & cells[0].phase;
+        (& cells[1].phase) - ( & cells[0].phase);
     else
       jumpOut[nfOut] = 0;
 
@@ -962,7 +967,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].tumor;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].tumor - (int64_t) & cells[0].tumor;
+        (& cells[1].tumor) - ( & cells[0].tumor);
     else
       jumpOut[nfOut] = 0;
 
@@ -974,7 +979,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].halo;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].halo - (int64_t) & cells[0].halo;
+        (& cells[1].halo) - (& cells[0].halo);
     else
       jumpOut[nfOut] = 0;
 
@@ -985,7 +990,7 @@ void ioDefineOutputFields()
     typeOut[nfOut] = REAL;
     addrOut[nfOut] = &velocity[0];
     if (lnc > 1)
-      jumpOut[nfOut] = (int64_t) & velocity[1] - (int64_t) & velocity[0];
+      jumpOut[nfOut] = (& velocity[1]) - ( & velocity[0]);
     else
       jumpOut[nfOut] = 0;
 
@@ -996,7 +1001,7 @@ void ioDefineOutputFields()
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cells[0].age;
     if (lnc > 1)
-      jumpOut[nfOut] = (int64_t) & cells[1].age - (int64_t) & cells[0].age;
+      jumpOut[nfOut] = (& cells[1].age) - (& cells[0].age);
     else
       jumpOut[nfOut] = 0;
 
@@ -1008,8 +1013,7 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].scalarField;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].scalarField -
-        (int64_t) & cells[0].scalarField;
+        (& cells[1].scalarField) -  (& cells[0].scalarField);
     else
       jumpOut[nfOut] = 0;
 
@@ -1021,8 +1025,8 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].ctype;
     if(lnc>1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].ctype -
-        (int64_t) & cells[0].ctype;
+        (& cells[1].ctype) -
+        (& cells[0].ctype);
     else
       jumpOut[nfOut] = 0;
 
@@ -1034,8 +1038,8 @@ void ioDefineOutputFields()
     addrOut[nfOut] = &cells[0].scstage;
     if(lnc>1)
       jumpOut[nfOut] =
-        (int64_t) & cells[1].scstage -
-        (int64_t) & cells[0].scstage;
+        (& cells[1].scstage) -
+        (& cells[0].scstage);
     else
       jumpOut[nfOut] = 0;
 
@@ -1704,7 +1708,7 @@ void readRstFile(int argc, char **argv)
   MPI_File_close(&fh);
 
   MPI_Barrier(MPI_COMM_WORLD);
-  decompositionInit(argc, argv, MPI_COMM_WORLD);
+  decompositionInit(argc, argv);
 
 }
 
@@ -1824,7 +1828,7 @@ void ioWriteFields(int step)
     if(MPIrank==0) {
       fh3=fopen(fstname3,"w");
       fprintf(fh3,"#VisNow regular field\n");
-      fprintf(fh3,"field %s%08d, dim %ld %ld %ld, coords\n",nameOut[f],step,gridI,gridJ,gridK);
+      fprintf(fh3,"field %s%08d, dim %" PRId64 " %" PRId64 " %" PRId64 ", coords\n",nameOut[f],step,gridI,gridJ,gridK);
       if(dimOut[f]==SCALAR) fprintf(fh3,"component %s float\n",nameOut[f]);
       else fprintf(fh3,"component %s float, vector 3\n",nameOut[f]);
       fprintf(fh3,"file=%s%08dcoords.bin binary ",nameOut[f],step);
@@ -2345,6 +2349,9 @@ void ioWriteStepPovRay(int step, int type)
       if (color == 1 - cmPad)
         color = 1.0;
     }
+
+    if(color<0.0) color=0.0;
+    if(color>1.0) color=1.0;
 
     for (i = 1; i < cmaps[cm].ncp; i++) {
       float d, dr, dg, db;

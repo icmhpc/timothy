@@ -27,7 +27,15 @@
 
 #include "global.h"
 #include "inline.h"
-
+#include "utils.h"
+#include "io.h"
+#include "random.h"
+#include "cells.h"
+#include "vessel.h"
+#include "bone.h"
+#include "domdec.h"
+#include "grid.h"
+#include "fields.h"
 /*! \file init.c
  *  \brief contains initialization functions
  */
@@ -159,7 +167,7 @@ void simulationInit(int argc, char **argv)
     cellsRandomInit();
     //initVessel();
     /* decomposition - initialization */
-    decompositionInit(argc, argv, MPI_COMM_WORLD);
+    decompositionInit(argc, argv);
   }
 
   /* maximum distance cell can travel in 1 sec */

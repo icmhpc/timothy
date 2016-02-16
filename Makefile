@@ -20,33 +20,38 @@
 # *
 # * *************************************************************************/
 
-.PHONY: all clean doc
+.PHONY: all clean doc clean_doc clean_all
+
+IS_MAKE = $(shell command -v make > /dev/null; echo $$?)
+IS_DOXYGEN = $(shell command -v doxygen > /dev/null; echo $$?)
+
+
+ifeq "$(IS_MAKE)" "0"
+	MAKE = make
+else
+	MAKE = gmake
+endif 
 
 all:
-	@ if command -v gmake >/dev/null 2>&1; then \
-	echo "Using gmake to build Timothy"; \
-	cd src/; gmake; \
-        else \
-        echo "Using make to build Timothy"; \
-        cd src/; make; \
-        fi
+	make -C src
+
+validator:
+	make -C src ../validator
+
+timothy:
+	make -C src ../timothy
+
 clean:
-	@ if command -v gmake >/dev/null 2>&1; then \
-        echo "Using gmake to clean Timothy"; \
-        cd src/; gmake clean; \
-	cd ../doc; rm -fr html/ latex/; \
-        else \
-        echo "Using make to clean Timothy"; \
-        cd src/; make clean; \
-	cd ../doc; rm -fr html/ latex/; \
-        fi
+	make -C src clean 
+
+clean_doc:
+	rm -rf doc/html doc/latex 
+
+clean_all: clean clean_doc 
+
 doc:
-	@ if command -v doxygen >/dev/null 2>&1; then \
-	    if command -v gmake >/dev/null 2>&1; then \
-	      cd src/; gmake doc;\
-	    else \
-	      cd src/; make doc; \
-	    fi \
-	else \
-	  echo "Doxygen not found"; \
-	fi 
+ifeq "$(IS_DOXYGEN)" "0"
+		make -C src doc 
+else 
+		@echo "Doxygen not found"
+endif 

@@ -27,9 +27,10 @@
 #include <inttypes.h>
 #include <sprng.h>
 #include <float.h>
+#include <string.h>
 
 #include "global.h"
-
+#include "bone.h"
 /*! \file bone.c
  *  \brief contains functions defining virtual bone structure
  */
@@ -40,24 +41,22 @@
 int initBone()
 {
   int i,j,k;
-  int m;
   int ax,ay,az;
   double ox,oy,oz;
   double v0x,v0y,v0z;
   double v1x,v1y,v1z;
   double v2x,v2y,v2z;
   char text[256];
-  int ***data;
   int d1,d2;
-  int ret;
-
-  double minx,miny,minz;
-  double maxx,maxy,maxz;
+  int ret; //TODO ?? why?
 
   bnc=0;
   lbnc=0;
 
   if(MPIrank==0) {
+    int ***data;
+    double minx,miny,minz;
+    double maxx,maxy,maxz;
     FILE *fh1,*fh2;
     if(!(fh1=fopen("bones.txt","r"))) {
       printf("File bones.txt not found\n");
@@ -79,6 +78,7 @@ int initBone()
     ret=fscanf(fh2,"%*[^\n]\n");
     /* read dimensions */
     ret=fscanf(fh2,"%s",text);
+    //TODO why? where else?
     if(strcmp(text,"dims")==0) {
       ret=fscanf(fh2,"%d %d %d\n",&ax,&ay,&az);
     }
@@ -166,24 +166,25 @@ int initBone()
         }
     fclose(fh1);
     fclose(fh2);
-  }
 
-  for(i=0; i<lnc; i++) {
-    cells[i].x-=minx;
-    cells[i].y-=miny;
-    cells[i].z-=minz;
+    for(i=0; i<lnc; i++) {
+      cells[i].x-=minx;
+      cells[i].y-=miny;
+      cells[i].z-=minz;
+    }
+
+    /* free data */
+    for(i=0; i<ax; i++) {
+      for(j=0; j<ay; j++)
+        free(data[i][j]);
+      free(data[i]);
+    }
+    free(data);
+
   }
 
   MPI_Allreduce(localCellCount, totalCellCount, numberOfCounts,
                 MPI_INT64_T, MPI_SUM, MPI_COMM_WORLD);
-
-  /* free data */
-  for(i=0; i<ax; i++) {
-    for(j=0; j<ay; j++)
-      free(data[i][j]);
-    free(data[i]);
-  }
-  free(data);
 
   return 0;
 }

@@ -21,14 +21,14 @@
  * *************************************************************************/
 
 #include <float.h>
-#include "_hypre_utilities.h"
-#include "HYPRE_sstruct_ls.h"
-#include "HYPRE_parcsr_ls.h"
-#include "HYPRE_krylov.h"
+#include <_hypre_utilities.h>
+#include <HYPRE_sstruct_ls.h>
+#include <HYPRE_parcsr_ls.h>
+#include <HYPRE_krylov.h>
 
 #include "global.h"
 #include "fields.h"
-
+#include "chemf.h"
 /*! \file chemf.c
  *  \brief contains functions used for solving chemical global fields
  */
@@ -50,9 +50,9 @@ HYPRE_Solver chemPrecond[NCHEM];
 
 int chemObjectType;
 
-long long chemLower[3], chemUpper[3];
-long long bcLower[3];
-long long bcUpper[3];
+HYPRE_Int chemLower[3], chemUpper[3];
+HYPRE_Int bcLower[3];
+HYPRE_Int bcUpper[3];
 
 double dt[NCHEM];
 double chemLambda = 0.25;
@@ -131,7 +131,7 @@ void chemEnvInitSystem(int nch)
 {
   int i, j, k, c;
   int entry;
-  long long offsets[7][3] = {
+  HYPRE_Int offsets[7][3] = {
     {0, 0, 0}, {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {
       0, 0,
       -1
@@ -188,7 +188,7 @@ void chemEnvInitSystem(int nch)
   long long nentries = 7;
   long long nvalues;
   double *values;
-  long long stencil_indices[7];
+  HYPRE_Int stencil_indices[7];
 
   nvalues = nentries * gridSize.x * gridSize.y * gridSize.z;
   // create an empty matrix object
@@ -244,7 +244,7 @@ void chemEnvInitSystem(int nch)
  */
 void chemEnvCellPC(int nch)
 {
-  int ch, i, j, k;
+  int ch __attribute__((unused)) , i, j, k;
 
   if (step == 0)
     return;
@@ -264,9 +264,9 @@ void chemEnvCellPC(int nch)
 void chemEnvInitBC(int nch)
 {
   int i, j, k;
-  int m;
+  int mi;
   int nentries = 1;
-  long long stencil_indices[1];
+  HYPRE_Int stencil_indices[1];
   long long nvalues = gridSize.x * gridSize.y * gridSize.z;
   double *values, *bvalues;
   /* stdout redirected to file */
@@ -293,23 +293,23 @@ void chemEnvInitBC(int nch)
   HYPRE_SStructVectorInitialize(chemx[nch]);
 
   /* set the values */
-  m = 0;
+  mi = 0;
   for (k = chemLower[2]; k <= chemUpper[2]; k++)
     for (j = chemLower[1]; j <= chemUpper[1]; j++)
       for (i = chemLower[0]; i <= chemUpper[0]; i++) {
-        values[m] = fieldICMean[nch + NGLOB];
-        m++;
+        values[mi] = fieldICMean[nch + NGLOB];
+        mi++;
       }
 
   HYPRE_SStructVectorSetBoxValues(chemb[nch], 0, chemLower, chemUpper, 0,
                                   values);
 
-  m = 0;
+  mi = 0;
   for (k = chemLower[2]; k <= chemUpper[2]; k++)
     for (j = chemLower[1]; j <= chemUpper[1]; j++)
       for (i = chemLower[0]; i <= chemUpper[0]; i++) {
-        values[m] = fieldICMean[nch + NGLOB];
-        m++;
+        values[mi] = fieldICMean[nch + NGLOB];
+        mi++;
       }
 
   HYPRE_SStructVectorSetBoxValues(chemx[nch], 0, chemLower, chemUpper, 0,

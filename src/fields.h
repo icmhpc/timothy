@@ -23,7 +23,10 @@
 /*! \file fields.h
  *  \brief contains variables and arrays for global fields
  */
-
+#ifndef TIMOTHY_FIELDS_H
+#define TIMOTHY_FIELDS_H
+#include <mpi.h>
+#include <stdint.h>
 #define NFIELDS 6 //5
 #define NIF 2 /* number of fields that need to be interpolated from discrete data */
 #define NGLOB 3
@@ -35,12 +38,6 @@ int nfields;
 int nif;
 int nglob;
 int nchem;
-
-int gfields;
-int oxygen;
-int glucose;
-int hydrogenIon;
-int temperature;
 
 /* grid data */
 int64_t gridI,gridJ,gridK;
@@ -59,37 +56,10 @@ double *fieldAddr[NFIELDS];
 double *gradAddr[NCHEM];
 int fieldType[NFIELDS];
 
-//char **fieldName;
-//double **fieldAddr;
-//double **gradAddr;
-//int *fieldType;
-
-double fieldDiffCoef[NFIELDS];
-double fieldLambda[NFIELDS];
-double fieldBC[NFIELDS]; /* boundary conditions - constant value for Dirichlet */
-double fieldICMean[NFIELDS]; /* initial conditions - mean value */
-double fieldICVar[NFIELDS]; /* initial conditions - variability */
 double fieldDt[NFIELDS]; /* how many seconds per iteration */
 
-//double *fieldDiffCoef;
-//double *fieldLambda;
-//double *fieldBC; /* boundary conditions - constant value for Dirichlet */
-//double *fieldICMean; /* initial conditions - mean value */
-//double *fieldICVar; /* initial conditions - variability */
-//double *fieldDt; /* how many seconds per iteration */
-
-/* Consumption and production rates
-   Please use good units. When I say it, I mean it! */
-double fieldConsumption[NFIELDS]; /* units - mol (cell s)^-1 */
-double fieldProduction[NFIELDS];  /* units - mol (cell s)^-1 */
-//double *fieldConsumption; /* units - mol (cell s)^-1 */
-//double *fieldProduction; /* units - mol (cell s)^-1 */
-
 int fieldNumberOfCriticalLevels[NFIELDS]; /* number of critical levels for each field */
-//int *fieldNumberOfCriticalLevels; /* number of critical levels for each field */
 
-double fieldCriticalLevel1[NFIELDS]; /* critical level 1 - for cells in G1 phase */
-double fieldCriticalLevel2[NFIELDS]; /* critical level 2 - for cells in S, G2, M phases */
 //double *fieldCriticalLevel1; /* critical level 1 - for cells in G1 phase */
 //double *fieldCriticalLevel2; /* critical level 2 - for cells in S, G2, M phases */
 
@@ -121,3 +91,25 @@ MPI_Request reqFGRecv[6];
 #define OXYG 3
 #define GLUC 4
 #define HYDR 5
+void fieldsInit();
+void fieldsSolve();
+void fieldGradient();
+
+
+/* GLOBAL SETTINGS */
+int gfields;
+int oxygen;
+int glucose;
+int hydrogenIon;
+int temperature;
+double fieldDiffCoef[NFIELDS];
+double fieldLambda[NFIELDS];
+double fieldBC[NFIELDS]; /* boundary conditions - constant value for Dirichlet */
+double fieldICMean[NFIELDS]; /* initial conditions - mean value */
+double fieldICVar[NFIELDS]; /* initial conditions - variability */
+double fieldConsumption[NFIELDS]; /* units - mol (cell s)^-1 */
+double fieldProduction[NFIELDS];  /* units - mol (cell s)^-1 */
+double fieldCriticalLevel1[NFIELDS]; /* critical level 1 - for cells in G1 phase */
+double fieldCriticalLevel2[NFIELDS]; /* critical level 2 - for cells in S, G2, M phases */
+
+#endif /* ifndef TIMOTHY_FIELDS_H */

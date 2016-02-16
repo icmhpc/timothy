@@ -27,10 +27,14 @@
 #include <inttypes.h>
 #include <sprng.h>
 #include <float.h>
+#include <string.h>
+#include <limits.h>
 
 #include "global.h"
 #include "inline.h"
 #include "fields.h"
+#include "utils.h"
+#include "cells.h"
 
 /*! \file cells.c
  *  \brief contains functions which control current states and evolution of cells
