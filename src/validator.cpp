@@ -1,9 +1,9 @@
 //
-// Created by czaki on 04.02.16.
+// Created by Grzegorz Bokota on 04.02.16.
 //
-#include <stdio.h>
-#include <stdlib.h>
-#include "ini_parser/ini_parser.h"
+#include "validator/validator.h"
+#include <iostream>
+
 
 int main(int argc, char** argv){
   struct parsed_config config;
@@ -17,8 +17,12 @@ int main(int argc, char** argv){
     fprintf(stderr, "Parser error %d in line %zu\n", res, config.number_of_sections);
     return EXIT_FAILURE;
   }
-  printf("%d\n", sectionExist("GLOBAL", &config));
+  printf("%d\n", sectionExist( (char *) "GLOBAL", &config));
   prettyPrint(stdout, &config);
+  std::pair<int, std::string>validate_result = validate_config(&config);
+  if (!validate_result.first){
+    std::cout << validate_result.second;
+  }
   deleteParsedConfig(&config);
   return EXIT_SUCCESS;
 }

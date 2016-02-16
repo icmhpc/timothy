@@ -65,6 +65,9 @@ char * readSectionName(FILE *f, enum parse_error * err){
   buff[pos-1] = 0;
   char * res = calloc(pos, sizeof(char));
   strcpy(res, buff+1);
+  for (size_t i = 0; i < pos-1; ++i ){
+    res[i] = (char) toupper(res[i]);
+  }
   return res;
 };
 
@@ -181,7 +184,9 @@ enum parse_error readField(FILE * f, struct fields_of_ini * field, int *line_num
 name_copy:
   field->name = malloc(strlen(name_buffer) + 1);
   strcpy(field->name, name_buffer);
-
+  for(char * p = field->name; *p; ++p){
+    *p = (char) tolower(*p);
+  }
   return OK;
 };
 
@@ -336,7 +341,7 @@ int readFromFile(FILE * f, struct parsed_config * res){
   return OK;
 }
 
-int readFromPath(char * path, struct parsed_config * res)
+int readFromPath(const char *path, struct parsed_config *res)
 {
   FILE * f = fopen(path, "r");
   if (f == NULL)
@@ -346,19 +351,28 @@ int readFromPath(char * path, struct parsed_config * res)
   return err_code;
 };
 
-int sectionExist(char * name, struct parsed_config * c) {
+int sectionExist(const char *name, const struct parsed_config *c) {
   return NULL != getSection(name, c);
 }
 
-struct section_of_ini * getSection(char * section_name, struct parsed_config * c){
-  return bsearch(section_name, c->sections_list, c->number_of_sections, sizeof(struct section_of_ini), sectionNameCompare);
+struct section_of_ini * getSection(const char *section_name, struct parsed_config *c){
+  char s_name[strlen(section_name)+1];
+  for (size_t i = 0; i < strlen(section_name); ++i){
+    s_name[i] = (char) toupper(section_name[i]);
+  }
+  return bsearch(s_name, c->sections_list, c->number_of_sections, sizeof(struct section_of_ini), sectionNameCompare);
 }
 
-struct fields_of_ini * getFieldFromSection(char * field_name, struct section_of_ini* section){
-  return bsearch(field_name, section->fields, section->number_of_fields, sizeof(struct fields_of_ini), fieldNameCompare);
+struct fields_of_ini * getFieldFromSection(const char *field_name, struct section_of_ini *section){
+  char f_name[strlen(field_name)+1];
+  for (size_t i = 0; i < strlen(field_name); ++i){
+    f_name[i] = (char) toupper(field_name[i]);
+  }
+  return bsearch(f_name, section->fields, section->number_of_fields, sizeof(struct fields_of_ini), fieldNameCompare);
 }
 
 struct fields_of_ini * getField(char * section_name, char * field_name,  struct parsed_config * c){
+
   struct section_of_ini * sect = getSection(section_name, c);
   if (sect == NULL){
     return NULL;
@@ -366,7 +380,7 @@ struct fields_of_ini * getField(char * section_name, char * field_name,  struct 
   return getFieldFromSection(field_name, sect);
 }
 
-int fieldExist(char * section_name, char * field_name,  struct parsed_config * c){
+int fieldExist(const char *section_name, const char *field_name, const struct parsed_config *c){
   return  NULL != getField(section_name, field_name, c);
 }
 
@@ -378,44 +392,44 @@ int isTypeField(char * section_name, char * field_name,  struct parsed_config * 
   return t == field->type;
 }
 
-int isNumberField(char * section_name, char * field_name,  struct parsed_config * c){
+int isNumberField(const char *section_name, const char *field_name, const struct parsed_config *c){
   return isTypeField(section_name, field_name, c, NUMBER_FIELD);
 }
 
-int isFloatField(char * section_name, char * field_name,  struct parsed_config * c){
+int isFloatField(const char *section_name, const char *field_name, const struct parsed_config *c){
   return isTypeField(section_name, field_name, c, FLOAT_FIELD);
 }
 
-int isBooleanField(char * section_name, char * field_name,  struct parsed_config * c){
+int isBooleanField(const char *section_name, const char *field_name, const struct parsed_config *c){
   return isTypeField(section_name, field_name, c, BOOLEAN_FIELD);
 }
 
-int isStringField(char * section_name, char * field_name,  struct parsed_config * c){
+int isStringField(const char *section_name, const char *field_name, const struct parsed_config *c){
   return isTypeField(section_name, field_name, c, STRING_FIELD);
 }
 
-bool getBoolValue(char * section_name, char * field_name,  struct parsed_config * c){
+bool getBoolValue(const char *section_name, const char *field_name, const struct parsed_config *c){
   return getField(section_name, field_name, c)->data.b;
 }
-double getFloatValue(char * section_name, char * field_name,  struct parsed_config * c){
+double getFloatValue(const char *section_name, const char *field_name, const struct parsed_config *c){
   return getField(section_name, field_name, c)->data.d;
 }
-int getNumericValue(char * section_name, char * field_name,  struct parsed_config * c){
+int getNumericValue(const char *section_name, const char *field_name, const struct parsed_config *c){
   return getField(section_name, field_name, c)->data.i;
 }
 
-int getFieldType(char *section_name, char *field_name, struct parsed_config *c) {
+int getFieldType(const char *section_name, const char *field_name, const struct parsed_config *c) {
   struct fields_of_ini * f = getField(section_name, field_name, c);
   if (NULL == f)
     return -1;
   return f->type;
 }
 
-const char * getStringValue(char * section_name, char * field_name,  struct parsed_config * c){
+const char * getStringValue(const char *section_name, const char *field_name, const struct parsed_config *c){
   return getField(section_name, field_name, c)->data.str;
 }
 
-char ** getSectionsNamesByPrefix(char * prefix, struct parsed_config *c){
+char ** getSectionsNamesByPrefix(const char *prefix, const struct parsed_config *c){
   size_t len = strlen(prefix);
   size_t i = 0;
   size_t begin =0;
@@ -445,7 +459,7 @@ char ** getSectionsNamesByPrefix(char * prefix, struct parsed_config *c){
 
 
 
-void prettyPrint(FILE *f, struct parsed_config *c){
+void prettyPrint(FILE *f, const struct parsed_config *c){
   for (size_t i = 0; i < c->number_of_sections; i++){
     fprintf(f,"[%s]\n", c->sections_list[i].name);
     for (size_t j = 0; j < c->sections_list[i].number_of_fields; j++){

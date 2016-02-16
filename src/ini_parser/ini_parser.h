@@ -62,7 +62,7 @@ int readFromFile(FILE * f, struct parsed_config * res);
 /*!
  * Open file and call readFromFile().
  */
-int readFromPath(char * path, struct parsed_config * res);
+int readFromPath(const char *path, struct parsed_config *res);
 
 /*!
  * Function used to free memory after end of parser use.
@@ -72,65 +72,65 @@ void deleteParsedConfig(struct parsed_config * c);
 /*!
  * Return list of sections names which begins which given prefix;
  */
-char ** getSectionsNamesByPrefix(char * prefix, struct parsed_config *c);
+char ** getSectionsNamesByPrefix(const char *prefix, const struct parsed_config *c);
 
 /*!
  * Check if section with given name exists
  */
-int sectionExist(char * name, struct parsed_config * c);
+int sectionExist(const char *name, const struct parsed_config *c);
 
 /*!
  * Check if field in given section exists
  */
-int fieldExist(char * section_name, char * field_name,  struct parsed_config * c);
+int fieldExist(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Check if given field contains integral number
  * \return true if field exist and have correct type
  */
-int isNumberField(char * section_name, char * field_name,  struct parsed_config * c);
+int isNumberField(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Check if given field contains float
  * \return true if field exist and have correct type
  */
-int isFloatField(char * section_name, char * field_name,  struct parsed_config * c);
+int isFloatField(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Check if given field contains bool
  * \return true if field exist and have correct type
  */
-int isBooleanField(char * section_name, char * field_name,  struct parsed_config * c);
+int isBooleanField(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Check if given field contains string
  * \return true if field exist and have correct type
  */
-int isStringField(char * section_name, char * field_name,  struct parsed_config * c);
+int isStringField(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Check if given field is numeric
  * \return Field type (enum ini_fields_type) if field exist, -1 otherwise
  */
-int getFieldType(char * section_name, char * field_name,  struct parsed_config * c);
+int getFieldType(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Get boolean value from given field. Behaviour undefined if fields is other type or do not exist.
  * In second case can cause Segmentation Fault
  */
-bool getBoolValue(char * section_name, char * field_name,  struct parsed_config * c);
+bool getBoolValue(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Get double value from given field. Behaviour undefined if fields is other type or do not exist.
  * In second case can cause Segmentation Fault
  */
-double getFloatValue(char * section_name, char * field_name,  struct parsed_config * c);
+double getFloatValue(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Get integer value from given field. Behaviour undefined if fields is other type or do not exist.
  * In second case can cause Segmentation Fault
  */
-int getNumericValue(char * section_name, char * field_name,  struct parsed_config * c);
+int getNumericValue(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 /*!
  * Get string value from given field. Behaviour undefined if fields is other type or do not exist.
@@ -138,24 +138,24 @@ int getNumericValue(char * section_name, char * field_name,  struct parsed_confi
  *
  * Return reference to string inside structure. Please do not modify.
  */
-char const * getStringValue(char * section_name, char * field_name,  struct parsed_config * c);
+char const * getStringValue(const char *section_name, const char *field_name, const struct parsed_config *c);
 
 //TODO think about interface to single section
 
 /*!
  * Give access to RAW section structure. Be careful.
  */
-struct section_of_ini * getSection(char * section_name, struct parsed_config * c);
+struct section_of_ini * getSection(const char *section_name, struct parsed_config *c);
 
 /*!
  * Give access to RAW field structure. Be careful.
  */
-struct fields_of_ini * getFieldFromSection(char * field_name, struct section_of_ini* section);
+struct fields_of_ini * getFieldFromSection(const char *field_name, struct section_of_ini *section);
 
 /*!
  * Print ini config in lexicographical order.
  */
-void prettyPrint(FILE *f, struct parsed_config *c);
+void prettyPrint(FILE *f, const struct parsed_config *c);
 
 #endif //TIMOTHY_INI_PARSER_H
 

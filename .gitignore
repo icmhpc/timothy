@@ -1,7 +1,7 @@
 timothy
 *.kate-swp
 result
-validator
+/validator
 timothy.kdev4
 *.orig
 src/makefile_include/default.mk
