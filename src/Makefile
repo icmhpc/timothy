@@ -148,16 +148,21 @@ $(EXEC): $(OBJS)
 $(OBJS): $(INCL)
 
 VALIDATOR_FLAGS = -O0 -Winline -Wall -Wextra -g
-
-VALIDATOR_OBJS = validator.o ini_parser/ini_parser.o
+VALIDATOR_CXX_FLAGS = -std=c++0x -std=c++11
+VALIDATOR_OBJS = validator.o ini_parser/ini_parser.o validator/validator.o
 
 VALIDATOR_INLC = global.h ini_parser/ini_parser.h
 
-$(VALIDATOR): $(VALIDATOR_OBJS)
-	gcc -Wall -Wextra $(VALIDATOR_OBJS) -o $(VALIDATOR)
+#CXX = clang++
 
-validator.o: validator.c ini_parser/ini_parser.h
-	cc -c $(VALIDATOR_FLAGS) $< -o $@
+$(VALIDATOR): $(VALIDATOR_OBJS)
+	$(CXX) $(VALIDATOR_FLAGS) $(VALIDATOR_CXX_FLAGS) $(VALIDATOR_OBJS) -o $(VALIDATOR)
+
+validator.o: validator.cpp ini_parser/ini_parser.h
+	$(CXX) -c $(VALIDATOR_FLAGS) $(VALIDATOR_CXX_FLAGS) $< -o $@
+
+validator/validator.o: validator/validator.cpp ini_parser/ini_parser.h
+	$(CXX) -c $(VALIDATOR_FLAGS) $(VALIDATOR_CXX_FLAGS) $< -o $@
 
 ini_parser/ini_parser.o: ini_parser/ini_parser.c ini_parser/ini_parser.h
 	cc -c $(VALIDATOR_FLAGS) $< -o $@
@@ -165,6 +170,9 @@ ini_parser/ini_parser.o: ini_parser/ini_parser.c ini_parser/ini_parser.h
 .PHONY: clean
 clean:
 	rm -f $(OBJS); rm -f $(EXEC); rm -f $(VALIDATOR_OBJS); rm -f $(VALIDATOR)
+clean_validator:
+	rm -f $(VALIDATOR_OBJS); rm -f $(VALIDATOR)
+
 
 doc:
 	doxygen Doxyfile

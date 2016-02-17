@@ -24,7 +24,7 @@ std::pair<bool,std::string> validate_config(parsed_config * c){
 
   }
 
-  return std::make_pair<int,std::string>(res, errors.str());
+  return std::make_pair(res, errors.str());
 };
 
 
@@ -33,13 +33,16 @@ bool validateGlobal(parsed_config * c, std::iostream * s){
   bool res = true;
   std::string section_name = "GLOBAL";
   std::string prefix = " section do not contain ";
-  std::map<std::string, int (*) (const char *, const char *, parsed_config *) > to_check = {
-          {"number_of_steps", isNumberField}, {"size_x", isNumberField}, {"size_y", isNumberField},
-          {"size_z", isNumberField}
+  std::map<std::string, int (*) (const char *, const char *,const  parsed_config *) > to_check = {
+          {std::string("number_of_steps"), &isNumberField}, { std::string("size_x"), &isNumberField},
+          {std::string("size_y"), &isNumberField},
+          {std::string("size_z"), &isNumberField}, {std::string("size_d"), &isNumberField}
   };
+  //to_check.insert(std::make_pair("number_of_steps", &isNumberField));
+
   for(auto it : to_check){
     if (fieldExist(section_name.c_str(), it.first.c_str(), c)){
-      res &= it.second(section_name.c_str(), it.first.c_str(), c)
+      res &= it.second(section_name.c_str(), it.first.c_str(), c);
     } else {
       res = false;
       *s << error << section_name << prefix << "\"" << it.first << "\"" << std::endl;

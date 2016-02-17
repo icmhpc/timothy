@@ -355,7 +355,7 @@ int sectionExist(const char *name, const struct parsed_config *c) {
   return NULL != getSection(name, c);
 }
 
-struct section_of_ini * getSection(const char *section_name, struct parsed_config *c){
+struct section_of_ini * getSection(const char *section_name, const struct parsed_config *c){
   char s_name[strlen(section_name)+1];
   for (size_t i = 0; i < strlen(section_name); ++i){
     s_name[i] = (char) toupper(section_name[i]);
@@ -371,7 +371,7 @@ struct fields_of_ini * getFieldFromSection(const char *field_name, struct sectio
   return bsearch(f_name, section->fields, section->number_of_fields, sizeof(struct fields_of_ini), fieldNameCompare);
 }
 
-struct fields_of_ini * getField(char * section_name, char * field_name,  struct parsed_config * c){
+struct fields_of_ini * getField(const char *section_name, const char *field_name, const struct parsed_config *c){
 
   struct section_of_ini * sect = getSection(section_name, c);
   if (sect == NULL){
@@ -384,7 +384,8 @@ int fieldExist(const char *section_name, const char *field_name, const struct pa
   return  NULL != getField(section_name, field_name, c);
 }
 
-int isTypeField(char * section_name, char * field_name,  struct parsed_config * c, enum ini_fields_type t){
+int isTypeField(const char *section_name, const char *field_name, const struct parsed_config *c,
+                const enum ini_fields_type t){
   struct fields_of_ini * field = getField(section_name, field_name, c);
   if (field == NULL){
     return false;
@@ -435,7 +436,7 @@ char ** getSectionsNamesByPrefix(const char *prefix, const struct parsed_config 
   size_t begin =0;
   size_t end = 0;
   for (; i < c->number_of_sections ; ++i) {
-    if (strncpy(prefix, c->sections_list[i].name, len) == 0){
+    if (strncmp(prefix, c->sections_list[i].name, len) == 0){
       begin = i;
       break;
     }
@@ -444,7 +445,7 @@ char ** getSectionsNamesByPrefix(const char *prefix, const struct parsed_config 
     return NULL;
   }
   for (; i < c->number_of_sections ; ++i) {
-    if (strncpy(prefix, c->sections_list[i].name, len) != 0){
+    if (strncmp(prefix, c->sections_list[i].name, len) != 0){
       break;
     }
   }

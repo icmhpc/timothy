@@ -145,7 +145,7 @@ char const * getStringValue(const char *section_name, const char *field_name, co
 /*!
  * Give access to RAW section structure. Be careful.
  */
-struct section_of_ini * getSection(const char *section_name, struct parsed_config *c);
+struct section_of_ini * getSection(const char *section_name, const struct parsed_config *c);
 
 /*!
  * Give access to RAW field structure. Be careful.

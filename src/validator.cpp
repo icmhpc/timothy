@@ -3,6 +3,7 @@
 //
 #include "validator/validator.h"
 #include <iostream>
+#include <cstdlib>
 
 
 int main(int argc, char** argv){
