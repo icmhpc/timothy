@@ -263,11 +263,12 @@ void chemEnvCellPC(int nch)
  */
 void chemEnvInitBC(int nch)
 {
-  int i, j, k;
+  HYPRE_Int i, j, k;
+  size_t i2;
   int mi;
   int nentries = 1;
   HYPRE_Int stencil_indices[1];
-  long long nvalues = gridSize.x * gridSize.y * gridSize.z;
+  size_t nvalues = gridSize.x * gridSize.y * gridSize.z;
   double *values, *bvalues;
   /* stdout redirected to file */
   //switchStdOut(chfname);
@@ -317,10 +318,10 @@ void chemEnvInitBC(int nch)
 
   /* incorporate boundary conditions; Dirichlet on 6 faces */
 
-  for (i = 0; i < nvalues; i++)
-    values[i] = chemZ[nch];
-  for (i = 0; i < nvalues; i++)
-    bvalues[i] = chemZ[nch] * fieldBC[nch + NGLOB];
+  for (i2 = 0; i2 < nvalues; i2++)
+    values[i2] = chemZ[nch];
+  for (i2 = 0; i2 < nvalues; i2++)
+    bvalues[i2] = chemZ[nch] * fieldBC[nch + NGLOB];
 
   if (MPIcoords[MPIrank][0] == 0) {
     nvalues = nentries * gridSize.y * gridSize.z;

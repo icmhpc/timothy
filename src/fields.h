@@ -58,7 +58,7 @@ int fieldType[NFIELDS];
 
 double fieldDt[NFIELDS]; /* how many seconds per iteration */
 
-int fieldNumberOfCriticalLevels[NFIELDS]; /* number of critical levels for each field */
+//int fieldNumberOfCriticalLevels[NFIELDS]; /* number of critical levels for each field */
 
 //double *fieldCriticalLevel1; /* critical level 1 - for cells in G1 phase */
 //double *fieldCriticalLevel2; /* critical level 2 - for cells in S, G2, M phases */

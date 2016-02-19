@@ -43,7 +43,7 @@
  */
 
 /*!
- * This function intializes the fields.
+ * This function initializes the fields.
  * Various parameters are set and the Hypre initialization of the system is executed.
  */
 void fieldsInit()
