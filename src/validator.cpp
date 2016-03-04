@@ -2,12 +2,14 @@
 // Created by Grzegorz Bokota on 04.02.16.
 //
 #include "validator/validator.h"
+#include "ini_manipulator/ini_manipulator.h"
 #include <iostream>
 #include <cstdlib>
 
 
 int main(int argc, char** argv){
   struct parsed_config config;
+  timothy::ini_manipulator::iniConfiguration c;
   int res;
   if (argc > 1){
     res = readFromPath(argv[1], &config);

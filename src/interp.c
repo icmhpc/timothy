@@ -110,9 +110,9 @@ void findPatches()
 
       int ax, ay, az;
 
-      cellIdx.x = ((cells[c].x - lowerGridCorner.x) / gridResolution);
-      cellIdx.y = ((cells[c].y - lowerGridCorner.y) / gridResolution);
-      cellIdx.z = ((cells[c].z - lowerGridCorner.z) / gridResolution);
+      cellIdx.x = (int64_t) ((cellsData.cells[c].x - lowerGridCorner.x) / gridResolution);
+      cellIdx.y = (int64_t) ((cellsData.cells[c].y - lowerGridCorner.y) / gridResolution);
+      cellIdx.z = (int64_t) ((cellsData.cells[c].z - lowerGridCorner.z) / gridResolution);
 
       for (ax = 0; ax < 2; ax++)
         for (ay = 0; ay < 2; ay++)
@@ -197,9 +197,9 @@ void doInterpolation()
 
   for (c = 0; c < lnc; c++) {
 
-    cellIdx.x = ((cells[c].x - lowerGridCorner.x) / gridResolution);
-    cellIdx.y = ((cells[c].y - lowerGridCorner.y) / gridResolution);
-    cellIdx.z = ((cells[c].z - lowerGridCorner.z) / gridResolution);
+    cellIdx.x = ((cellsData.cells[c].x - lowerGridCorner.x) / gridResolution);
+    cellIdx.y = ((cellsData.cells[c].y - lowerGridCorner.y) / gridResolution);
+    cellIdx.z = ((cellsData.cells[c].z - lowerGridCorner.z) / gridResolution);
 
     for (p = 0; p < MPIsize; p++) {
       int ax, ay, az;
@@ -221,22 +221,22 @@ void doInterpolation()
               cicCoord.y = lowerGridCorner.y + cellIdx.y * gridResolution;
               cicCoord.z = lowerGridCorner.z + cellIdx.z * gridResolution;
 
-              d.x = (cells[c].x - cicCoord.x) / gridResolution;
-              d.y = (cells[c].y - cicCoord.y) / gridResolution;
-              d.z = (cells[c].z - cicCoord.z) / gridResolution;
+              d.x = (cellsData.cells[c].x - cicCoord.x) / gridResolution;
+              d.y = (cellsData.cells[c].y - cicCoord.y) / gridResolution;
+              d.z = (cellsData.cells[c].z - cicCoord.z) / gridResolution;
 
               t.x = 1.0 - d.x;
               t.y = 1.0 - d.y;
               t.z = 1.0 - d.z;
 
-              if(cells[c].ctype==1) { /* endothelial cell - production */
+              if(cellsData.cells[c].ctype==1) { /* endothelial cell - production */
                 patch(p,1,idx.x,idx.y,idx.z) +=
                   1.0 * (ax * d.x + (1 - ax) * t.x) * (ay * d.y +
                                                        (1 -
                                                         ay) * t.y) *
                   (az * d.z + (1 - az) * t.z);
-              } else if (cells[c].phase != 5) {	/* if not in necrotic phase */
-                if (cells[c].phase == 0) {	/* if in G0 phase - lower consumption */
+              } else if (cellsData.cells[c].phase != 5) {	/* if not in necrotic phase */
+                if (cellsData.cells[c].phase == 0) {	/* if in G0 phase - lower consumption */
                   patch(p,0, idx.x, idx.y, idx.z) +=
                     0.75 * (ax * d.x + (1 - ax) * t.x) * (ay * d.y +
                                                           (1 -
@@ -571,12 +571,12 @@ void applyFieldsPatches()
   /* reset fields */
   for (f = 0; f < NFIELDS+NCHEM*3; f++)
     for (c = 0; c < lnc; c++)
-      cellFields[f][c] = 0.0;
+      cellsData.cellFields[f][c] = 0.0;
 
   for (c = 0; c < lnc; c++) {	/* for every cell */
-    cellIdx.x = ((cells[c].x - lowerGridCorner.x) / gridResolution);
-    cellIdx.y = ((cells[c].y - lowerGridCorner.y) / gridResolution);
-    cellIdx.z = ((cells[c].z - lowerGridCorner.z) / gridResolution);
+    cellIdx.x = ((cellsData.cells[c].x - lowerGridCorner.x) / gridResolution);
+    cellIdx.y = ((cellsData.cells[c].y - lowerGridCorner.y) / gridResolution);
+    cellIdx.z = ((cellsData.cells[c].z - lowerGridCorner.z) / gridResolution);
     for (p = 0; p < MPIsize; p++) {	/* for each process */
       int ax, ay, az;
       if (!cicReceiver[p])
@@ -599,9 +599,9 @@ void applyFieldsPatches()
               cicCoord.y = lowerGridCorner.y + cellIdx.y * gridResolution;
               cicCoord.z = lowerGridCorner.z + cellIdx.z * gridResolution;
 
-              d.x = (cells[c].x - cicCoord.x) / gridResolution;
-              d.y = (cells[c].y - cicCoord.y) / gridResolution;
-              d.z = (cells[c].z - cicCoord.z) / gridResolution;
+              d.x = (cellsData.cells[c].x - cicCoord.x) / gridResolution;
+              d.y = (cellsData.cells[c].y - cicCoord.y) / gridResolution;
+              d.z = (cellsData.cells[c].z - cicCoord.z) / gridResolution;
 
               t.x = 1.0 - d.x;
               t.y = 1.0 - d.y;
@@ -610,12 +610,12 @@ void applyFieldsPatches()
               /* interpolating back to cells */
               /* scaling from mol/cm^3 to mol/cell */
               for (f = 0; f < NFIELDS; f++) {
-                cellFields[f][c] += fieldsPatches[p][f * patchSize[p].x * patchSize[p].y * patchSize[p].z + patchSize[p].y * patchSize[p].z * idx.x + patchSize[p].z * idx.y + idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);	//*cellVolume;
+                cellsData.cellFields[f][c] += fieldsPatches[p][f * patchSize[p].x * patchSize[p].y * patchSize[p].z + patchSize[p].y * patchSize[p].z * idx.x + patchSize[p].z * idx.y + idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);	//*cellVolume;
               }
               for (f = 0; f < NCHEM; f++) {
-                cellFields[NFIELDS+3*f][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
-                cellFields[NFIELDS+3*f+1][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 1] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
-                cellFields[NFIELDS+3*f+2][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 2] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
+                cellsData.cellFields[NFIELDS+3*f][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
+                cellsData.cellFields[NFIELDS+3*f+1][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 1] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
+                cellsData.cellFields[NFIELDS+3*f+2][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 2] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
               }
             }			// if
           }			// az

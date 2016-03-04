@@ -29,6 +29,7 @@
 #include <float.h>
 #include <string.h>
 #include <limits.h>
+#include <stdbool.h>
 
 #include "global.h"
 #include "inline.h"
@@ -49,10 +50,10 @@ static inline int outsideTheBox(int p)
 {
   double x, y, z, r;
 
-  x = cells[p].x;
-  y = cells[p].y;
-  z = cells[p].z;
-  r = cells[p].size;
+  x = cellsData.cells[p].x;
+  y = cellsData.cells[p].y;
+  z = cellsData.cells[p].z;
+  r = cellsData.cells[p].size;
 
   if (x - r < 0 || x + r > (double) nx)
     return 1;
@@ -89,7 +90,7 @@ void cellsAllocate()
   if (!(cells = (struct cellData *) _mm_malloc(cellsActualSize,64)))
     stopRun(106, "cells", __FILE__, __LINE__);
 #else
-  if (!(cells = (struct cellData *) malloc(cellsActualSize)))
+  if (!(cellsData.cells = (struct cellData *) malloc(cellsActualSize)))
     stopRun(106, "cells", __FILE__, __LINE__);
 #endif
 
@@ -103,10 +104,10 @@ void cellsAllocate()
     stopRun(106, "velocity", __FILE__, __LINE__);
 #endif
 
-  cellFields = (double **) malloc((NFIELDS+NCHEM*3) * sizeof(double *));
+  cellsData.cellFields = (double **) malloc((NFIELDS+NCHEM*3) * sizeof(double *));
   for (f = 0; f < NFIELDS+NCHEM*3; f++)
     if (!
-        (cellFields[f] =
+        (cellsData.cellFields[f] =
            (double *) malloc(maxCellsPerProc * sizeof(double))))
       stopRun(106, "cellFields", __FILE__, __LINE__);
 
@@ -188,40 +189,40 @@ int cellsRandomInit()
     simTime = 0;
 
     for (i = 0; i < lnc; i++) {
-      cells[i].x = D * (sprng(stream) * 2 - 1);
-      cells[i].y = D * (sprng(stream) * 2 - 1);
+      cellsData.cells[i].x = D * (sprng(stream) * 2 - 1);
+      cellsData.cells[i].y = D * (sprng(stream) * 2 - 1);
       if (sdim == 3)
-        cells[i].z = D * (sprng(stream) * 2 - 1);
+        cellsData.cells[i].z = D * (sprng(stream) * 2 - 1);
       else
-        cells[i].z = 0.0;
+        cellsData.cells[i].z = 0.0;
 
-      cells[i].x += nx / 2;
-      cells[i].y += nx / 2;
+      cellsData.cells[i].x += nx / 2;
+      cellsData.cells[i].y += nx / 2;
       if (sdim == 3)
-        cells[i].z += nx / 2;
+        cellsData.cells[i].z += nx / 2;
       else
-        cells[i].z = 0.0;
+        cellsData.cells[i].z = 0.0;
 
-      cells[i].size = pow(2.0, -(1.0 / 3.0)) * csize;
-      cells[i].gid =
+      cellsData.cells[i].size = pow(2.0, -(1.0 / 3.0)) * csize;
+      cellsData.cells[i].gid =
         (unsigned long long int) MPIrank *(unsigned long long int)
         maxCellsPerProc + (unsigned long long int) i;
-      cells[i].v = 0.0;
-      cells[i].density = 0.0;
-      cells[i].h = h;
-      cells[i].young = 2100.0 + sprng(stream) * 100.0;
-      cells[i].halo = 0;
-      cells[i].phase = 0;
-      cells[i].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].s = s * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].m = m * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].phasetime = 0.0;
-      cells[i].age = 0;
-      cells[i].death = 0;
-      cells[i].tumor = 0;
-      cells[i].ctype = 0;
-      cells[i].scstage = 0;
+      cellsData.cells[i].v = 0.0;
+      cellsData.cells[i].density = 0.0;
+      cellsData.cells[i].h = h;
+      cellsData.cells[i].young = (float) (2100.0 + sprng(stream) * 100.0);
+      cellsData.cells[i].halo = 0;
+      cellsData.cells[i].phase = 0;
+      cellsData.cells[i].g1 = (float) (g1 * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].g2 = (float) (g2 * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].s = (float) (s * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].m = (float) (m * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].phasetime = 0.0;
+      cellsData.cells[i].age = 0;
+      cellsData.cells[i].death = 0;
+      cellsData.cells[i].tumor = 0;
+      cellsData.cells[i].ctype = 0;
+      cellsData.cells[i].scstage = 0;
       localID++;
     }
     nscinst[0]+=lnc;
@@ -265,38 +266,38 @@ int cellsRandomInit()
       }
 
       if(bvsim) {
-        cells[i].x=cells[middleCellIdx].x-0.8;
-        cells[i].y=cells[middleCellIdx].y-0.8;
-        cells[i].z=cells[middleCellIdx].z+0.01;
+        cellsData.cells[i].x=cellsData.cells[middleCellIdx].x-0.8;
+        cellsData.cells[i].y=cellsData.cells[middleCellIdx].y-0.8;
+        cellsData.cells[i].z=cellsData.cells[middleCellIdx].z+0.01;
       } else {
-        cells[i].x = z1 * D + nx / 2;
-        cells[i].y = z2 * D + nx / 2;
+        cellsData.cells[i].x = z1 * D + nx / 2;
+        cellsData.cells[i].y = z2 * D + nx / 2;
         if (sdim == 3)
-          cells[i].z = z3 * D + nx / 2;
+          cellsData.cells[i].z = z3 * D + nx / 2;
         else
-          cells[i].z = 0.0;
+          cellsData.cells[i].z = 0.0;
       }
 
-      cells[i].size = pow(2.0, -(1.0 / 3.0)) * csize;
-      cells[i].gid =
+      cellsData.cells[i].size = pow(2.0, -(1.0 / 3.0)) * csize;
+      cellsData.cells[i].gid =
         (unsigned long long int) MPIrank *(unsigned long long int)
         maxCellsPerProc + (unsigned long long int) i;
-      cells[i].v = 0.0;
-      cells[i].density = 0.0;
-      cells[i].h = h;
-      cells[i].young = 2100.0 + sprng(stream) * 100.0;
-      cells[i].halo = 0;
-      cells[i].phase = 0;
-      cells[i].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].s = s * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].m = m * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[i].phasetime = 0.0;
-      cells[i].tumor = 0;
-      cells[i].age = 0;
-      cells[i].death = 0;
-      cells[i].ctype = 0;
-      cells[i].scstage = 0;
+      cellsData.cells[i].v = 0.0;
+      cellsData.cells[i].density = 0.0;
+      cellsData.cells[i].h = h;
+      cellsData.cells[i].young = (float) (2100.0 + sprng(stream) * 100.0);
+      cellsData.cells[i].halo = 0;
+      cellsData.cells[i].phase = 0;
+      cellsData.cells[i].g1 = (float) (g1 * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].g2 = (float) (g2 * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].s = (float) (s * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].m = (float) (m * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[i].phasetime = 0.0;
+      cellsData.cells[i].tumor = 0;
+      cellsData.cells[i].age = 0;
+      cellsData.cells[i].death = 0;
+      cellsData.cells[i].ctype = 0;
+      cellsData.cells[i].scstage = 0;
       localID++;
     }
   }
@@ -324,26 +325,26 @@ void mitosis(int c)
     stopRun(109, NULL, __FILE__, __LINE__);
 
   /* stem cells counters */
-  if(cells[c].scstage==nscstages-1) {
-    if(sprng(stream)>sctprob[cells[c].scstage]) {
+  if(cellsData.cells[c].scstage==nscstages-1) {
+    if(sprng(stream) > sctprob[cellsData.cells[c].scstage]) {
       celld[c]=1;
       localbc+=1;
     }
     return;
   }
 
-  if(cells[c].scstage<nscstages-1) {
-    if(sprng(stream)>sctprob[cells[c].scstage]) {
-      cells[lnc].scstage=cells[c].scstage+1;
-      nscinst[cells[lnc].scstage]+=1;
+  if(cellsData.cells[c].scstage<nscstages-1) {
+    if(sprng(stream)>sctprob[cellsData.cells[c].scstage]) {
+      cellsData.cells[lnc].scstage=cellsData.cells[c].scstage+1;
+      nscinst[cellsData.cells[lnc].scstage]+=1;
     } else {
-      cells[lnc].scstage=cells[c].scstage;
-      nscinst[cells[lnc].scstage]+=1;
+      cellsData.cells[lnc].scstage=cellsData.cells[c].scstage;
+      nscinst[cellsData.cells[lnc].scstage]+=1;
     }
-    if(sprng(stream)>sctprob[cells[c].scstage]) {
-      nscinst[cells[c].scstage]-=1;
-      cells[c].scstage=cells[c].scstage+1;
-      nscinst[cells[c].scstage]+=1;
+    if(sprng(stream)>sctprob[cellsData.cells[c].scstage]) {
+      nscinst[cellsData.cells[c].scstage]-=1;
+      cellsData.cells[c].scstage=cellsData.cells[c].scstage+1;
+      nscinst[cellsData.cells[c].scstage]+=1;
     }
     /*if(sprng(stream)>sctprob[cells[c].scstage]) {
       cells[lnc].scstage=cells[c].scstage+1;
@@ -358,7 +359,7 @@ void mitosis(int c)
 
   /* daughter cells are shifted away from the center of parent cell */
   if (sc > 0 && mitrand == 0) {	/* direction of shift related to velocity vector */
-    sc = cells[c].size / (2 * sc);
+    sc = cellsData.cells[c].size / (2 * sc);
     shift[0] = sc * velocity[c].x;
     shift[1] = sc * velocity[c].y;
     if (sdim == 3)
@@ -377,7 +378,7 @@ void mitosis(int c)
       sc = sqrt(pow(shift[0], 2) + pow(shift[1], 2) + pow(shift[2], 2));
       if (sc == 0)
         continue;
-      sc = cells[c].size / (2 * sc);
+      sc = cellsData.cells[c].size / (2 * sc);
       shift[0] = sc * shift[0];
       shift[1] = sc * shift[1];
       shift[2] = sc * shift[2];
@@ -385,61 +386,61 @@ void mitosis(int c)
     }
   }
   /* 1st daughter cell position, size, type and age */
-  cells[lnc].x = cells[c].x + shift[0];
-  cells[lnc].y = cells[c].y + shift[1];
-  cells[lnc].z = cells[c].z + shift[2];
-  cells[lnc].size = pow(2.0, -(1.0 / 3.0)) * cells[c].size;;
-  cells[lnc].tumor = cells[c].tumor;
-  cells[lnc].age = cells[c].age + 1;
+  cellsData.cells[lnc].x = cellsData.cells[c].x + shift[0];
+  cellsData.cells[lnc].y = cellsData.cells[c].y + shift[1];
+  cellsData.cells[lnc].z = cellsData.cells[c].z + shift[2];
+  cellsData.cells[lnc].size = pow(2.0, -(1.0 / 3.0)) * cellsData.cells[c].size;;
+  cellsData.cells[lnc].tumor = cellsData.cells[c].tumor;
+  cellsData.cells[lnc].age = cellsData.cells[c].age + 1;
 
   /* 2nd daughter cell position, size, type and age */
-  cells[c].x -= shift[0];
-  cells[c].y -= shift[1];
-  cells[c].z -= shift[2];
-  cells[c].size = cells[lnc].size;;
-  cells[c].age += 1;
+  cellsData.cells[c].x -= shift[0];
+  cellsData.cells[c].y -= shift[1];
+  cellsData.cells[c].z -= shift[2];
+  cellsData.cells[c].size = cellsData.cells[lnc].size;;
+  cellsData.cells[c].age += 1;
 
   /* 2nd daughter cell cycle phases lenghts */
-  if (cells[c].tumor == 1) {
-    cells[c].g1 = cg1 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[c].g2 = cg2 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[c].s = cs * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[c].m = cm * (1 + (sprng(stream) * 2 - 1) * v);
+  if (cellsData.cells[c].tumor == 1) {
+    cellsData.cells[c].g1 = (float) (cg1 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[c].g2 = (float) (cg2 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[c].s = (float) (cs * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[c].m = (float) (cm * (1 + (sprng(stream) * 2 - 1) * v));
   } else {
-    cells[c].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[c].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[c].s = s * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[c].m = m * (1 + (sprng(stream) * 2 - 1) * v);
+    cellsData.cells[c].g1 = (float) (g1 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[c].g2 = (float) (g2 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[c].s = (float) (s * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[c].m = (float) (m * (1 + (sprng(stream) * 2 - 1) * v));
   }
   /* 1st daughter cell global ID */
-  cells[lnc].gid =
+  cellsData.cells[lnc].gid =
     (unsigned long long int) MPIrank *(unsigned long long int)
     maxCellsPerProc + (unsigned long long int) lnc;
 
   /* 1st daughter cell parameters */
-  cells[lnc].v = 0.0;
-  cells[lnc].density = cells[c].density;
-  cells[lnc].h = h;
-  cells[lnc].young = 2100.0 + sprng(stream) * 100.0;
-  cells[lnc].halo = 0;
-  cells[lnc].phase = 1;
-  cells[lnc].death = 0;
-  cells[lnc].phasetime = 0.0;
+  cellsData.cells[lnc].v = 0.0;
+  cellsData.cells[lnc].density = cellsData.cells[c].density;
+  cellsData.cells[lnc].h = h;
+  cellsData.cells[lnc].young = (float) (2100.0 + sprng(stream) * 100.0);
+  cellsData.cells[lnc].halo = 0;
+  cellsData.cells[lnc].phase = 1;
+  cellsData.cells[lnc].death = 0;
+  cellsData.cells[lnc].phasetime = 0.0;
   /* 1st daughter cell cycle phases lenghts */
-  if (cells[lnc].tumor == 1) {
-    cells[lnc].g1 = cg1 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[lnc].g2 = cg2 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[lnc].s = cs * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[lnc].m = cm * (1 + (sprng(stream) * 2 - 1) * v);
+  if (cellsData.cells[lnc].tumor == 1) {
+    cellsData.cells[lnc].g1 = (float) (cg1 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[lnc].g2 = (float) (cg2 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[lnc].s = (float) (cs * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[lnc].m = (float) (cm * (1 + (sprng(stream) * 2 - 1) * v));
   } else {
-    cells[lnc].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[lnc].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[lnc].s = s * (1 + (sprng(stream) * 2 - 1) * v);
-    cells[lnc].m = m * (1 + (sprng(stream) * 2 - 1) * v);
+    cellsData.cells[lnc].g1 = (float) (g1 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[lnc].g2 = (float) (g2 * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[lnc].s = (float) (s * (1 + (sprng(stream) * 2 - 1) * v));
+    cellsData.cells[lnc].m = (float) (m * (1 + (sprng(stream) * 2 - 1) * v));
   }
 
   /* update local cell counters */
-  if (cells[lnc].tumor == 1)
+  if (cellsData.cells[lnc].tumor == 1)
     lcnc += 1;
   lnc = lnc + 1;
   lg1nc += 1;
@@ -469,9 +470,9 @@ void markMiddleCancerCell()
   center[1] = 0.0;
   center[2] = 0.0;
   for (c = 0; c < lnc; c++) {
-    center[0] += cells[c].x / nc;
-    center[1] += cells[c].y / nc;
-    center[2] += cells[c].z / nc;
+    center[0] += cellsData.cells[c].x / nc;
+    center[1] += cellsData.cells[c].y / nc;
+    center[2] += cellsData.cells[c].z / nc;
   }
 
   /* MPI Reduce operation computes global center of mass */
@@ -484,9 +485,9 @@ void markMiddleCancerCell()
   /* each process finds local cell closest to the global center of mass */
   for (c = 0; c < lnc; c++) {
     dist =
-      sqrt((cells[c].x - gcenter[0]) * (cells[c].x - gcenter[0]) +
-           (cells[c].y - gcenter[1]) * (cells[c].y - gcenter[1]) +
-           (cells[c].z - gcenter[2]) * (cells[c].z - gcenter[2]));
+      sqrt((cellsData.cells[c].x - gcenter[0]) * (cellsData.cells[c].x - gcenter[0]) +
+           (cellsData.cells[c].y - gcenter[1]) * (cellsData.cells[c].y - gcenter[1]) +
+           (cellsData.cells[c].z - gcenter[2]) * (cellsData.cells[c].z - gcenter[2]));
     if (dist < lmdist.val) {
       lmdist.val = dist;
       middle = c;
@@ -498,8 +499,8 @@ void markMiddleCancerCell()
                 MPI_COMM_WORLD);
   /* mark the found cell as cancer one */
   if (MPIrank == gmdist.rank) {
-    cells[middle].tumor = 1;
-    cells[middle].phase = 1;
+    cellsData.cells[middle].tumor = 1;
+    cellsData.cells[middle].phase = 1;
     lg0nc--;
     lg1nc++;
     lcnc++;
@@ -519,11 +520,11 @@ void cellsCleanup()
 #ifdef __MIC__
   _mm_free(cells);
 #else
-  free(cells);
+  free(cellsData.cells);
 #endif
   for (f = 0; f < NFIELDS; f++)
-    free(cellFields[f]);
-  free(cellFields);
+    free(cellsData.cellFields[f]);
+  free(cellsData.cellFields);
 #ifdef __MIC__
   _mm_free(velocity);
 #else
@@ -542,17 +543,17 @@ void cellsDeath(int lnc_old)
   for (c = 0; c < lnc; c++) {
     /* shift cells after dead cell removal */
     if (c >= lnc_old) {
-      cells[pos] = cells[c];
+      cellsData.cells[pos] = cellsData.cells[c];
       pos++;
       continue;
     }
     if (c != pos && celld[c] == 0)
-      cells[pos] = cells[c];
+      cellsData.cells[pos] = cellsData.cells[c];
     if (celld[c] == 0)
       pos++;
     /* update cell counters */
     if (celld[c] == 1) {
-      switch (cells[c].phase) {
+      switch (cellsData.cells[c].phase) {
       case 0:
         lg0nc--;
         break;
@@ -569,7 +570,7 @@ void cellsDeath(int lnc_old)
         lmnc--;
         break;
       }
-      if (cells[c].tumor == 1)
+      if (cellsData.cells[c].tumor == 1)
         lcnc--;
     }
   }
@@ -622,15 +623,15 @@ void updateCellPositions()
 
   /* move cells */
   for (c = 0; c < lnc; c++) {
-    if(cells[c].ctype==1) continue;
-    cells[c].x += velocity[c].x ;
-    cells[c].y += velocity[c].y ;
-    cells[c].z += velocity[c].z ;
+    if(cellsData.cells[c].ctype==1) continue;
+    cellsData.cells[c].x += velocity[c].x ;
+    cellsData.cells[c].y += velocity[c].y ;
+    cellsData.cells[c].z += velocity[c].z ;
     /* random movement */
     double alpha=0.000001;
-    cells[c].x += alpha*(2*sprng(stream)-1);
-    cells[c].y += alpha*(2*sprng(stream)-1);
-    cells[c].z += alpha*(2*sprng(stream)-1);
+    cellsData.cells[c].x += alpha*(2*sprng(stream)-1);
+    cellsData.cells[c].y += alpha*(2*sprng(stream)-1);
+    cellsData.cells[c].z += alpha*(2*sprng(stream)-1);
 
     // Mark cells that are out of the box and need to be removed
     //if(outside_the_box(c)) { celld[c]=1; rsum++; }
@@ -669,28 +670,28 @@ int updateCellCycles()
 
     if (simStart) {
 
-      if (cells[c].phase != 0
-          && ((cells[c].tumor == 0 && cells[c].density <= eps)
-              || (cells[c].tumor == 1 && cells[c].density <= epsCancer)))
-        cells[c].phasetime += gfDt / 3600.0;
+      if (cellsData.cells[c].phase != 0
+          && ((cellsData.cells[c].tumor == 0 && cellsData.cells[c].density <= eps)
+              || (cellsData.cells[c].tumor == 1 && cellsData.cells[c].density <= epsCancer)))
+        cellsData.cells[c].phasetime += gfDt / 3600.0;
 
-      switch (cells[c].phase) {
+      switch (cellsData.cells[c].phase) {
 
       case 0:			/* G0 phase */
         if (gfields && oxygen
-            && cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
-          cells[c].phase = 5;
-          cells[c].phasetime = 0;
+            && cellsData.cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
+          cellsData.cells[c].phase = 5;
+          cellsData.cells[c].phasetime = 0;
           lg0nc--;
           lnnc++;
           break;
         }
         /* transition to G1 phase */
-        if ((cells[c].tumor == 0 && cells[c].density <= eps) ||	/* enough space for healthy cell */
-            (cells[c].tumor == 1 && cells[c].density <= epsCancer) ||	/* enough space for tumor cell */
+        if ((cellsData.cells[c].tumor == 0 && cellsData.cells[c].density <= eps) ||	/* enough space for healthy cell */
+            (cellsData.cells[c].tumor == 1 && cellsData.cells[c].density <= epsCancer) ||	/* enough space for tumor cell */
             nc == 1 ||		/* only single cell in the simulation */
-            (gfields && oxygen && cellFields[OXYG][c] >= fieldCriticalLevel1[OXYG])) {	/* sufficient level of oxygen */
-          cells[c].phase = 1;
+            (gfields && oxygen && cellsData.cellFields[OXYG][c] >= fieldCriticalLevel1[OXYG])) {	/* sufficient level of oxygen */
+          cellsData.cells[c].phase = 1;
           lg0nc--;
           lg1nc++;
           break;
@@ -698,38 +699,38 @@ int updateCellCycles()
         break;
       case 1:			/* G1 phase */
         /* transition to G0 or Necrotic phase */
-        if ((cells[c].tumor == 0 && cells[c].density > eps) ||	/* too crowdy for healthy cell */
-            (cells[c].tumor == 1 && cells[c].density > epsCancer) ||	/* too crowdy for tumor cell */
-            (gfields && oxygen && cellFields[OXYG][c] < fieldCriticalLevel1[OXYG])) {	/* too low oxygen level */
-          if (gfields && oxygen && cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {	/* transition to Necrotic phase */
-            cells[c].phase = 5;
-            cells[c].phasetime = 0;
+        if ((cellsData.cells[c].tumor == 0 && cellsData.cells[c].density > eps) ||	/* too crowdy for healthy cell */
+            (cellsData.cells[c].tumor == 1 && cellsData.cells[c].density > epsCancer) ||	/* too crowdy for tumor cell */
+            (gfields && oxygen && cellsData.cellFields[OXYG][c] < fieldCriticalLevel1[OXYG])) {	/* too low oxygen level */
+          if (gfields && oxygen && cellsData.cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {	/* transition to Necrotic phase */
+            cellsData.cells[c].phase = 5;
+            cellsData.cells[c].phasetime = 0;
             lg1nc--;
             lnnc++;
           } else {		/* transition to G0 phase */
-            cells[c].phase = 0;
+            cellsData.cells[c].phase = 0;
             lg1nc--;
             lg0nc++;
           }
           break;
         }
         /* cells grow in phase G1 */
-        if (cells[c].size < csize) {
-          cells[c].size +=
+        if (cellsData.cells[c].size < csize) {
+          cellsData.cells[c].size +=
             (csize -
              pow(2.0,
                  -(1.0 / 3.0)) * csize) * (gfDt) / (3600.0 *
-                     cells[c].g1);
+                    cellsData.cells[c].g1);
         }
-        if (cells[c].size > csize)
-          cells[c].size = csize;
-        if (cells[c].phasetime >= cells[c].g1) {
+        if (cellsData.cells[c].size > csize)
+          cellsData.cells[c].size = csize;
+        if (cellsData.cells[c].phasetime >= cellsData.cells[c].g1) {
           int death;
-          cells[c].phase = 2;
-          cells[c].phasetime = 0;
+          cellsData.cells[c].phase = 2;
+          cellsData.cells[c].phasetime = 0;
           lg1nc--;
           lsnc++;
-          if (cells[c].tumor == 0) {
+          if (cellsData.cells[c].tumor == 0) {
             death = (sprng(stream) < rd ? 1 : 0);
             if (death) {
               celld[c] = 1;
@@ -740,16 +741,16 @@ int updateCellCycles()
         break;
       case 2:			/* S phase */
         if (gfields && oxygen
-            && cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
-          cells[c].phase = 5;
-          cells[c].phasetime = 0;
+            && cellsData.cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
+          cellsData.cells[c].phase = 5;
+          cellsData.cells[c].phasetime = 0;
           lsnc--;
           lnnc++;
           break;
         }
-        if (cells[c].phasetime >= cells[c].s) {
-          cells[c].phase = 3;
-          cells[c].phasetime = 0;
+        if (cellsData.cells[c].phasetime >= cellsData.cells[c].s) {
+          cellsData.cells[c].phase = 3;
+          cellsData.cells[c].phasetime = 0;
           lsnc--;
           lg2nc++;
           break;
@@ -757,20 +758,20 @@ int updateCellCycles()
         break;
       case 3:			/* G2 phase */
         if (gfields && oxygen
-            && cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
-          cells[c].phase = 5;
-          cells[c].phasetime = 0;
+            && cellsData.cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
+          cellsData.cells[c].phase = 5;
+          cellsData.cells[c].phasetime = 0;
           lg2nc--;
           lnnc++;
           break;
         }
-        if (cells[c].phasetime >= cells[c].g2) {
+        if (cellsData.cells[c].phasetime >= cellsData.cells[c].g2) {
           int death;
-          cells[c].phase = 4;
-          cells[c].phasetime = 0;
+          cellsData.cells[c].phase = 4;
+          cellsData.cells[c].phasetime = 0;
           lg2nc--;
           lmnc++;
-          if (cells[c].tumor == 0) {
+          if (cellsData.cells[c].tumor == 0) {
             death = (sprng(stream) < rd ? 1 : 0);
             if (death) {
               celld[c] = 1;
@@ -782,16 +783,16 @@ int updateCellCycles()
         break;
       case 4:			/* M phase */
         if (gfields && oxygen
-            && cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
-          cells[c].phase = 5;
-          cells[c].phasetime = 0;
+            && cellsData.cellFields[OXYG][c] < fieldCriticalLevel2[OXYG]) {
+          cellsData.cells[c].phase = 5;
+          cellsData.cells[c].phasetime = 0;
           lmnc--;
           lnnc++;
 
-        } else if (cells[c].phasetime >= cells[c].m) {
+        } else if (cellsData.cells[c].phasetime >= cellsData.cells[c].m) {
           mitosis(c);
-          cells[c].phase = 1;
-          cells[c].phasetime = 0;
+          cellsData.cells[c].phase = 1;
+          cellsData.cells[c].phasetime = 0;
           lmnc--;
           lg1nc++;
         }
@@ -816,10 +817,10 @@ void additionalScalarField()
 {
   int c;
   for (c = 0; c < lnc; c++) {
-    if (cells[c].tumor == 1)
-      cells[c].scalarField = 8.0;
+    if (cellsData.cells[c].tumor == 1)
+      cellsData.cells[c].scalarField = 8.0;
     else
-      cells[c].scalarField = cells[c].density;
+      cellsData.cells[c].scalarField = cellsData.cells[c].density;
   }
 }
 
@@ -843,3 +844,239 @@ void updateCellStates()
   additionalScalarField();
   free(celld);
 }
+
+void constructCell(struct cellData * cell, int type_num, const struct cellTypeData * type){
+  cell->g1 = (float) (type->g1 * (1 + (sprng(stream) * 2 - 1) * type->v));
+  cell->g2 = (float) (type->g2 * (1 + (sprng(stream) * 2 - 1) * type->v));
+  cell->s = (float) (type->s * (1 + (sprng(stream) * 2 - 1) * type->v));
+  cell->m = (float) (type->m * (1 + (sprng(stream) * 2 - 1) * type->v));
+  cell->ctype = type_num;
+  cell->phasetime = 0;
+  cell->phase = G1_phase;
+  cell->young = (float) (2100.0 + sprng(stream) * 100.0);
+}
+
+void mitosis2(struct cellsInfo *ci, uint64_t cell_pos){
+  struct cellData * cell_base;
+  struct cellData * cell_new;
+  cell_base = &ci->cells[cell_pos];
+  if (ci->localCellCount.number_of_cells + 1 > maxCellsPerProc)
+    stopRun(109, NULL, __FILE__, __LINE__);
+#pragma omp critical (local_number_of_cells)
+  {
+    cell_new = &ci->cells[ci->localCellCount.number_of_cells];
+    ci->localCellCount.number_of_cells++;
+  }
+  double new_size = pow(2.0, -(1.0 / 3.0)) * cell_base->size;
+  constructCell(cell_new, cell_base->ctype, &ci->cellTypes[cell_base->ctype]);
+  constructCell(cell_base, cell_base->ctype, &ci->cellTypes[cell_base->ctype]);
+  cell_new->size = new_size;
+  cell_base->size = new_size;
+  cell_new->age = ++cell_base->age;
+}
+
+void updateCellCycles2(struct cellsInfo * ci, struct settings * s){
+  uint64_t number_of_cells = ci->localCellCount.number_of_cells;
+  struct cellData * cells = ci->cells;
+  bool to_g0_phase;
+  for(uint64_t i = 0; i < number_of_cells; i++){
+    if (cells[i].phase == Necrotic_phase || cells[i].phase == const_cell)
+      continue;
+    bool alive = true;
+    for (size_t j = 0; j < s->numberOfEnvironments; j++){
+      if (ci->cellFields[i][j] < s->environments[j].critical_level_2){
+        alive = false;
+        break;
+      }
+    }
+    if (!alive){
+      switch (cells[i].phase){
+        case G0_phase:
+#pragma omp atomic
+          ci->localCellCount.g0_phase_number_of_cells--;
+          break;
+        case G1_phase:
+#pragma omp atomic
+          ci->localCellCount.g1_phase_number_of_cells--;
+          break;
+        case S_phase:
+#pragma omp atomic
+          ci->localCellCount.s_phase_number_of_cells--;
+          break;
+        case G2_phase:
+#pragma omp atomic
+          ci->localCellCount.g2_phase_number_of_cells--;
+          break;
+        case M_phase:
+#pragma omp atomic
+          ci->localCellCount.m_phase_number_of_cells--;
+          break;
+        default: /*catch in first if in for loop */ ;
+      }
+#pragma omp atomic
+      ci->localCellCount.necrotic_phase_number_of_cells++;
+      cells[i].phase = Necrotic_phase;
+    }
+    switch (cells[i].phase){
+      case G0_phase:
+        if (cells[i].density <= ci->cellTypes[cells[i].ctype].eps ){
+          cells[i].phase = G1_phase;
+          //cells[i].phasetime = 0;
+#pragma omp atomic
+          ci->localCellCount.g0_phase_number_of_cells--;
+#pragma omp atomic
+          ci->localCellCount.g1_phase_number_of_cells++;
+        };
+        break;
+      case G1_phase:
+        to_g0_phase = false;
+        if (cells[i].density > ci->cellTypes[cells[i].ctype].eps)
+          to_g0_phase = true;
+        for (size_t j = 0; j < s->numberOfEnvironments && (!to_g0_phase); j++){
+          if (ci->cellFields[i][j] < s->environments[j].critical_level_1){
+            to_g0_phase = true;
+          }
+        }
+        if (to_g0_phase){
+          cells[i].phase = G0_phase;
+          //cells[i].phasetime = 0;
+#pragma omp atomic
+          ci->localCellCount.g0_phase_number_of_cells++;
+#pragma omp atomic
+          ci->localCellCount.g1_phase_number_of_cells--;
+          break;
+        }
+        double max_size = ci->cellTypes[cells[i].ctype].max_size;
+        if (cells[i].size < max_size){
+          cells[i].size +=  (max_size - pow(2.0, -(1.0 / 3.0)) * max_size) *
+                  (s->gloabal_fields_time_delta) / (3600.0 * cells[i].g1);
+          //TODO This should depend of phase length and biomass income
+        }
+        if (cells[i].size > max_size){
+          cells[i].size = max_size;
+        }
+        if (cells[i].phasetime >= cells[i].g1){
+          cells[i].phase = S_phase;
+          cells[i].phasetime = 0;
+#pragma omp atomic
+          ci->localCellCount.g1_phase_number_of_cells--;
+#pragma omp atomic
+          ci->localCellCount.s_phase_number_of_cells++;
+          if (ci->cellTypes[cells[i].ctype].enable_random_death){
+            if (sprng(stream) < rd){
+              //FIXME I make assumption that in case of necrotic cells code should check that is enough place to destroy cell
+              cells[i].phase = Necrotic_phase;
+#pragma omp atomic
+              ci->localCellCount.s_phase_number_of_cells--;
+#pragma omp atomic
+              ci->localCellCount.necrotic_phase_number_of_cells++;
+            }
+
+          }
+        }
+        break;
+      case S_phase:
+        if (cells[i].phasetime >= cells[i].s){
+          cells[i].phase = G2_phase;
+          cells[i].phasetime = 0;
+#pragma omp atomic
+          ci->localCellCount.s_phase_number_of_cells--;
+#pragma omp atomic
+          ci->localCellCount.g2_phase_number_of_cells++;
+        }
+        break;
+      case G2_phase:
+        if (cells[i].phasetime >= cells[i].g2){
+          cells[i].phase = M_phase;
+          cells[i].phasetime = 0;
+#pragma omp atomic
+          ci->localCellCount.g2_phase_number_of_cells--;
+#pragma omp atomic
+          ci->localCellCount.m_phase_number_of_cells++;
+          if (ci->cellTypes[cells[i].ctype].enable_random_death){
+            if (sprng(stream) < rd){
+              //FIXME I make assumption that in case of necrotic cells code should check that is enough place to destroy cell
+              cells[i].phase = Necrotic_phase;
+#pragma omp atomic
+              ci->localCellCount.m_phase_number_of_cells--;
+#pragma omp atomic
+              ci->localCellCount.necrotic_phase_number_of_cells++;
+            }
+
+          }
+        }break;
+      case M_phase:
+        if (cells[i].phasetime >= cells[i].m){
+
+        }
+        break;
+      default: /*catch in first if in for loop */ ;
+    }
+  }
+
+}
+
+void initiateCellsInfo(struct cellsInfo *ci, const struct settings *s){
+  ci->localTypeCellCount = (uint64_t *)
+          calloc(s->numberOfCellTypes, sizeof(uint64_t));
+  if (!ci->localTypeCellCount){
+    stopRun(106, "cellsInfo::localTypeCellCount", __FILE__, __LINE__);
+  }
+  ci->totalTypeCellCount = (uint64_t *)
+          calloc(s->numberOfCellTypes, sizeof(uint64_t));
+  if (!ci->totalTypeCellCount){
+    stopRun(106, "cellsInfo::totalTypeCellCount", __FILE__, __LINE__);
+  }
+  // Memory pointed by ci->localCellCount and ci->totalCellCount is set to 0 by calloc
+  ci->cells = (struct cellData *) aligned_alloc(64, s->maxCellsPerProc * sizeof(struct cellData) );
+  if (!ci->cells){
+    stopRun(106, "cellsInfo::cells", __FILE__, __LINE__);
+  }
+  size_t cellFieldsSize = s->numberOfEnvironments * s->maxCellsPerProc * sizeof(double);
+  double * fields = (double *) aligned_alloc(64, cellFieldsSize);
+  if (!fields){
+    stopRun(106, "initiateCellsInfo::fields", __FILE__, __LINE__);
+  }
+  ci->cellFields = (double **) aligned_alloc(64, s->maxCellsPerProc * sizeof(double *));
+  if (!ci->cellFields){
+    stopRun(106, "cellsInfo::cellFieldsSize", __FILE__, __LINE__);
+  }
+  for (size_t i = 0; i < s->maxCellsPerProc; i++){
+    ci->cellFields[i] = &fields[s->numberOfEnvironments * i];
+  }
+  memset(ci->cellFields, 0, cellFieldsSize);
+  ci->velocity = (struct doubleVector3d *) aligned_alloc(64, sizeof(struct doubleVector3d) * s->maxCellsPerProc);
+  if (!ci->cells){
+    stopRun(106, "cellsInfo::velocity", __FILE__, __LINE__);
+  }
+  memset(ci->velocity, 0, sizeof(struct doubleVector3d) * s->maxCellsPerProc);
+  ci->cellTypes = s->cellTypes;
+  ci->cellTypeNumberDict = s->cellTypeNumberDict;
+}
+
+void freeCellsInfo(struct cellsInfo *ci){
+  free(ci->localTypeCellCount);
+  free(ci->totalTypeCellCount);
+  free(ci->cells);
+  free(ci->cellFields[0]);
+  free(ci->cellFields);
+  free(ci->velocity);
+}
+
+void changeCellType(const struct cellsInfo *ci, struct cellData * cell, int ctype){
+  uint64_t * counter;
+  counter = &ci->localTypeCellCount[cell->ctype];
+#pragma omp atomic
+  (*counter)--;
+  cell->ctype = ctype;
+  counter = &ci->localTypeCellCount[cell->ctype];
+#pragma omp atomic
+  (*counter)++;
+}
+
+void changeCellTypeByName(const struct cellsInfo *ci, struct cellData * cell, char * name){
+  changeCellType(ci, cell, get_value(ci->cellTypeNumberDict, name));
+}
+
+
+

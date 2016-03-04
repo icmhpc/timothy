@@ -4,12 +4,13 @@
 
 #include "ini_manipulator.h"
 #include <algorithm>
+#include <sstream>
 
 const static std::string indent = "    ";
 
 
 namespace timothy {
-    namespace ini_parser {
+    namespace ini_manipulator {
         iniField::iniField(const std::string name, const int val) {
           this->name = name;
           this->value.i = val;
@@ -46,6 +47,35 @@ namespace timothy {
           }
         }
 
+        iniField::iniField(std::istream &s) {
+          std::stringbuf st;
+          std::string tmp_name;
+          std::string tmp_value;
+          while (isspace(s.peek())) s.get();
+          s.get(st, '=');
+          tmp_name = st.str();
+          while (isspace(tmp_name.back())) tmp_name.pop_back();
+          if (s.eof() || tmp_name.length() == 0 )
+            throw fileFormatError("invalid field format ")
+          s.get(); // read '='
+          while (isspace(s.peek())) s.get();
+
+          if (s.peek() == '"' ){
+
+          } else {
+            s.get(st, '/');
+            tmp_value = st.str();
+            while (s.peek() == '/') {
+              s.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+              tmp_value += "\n";
+              s.get(st, '/');
+              tmp_value = st.str();
+            }
+          }
+
+        }
+
+
         bool iniField::isRestrictBoolean() const { return this->type == BOOLEAN_FIELD; }
 
         bool iniField::isRestrictFloat() const { return this->type == FLOAT_FIELD; }
@@ -54,7 +84,7 @@ namespace timothy {
 
         bool iniField::isRestrictNumeric() const { return this->type == NUMBER_FIELD; }
 
-        bool iniField::isBolean() const { return this->isRestrictBoolean() || isRestrictNumeric(); }
+        bool iniField::isBoolean() const { return this->isRestrictBoolean() || isRestrictNumeric(); }
 
         bool iniField::isNumeric() const { return this->isRestrictNumeric(); }
 
@@ -134,6 +164,13 @@ namespace timothy {
 
         type_error::type_error(const char *what_arg) : logic_error(what_arg) { ; }
 
+        fileFormatError::fileFormatError(std::string s) : msg(s) { ; }
+
+        const char *fileFormatError::what() const {
+          return msg.c_str();
+        }
+
+
         iniSection::iniSection(const std::string &name) : name(name) { ; }
 
         iniSection::iniSection(const std::string &name, const std::vector<iniField> fields) : name(name) {
@@ -149,7 +186,7 @@ namespace timothy {
         }
 
 
-        std::ostream &timothy::ini_parser::operator<<(std::ostream &o, const iniField &f) {
+        std::ostream &timothy::ini_manipulator::operator<<(std::ostream &o, const iniField &f) {
           o << f.name << " = ";
           switch (f.type){
             case BOOLEAN_FIELD : o << f.value.b; break;
@@ -162,8 +199,8 @@ namespace timothy {
           return o;
         }
 
-        bool iniSection::isBolean(const std::string name) const {
-          return fields.at(name).isBolean();
+        bool iniSection::isBoolean(const std::string name) const {
+          return fields.at(name).isBoolean();
         }
 
         bool iniSection::isFloat(const std::string name) const {
@@ -210,7 +247,80 @@ namespace timothy {
           return fields.at(name).getBoolValue();
         }
 
+        bool iniConfiguration::hasField(const std::string section_name, const std::string field_name) const{
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).hasField(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isBoolean(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isBoolean(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isFloat(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isFloat(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isString(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isString(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isNumeric(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isNumeric(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isRestrictBoolean(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isRestrictBoolean(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isRestrictFloat(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isRestrictFloat(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isRestrictString(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isRestrictString(field_name);
+          return false;
+        }
+
+        bool iniConfiguration::isRestrictNumeric(const std::string section_name, const std::string field_name) const {
+          if (sections.count(section_name) > 0 )
+            return sections.at(section_name).isRestrictNumeric(field_name);
+          return false;
+        }
+
+        int iniConfiguration::getIntValue(const std::string section_name, const std::string field_name) const {
+          return sections.at(section_name).getIntValue(field_name);
+        }
+
+        double iniConfiguration::getFloatValue(const std::string section_name, const std::string field_name) const {
+          return sections.at(section_name).getFloatValue(field_name);
+        }
+
+        std::string iniConfiguration::getStringValue(const std::string section_name,
+                                                     const std::string field_name) const {
+          return return sections.at(section_name).getStringValue(field_name
+        }
+
+        bool iniConfiguration::getBoolValue(const std::string section_name, const std::string field_name) const {
+          return return sections.at(section_name).getBoolValue(field_name
+        }
+
 
     }
 }
+
+
 

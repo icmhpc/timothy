@@ -22,14 +22,14 @@
 
 .PHONY: all clean doc clean_doc clean_all
 
-IS_MAKE = $(shell command -v make > /dev/null; echo $$?)
+IS_GMAKE = $(shell command -v gmake > /dev/null; echo $$?)
 IS_DOXYGEN = $(shell command -v doxygen > /dev/null; echo $$?)
 
 
-ifeq "$(IS_MAKE)" "0"
-	MAKE = make
-else
+ifeq "$(IS_GMAKE)" "0"
 	MAKE = gmake
+else
+	MAKE = make
 endif 
 
 all:

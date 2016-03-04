@@ -30,7 +30,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <inttypes.h>
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <fcntl.h>
 //#include <unistd.h>
 
@@ -45,6 +47,86 @@
  *  \brief contains I/O functions
  */
 static int one=1;
+
+
+//#define NPAR 34
+#define NPAR 70
+#define REAL 1
+#define STRING 2
+#define INT 3
+#define LONG 4
+#define INT64_T 5
+#define DOUBLE 6
+#define CHAR 7
+
+#define NOUT 11
+#define NRSTPARAMS 32
+#define SCALAR 1
+#define VECTOR 2
+
+#define FNLEN 256
+
+int typeOut[NOUT];
+char nameOut[NOUT][128];
+int dimOut[NOUT];
+void *addrOut[NOUT];
+int64_t jumpOut[NOUT];
+int nfOut;
+
+int typeRst[NRSTPARAMS];
+int sizeRst[NRSTPARAMS];
+void *addrRst[NRSTPARAMS];
+int nRst;
+/* simulation parameters from the restart file */
+/*int rstSdim;
+int rstNx;
+int rstNy;
+int rstNz;
+char rstOutdir[128];
+char rstRng[3];
+int64_t rstNc;
+int rstSimStart;
+float rstTstep;
+float rstSimTime;
+float rstFrac;
+float rstG1;
+float rstS;
+float rstG2;
+float rstM;
+float rstV;
+float rstRd;
+double rstH;
+double rstCsize;*/
+
+
+
+char params[NPAR][64];
+char desc[NPAR][512];
+void *addr[NPAR];
+int req[NPAR];
+int set[NPAR];
+int type[NPAR];
+
+int fdSave;
+int fdNew;
+
+typedef struct colormapPoint_t {
+    float position;
+    float r;
+    float g;
+    float b;
+} colormapPoint;
+
+typedef struct colormap_t {
+    char name[16];
+    int ncp;
+    colormapPoint *cp;
+} colormap;
+
+colormap *cmaps;
+float beta;
+
+
 void readRstFile(int argc, char **argv);
 
 /*!
@@ -920,10 +1002,10 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "density");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = REAL;
-    addrOut[nfOut] = &cells[0].density;
+    addrOut[nfOut] = &cellsData.cells[0].density;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (& cells[1].density) - (& cells[0].density);
+        (& cellsData.cells[1].density) - (& cellsData.cells[0].density);
     else
       jumpOut[nfOut] = 0;
 
@@ -932,10 +1014,10 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "size");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = REAL;
-    addrOut[nfOut] = &cells[0].size;
+    addrOut[nfOut] = &cellsData.cells[0].size;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (& cells[1].size) - ( & cells[0].size);
+        (& cellsData.cells[1].size) - ( & cellsData.cells[0].size);
     else
       jumpOut[nfOut] = 0;
 
@@ -952,10 +1034,10 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "phase");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &cells[0].phase;
+    addrOut[nfOut] = &cellsData.cells[0].phase;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (& cells[1].phase) - ( & cells[0].phase);
+        (& cellsData.cells[1].phase) - ( & cellsData.cells[0].phase);
     else
       jumpOut[nfOut] = 0;
 
@@ -964,10 +1046,10 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "tumor");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &cells[0].tumor;
+    addrOut[nfOut] = &cellsData.cells[0].tumor;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (& cells[1].tumor) - ( & cells[0].tumor);
+        (& cellsData.cells[1].tumor) - ( & cellsData.cells[0].tumor);
     else
       jumpOut[nfOut] = 0;
 
@@ -976,10 +1058,10 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "halo");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &cells[0].halo;
+    addrOut[nfOut] = &cellsData.cells[0].halo;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (& cells[1].halo) - (& cells[0].halo);
+        (& cellsData.cells[1].halo) - (& cellsData.cells[0].halo);
     else
       jumpOut[nfOut] = 0;
 
@@ -999,9 +1081,9 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "age");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &cells[0].age;
+    addrOut[nfOut] = &cellsData.cells[0].age;
     if (lnc > 1)
-      jumpOut[nfOut] = (& cells[1].age) - (& cells[0].age);
+      jumpOut[nfOut] = (& cellsData.cells[1].age) - (& cellsData.cells[0].age);
     else
       jumpOut[nfOut] = 0;
 
@@ -1010,10 +1092,10 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "scalarField");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = REAL;
-    addrOut[nfOut] = &cells[0].scalarField;
+    addrOut[nfOut] = &cellsData.cells[0].scalarField;
     if (lnc > 1)
       jumpOut[nfOut] =
-        (& cells[1].scalarField) -  (& cells[0].scalarField);
+        (& cellsData.cells[1].scalarField) -  (& cellsData.cells[0].scalarField);
     else
       jumpOut[nfOut] = 0;
 
@@ -1022,11 +1104,11 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "ctype");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &cells[0].ctype;
+    addrOut[nfOut] = &cellsData.cells[0].ctype;
     if(lnc>1)
       jumpOut[nfOut] =
-        (& cells[1].ctype) -
-        (& cells[0].ctype);
+        (& cellsData.cells[1].ctype) -
+        (& cellsData.cells[0].ctype);
     else
       jumpOut[nfOut] = 0;
 
@@ -1035,15 +1117,19 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "scstage");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &cells[0].scstage;
+    addrOut[nfOut] = &cellsData.cells[0].scstage;
     if(lnc>1)
       jumpOut[nfOut] =
-        (& cells[1].scstage) -
-        (& cells[0].scstage);
+        (& cellsData.cells[1].scstage) -
+        (& cellsData.cells[0].scstage);
     else
       jumpOut[nfOut] = 0;
 
     nfOut++;
+    if (MPIrank == 0)
+      for (int i=0; i< NOUT; i++){
+        printf("%s: %ld\n", nameOut[i], jumpOut[i]);
+      }
 
   }
 }
@@ -1051,7 +1137,7 @@ void ioDefineOutputFields()
 /*!
  * This function writes a VTK file with all cells for a given step.
  */
-void ioWriteStepVTK(int step)
+void ioWriteStepVTK(int step) //FIXME void* arithmetics
 {
 
   int i, j;
@@ -1107,9 +1193,9 @@ void ioWriteStepVTK(int step)
   offset = nprev * sizeof(float) * 3;
   MPI_File_seek(fh, offset, MPI_SEEK_CUR);
   for (j = 0; j < lnc; j++) {
-    floatVectorField[3 * j] = (float) (cells[j].x);
-    floatVectorField[3 * j + 1] = (float) (cells[j].y);
-    floatVectorField[3 * j + 2] = (float) (cells[j].z);
+    floatVectorField[3 * j] = (float) (cellsData.cells[j].x);
+    floatVectorField[3 * j + 1] = (float) (cellsData.cells[j].y);
+    floatVectorField[3 * j + 2] = (float) (cellsData.cells[j].z);
   }
   if (endian)
     swap_Nbyte((char *) floatVectorField, lnc * 3, sizeof(float));
@@ -1160,7 +1246,7 @@ void ioWriteStepVTK(int step)
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
         for (j = 0; j < lnc; j++)
           floatScalarField[j] =
-            (float) (*((double *) (addrOut[i] + j * jumpOut[i])));
+            (float) (*( ((double *)addrOut[i]) + j * jumpOut[i]));
         offset = nprev * sizeof(float);
         MPI_File_seek(fh, offset, MPI_SEEK_CUR);
         if (endian)
@@ -1179,7 +1265,7 @@ void ioWriteStepVTK(int step)
         goffset += strlen(header);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
         for (j = 0; j < lnc; j++)
-          integerScalarField[j] = *((int *) (addrOut[i] + j * jumpOut[i]));
+          integerScalarField[j] = *( ((int *)addrOut[i] + j * jumpOut[i]));
         offset = nprev * sizeof(int);
         MPI_File_seek(fh, offset, MPI_SEEK_CUR);
         if (endian)
@@ -1202,14 +1288,14 @@ void ioWriteStepVTK(int step)
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
         for (j = 0; j < lnc; j++) {
           floatVectorField[3 * j] =
-            (float) (*((double *) (addrOut[i] + j * jumpOut[i])));
+            (float) (*( ((double *)addrOut[i] + j)));
           floatVectorField[3 * j + 1] =
             (float) (*
-                     ((double *) (addrOut[i] + 1 * sizeof(double) +
+                     (((double *) addrOut[i] + 1 * sizeof(double) +
                                   j * jumpOut[i])));
           floatVectorField[3 * j + 2] =
             (float) (*
-                     ((double *) (addrOut[i] + 2 * sizeof(double) +
+                     (((double *) addrOut[i] + 2 * sizeof(double) +
                                   j * jumpOut[i])));
         }
         offset = nprev * sizeof(float) * 3;
@@ -1476,7 +1562,7 @@ void saveRstFile()
 
   MPI_File_seek(fh, goffset, MPI_SEEK_SET);
   /* write out cells' data */
-  MPI_File_write(fh, cells, lnc * sizeof(struct cellData), MPI_BYTE,
+  MPI_File_write(fh, cellsData.cells, lnc * sizeof(struct cellData), MPI_BYTE,
                  MPI_STATUS_IGNORE);
   /* close file */
   MPI_File_close(&fh);
@@ -1609,34 +1695,34 @@ void readRstFile(int argc, char **argv)
 
   MPI_File_seek(fh, goffset, MPI_SEEK_SET);
   /* read cells data */
-  MPI_File_read(fh, cells, lnc * sizeof(struct cellData), MPI_BYTE,
+  MPI_File_read(fh, cellsData.cells, lnc * sizeof(struct cellData), MPI_BYTE,
                 MPI_STATUS_IGNORE);
 
   if (swap) {
     for (i = 0; i < lnc; i++) {
-      swap_Nbyte((char *) (&cells[i].gid), 1, sizeof(ZOLTAN_ID_TYPE));
-      swap_Nbyte((char *) (&cells[i].lifetime), 1, sizeof(int));
-      swap_Nbyte((char *) (&cells[i].phase), 1, sizeof(int));
-      swap_Nbyte((char *) (&cells[i].phasetime), 1, sizeof(float));
-      swap_Nbyte((char *) (&cells[i].g1), 1, sizeof(float));
-      swap_Nbyte((char *) (&cells[i].s), 1, sizeof(float));
-      swap_Nbyte((char *) (&cells[i].g2), 1, sizeof(float));
-      swap_Nbyte((char *) (&cells[i].m), 1, sizeof(float));
-      swap_Nbyte((char *) (&cells[i].x), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].y), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].z), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].size), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].h), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].v), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].density), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].age), 1, sizeof(int));
-      swap_Nbyte((char *) (&cells[i].death), 1, sizeof(int));
-      swap_Nbyte((char *) (&cells[i].young), 1, sizeof(float));
-      swap_Nbyte((char *) (&cells[i].tumor), 1, sizeof(unsigned char));
-      swap_Nbyte((char *) (&cells[i].scalarField), 1, sizeof(double));
-      swap_Nbyte((char *) (&cells[i].ctype), 1, sizeof(int));
-      swap_Nbyte((char *) (&cells[i].scstage), 1, sizeof(int));
-      swap_Nbyte((char *) (&cells[i].halo), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].gid), 1, sizeof(ZOLTAN_ID_TYPE));
+      swap_Nbyte((char *) (&cellsData.cells[i].lifetime), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].phase), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].phasetime), 1, sizeof(float));
+      swap_Nbyte((char *) (&cellsData.cells[i].g1), 1, sizeof(float));
+      swap_Nbyte((char *) (&cellsData.cells[i].s), 1, sizeof(float));
+      swap_Nbyte((char *) (&cellsData.cells[i].g2), 1, sizeof(float));
+      swap_Nbyte((char *) (&cellsData.cells[i].m), 1, sizeof(float));
+      swap_Nbyte((char *) (&cellsData.cells[i].x), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].y), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].z), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].size), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].h), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].v), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].density), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].age), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].death), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].young), 1, sizeof(float));
+      swap_Nbyte((char *) (&cellsData.cells[i].tumor), 1, sizeof(unsigned char));
+      swap_Nbyte((char *) (&cellsData.cells[i].scalarField), 1, sizeof(double));
+      swap_Nbyte((char *) (&cellsData.cells[i].ctype), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].scstage), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].halo), 1, sizeof(int));
     }
   }
 
@@ -1653,11 +1739,11 @@ void readRstFile(int argc, char **argv)
   /* count cell types and phases */
   for (i = 0; i < lnc; i++) {
 
-    cells[i].gid =
+    cellsData.cells[i].gid =
       (unsigned long long int) MPIrank *(unsigned long long int)
       maxCellsPerProc + (unsigned long long int) i;
 
-    switch (cells[i].phase) {
+    switch (cellsData.cells[i].phase) {
     case 0:			/* G0 phase */
       lg0nc++;
       break;
@@ -1678,18 +1764,18 @@ void readRstFile(int argc, char **argv)
       break;
     }
 
-    if (cells[i].tumor == 1) {
+    if (cellsData.cells[i].tumor == 1) {
       lcnc++;
       lcancer = 1;
     }
 
-    if (cells[i].ctype == 1)
+    if (cellsData.cells[i].ctype == 1)
       lvc++;
 
   }
 
   for(i=0; i<lnc; i++)
-    nscinst[cells[i].scstage]+=1;
+    nscinst[cellsData.cells[i].scstage]+=1;
 
   localID = lnc;
 
@@ -1844,7 +1930,7 @@ void ioWriteFields(int step)
 
     MPI_File_open(MPI_COMM_WORLD, fstname1,
                   MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh1);
-    MPI_File_set_view(fh1, 0, MPI_FLOAT, subarray1_t, "native",
+    MPI_File_set_view(fh1, 0, MPI_FLOAT, subarray1_t, (char *) "native",
                       MPI_INFO_NULL);
     /* truncate the first file */
     MPI_File_set_size(fh1, 0);
@@ -2143,23 +2229,23 @@ void ioWriteStepPovRay(int step, int type)
 
   for (i = 0; i < lnc; i++) {
     minCorner[0] =
-      (cells[i].x - cells[i].size <
-       minCorner[0] ? cells[i].x - cells[i].size : minCorner[0]);
+      (cellsData.cells[i].x - cellsData.cells[i].size <
+       minCorner[0] ? cellsData.cells[i].x - cellsData.cells[i].size : minCorner[0]);
     maxCorner[0] =
-      (cells[i].x + cells[i].size >
-       maxCorner[0] ? cells[i].x + cells[i].size : maxCorner[0]);
+      (cellsData.cells[i].x + cellsData.cells[i].size >
+       maxCorner[0] ? cellsData.cells[i].x + cellsData.cells[i].size : maxCorner[0]);
     minCorner[1] =
-      (cells[i].y - cells[i].size <
-       minCorner[1] ? cells[i].y - cells[i].size : minCorner[1]);
+      (cellsData.cells[i].y - cellsData.cells[i].size <
+       minCorner[1] ? cellsData.cells[i].y - cellsData.cells[i].size : minCorner[1]);
     maxCorner[1] =
-      (cells[i].y + cells[i].size >
-       maxCorner[1] ? cells[i].y + cells[i].size : maxCorner[1]);
+      (cellsData.cells[i].y + cellsData.cells[i].size >
+       maxCorner[1] ? cellsData.cells[i].y + cellsData.cells[i].size : maxCorner[1]);
     minCorner[2] =
-      (cells[i].z - cells[i].size <
-       minCorner[2] ? cells[i].z - cells[i].size : minCorner[2]);
+      (cellsData.cells[i].z - cellsData.cells[i].size <
+       minCorner[2] ? cellsData.cells[i].z - cellsData.cells[i].size : minCorner[2]);
     maxCorner[2] =
-      (cells[i].z + cells[i].size >
-       maxCorner[2] ? cells[i].z + cells[i].size : maxCorner[2]);
+      (cellsData.cells[i].z + cellsData.cells[i].size >
+       maxCorner[2] ? cellsData.cells[i].z + cellsData.cells[i].size : maxCorner[2]);
   }
   MPI_Allreduce(minCorner, gMinCorner, 3, MPI_DOUBLE, MPI_MIN,
                 MPI_COMM_WORLD);
@@ -2173,10 +2259,10 @@ void ioWriteStepPovRay(int step, int type)
   gmass = 0.0;
 
   for (c = 0; c < lnc; c++) {
-    middlePointLocal[0] += cells[c].size * cells[c].x;
-    middlePointLocal[1] += cells[c].size * cells[c].y;
-    middlePointLocal[2] += cells[c].size * cells[c].z;
-    lmass += cells[c].size;
+    middlePointLocal[0] += cellsData.cells[c].size * cellsData.cells[c].x;
+    middlePointLocal[1] += cellsData.cells[c].size * cellsData.cells[c].y;
+    middlePointLocal[2] += cellsData.cells[c].size * cellsData.cells[c].z;
+    lmass += cellsData.cells[c].size;
   }
 
   MPI_Allreduce(middlePointLocal, middlePointGlobal, 3, MPI_DOUBLE,
@@ -2199,8 +2285,8 @@ void ioWriteStepPovRay(int step, int type)
   cb = 0.0;
   cm = 0;
   numCharsPerCell =
-    sprintf(testBuffer, fmt, cells[1].x, cells[1].y, cells[1].z,
-            cells[1].size, cr, cg, cb);
+    sprintf(testBuffer, fmt, cellsData.cells[1].x, cellsData.cells[1].y, cellsData.cells[1].z,
+            cellsData.cells[1].size, cr, cg, cb);
   if (!
       (txtData =
          (char *) malloc(numCharsPerCell * (lnc + 16) * sizeof(char))))
@@ -2324,18 +2410,18 @@ void ioWriteStepPovRay(int step, int type)
     float color = 0.0;
     int jump;
     if (beta == 360.0
-        && (cells[c].z > middlePointGlobal[2] + 4.0 * csize
-            || cells[c].z < middlePointGlobal[2] - 4.0 * csize))
+        && (cellsData.cells[c].z > middlePointGlobal[2] + 4.0 * csize
+            || cellsData.cells[c].z < middlePointGlobal[2] - 4.0 * csize))
       continue;
     if (type == 0) {
-      color = ((cells[c].density) / (8*densityCriticalLevel2)); /* UWAGA! BUG!!! */
-      if (cells[c].tumor)
+      color = ((cellsData.cells[c].density) / (8*densityCriticalLevel2)); /* UWAGA! BUG!!! */
+      if (cellsData.cells[c].tumor)
         color = 0.0;
     }				//2.5);
     if (type == 1)
-      color = ((cellFields[OXYG][c] - fmin) / (fmax - fmin));
+      color = ((cellsData.cellFields[OXYG][c] - fmin) / (fmax - fmin));
     if (type == 2 || type == 3 || type == 4)
-      color = (((float) cells[c].phase) / 5.0);
+      color = (((float) cellsData.cells[c].phase) / 5.0);
     if (type == 2)
       color = (((float) MPIrank) / 512.0);
 
@@ -2376,8 +2462,8 @@ void ioWriteStepPovRay(int step, int type)
     cb /= 255.0;
 
     jump =
-      sprintf(txtData_p, fmt, cells[c].x, cells[c].y, cells[c].z,
-              cells[c].size, cr, cg, cb);
+      sprintf(txtData_p, fmt, cellsData.cells[c].x, cellsData.cells[c].y, cellsData.cells[c].z,
+              cellsData.cells[c].size, cr, cg, cb);
     txtData_p += jump;
     printed += 1;
 
@@ -2389,9 +2475,9 @@ void ioWriteStepPovRay(int step, int type)
     float color[3];
     int jump;
     // artificial cell far away from the scene
-    coords[0] = -512.0;
-    coords[1] = -512.0;
-    coords[2] = -512.0;
+    coords[0] = -512.0f;
+    coords[1] = -512.0f;
+    coords[2] = -512.0f;
     color[0] = 0.0;
     color[1] = 0.0;
     color[2] = 0.0;

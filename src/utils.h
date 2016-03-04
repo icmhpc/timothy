@@ -2,7 +2,7 @@
 #define TIMOTHY_UTILS_H
 #include<stdint.h>
 #include<string.h>
-void stopRun(int, char*, char*, int);
+void stopRun(int, const char*, const char*, int);
 void swap_Nbyte(char* data, int n, int m);
 void checkEndiannes();
 void getLocalRankAndSize(int rank, int size, int32_t * lrank,	int32_t *lsize);

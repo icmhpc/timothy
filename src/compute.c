@@ -100,7 +100,9 @@ void computeStep()
   if(bvsim) {
     int p;
     for(p=0; p<lnc; p++)
-      cells[p].v+=10000*sqrt(pow(cellFields[NFIELDS][p],2)+pow(cellFields[NFIELDS+1][p],2)+pow(cellFields[NFIELDS+2][p],2));
+      cellsData.cells[p].v+=10000*sqrt(pow(cellsData.cellFields[NFIELDS][p],2)+
+                                     pow(cellsData.cellFields[NFIELDS+1][p],2)+
+                                     pow(cellsData.cellFields[NFIELDS+2][p],2));
   }
 
   /* 5. Compute gradient of the potential for local cells */
@@ -140,10 +142,10 @@ void computeStep()
 
   /* 8. Correct velocity for various cell types */
   for(p=0; p<lnc; p++)
-    if(cells[p].ctype!=1) {
-      velocity[p].x += 0.0001*cellFields[NFIELDS][p];
-      velocity[p].y += 0.0001*cellFields[NFIELDS+1][p];
-      velocity[p].z += 0.0001*cellFields[NFIELDS+2][p];
+    if(cellsData.cells[p].ctype!=1) {
+      velocity[p].x += 0.0001*cellsData.cellFields[NFIELDS][p];
+      velocity[p].y += 0.0001*cellsData.cellFields[NFIELDS+1][p];
+      velocity[p].z += 0.0001*cellsData.cellFields[NFIELDS+2][p];
     }
 
   /* 9. Compute and collect statistical data */
@@ -156,10 +158,10 @@ void computeStep()
       statistics.minvel = dvel;
     if (dvel > statistics.maxvel)
       statistics.maxvel = dvel;
-    if (cells[p].size < statistics.minsize)
-      statistics.minsize = cells[p].size;
-    if (cells[p].size > statistics.maxsize)
-      statistics.maxsize = cells[p].size;
+    if (cellsData.cells[p].size < statistics.minsize)
+      statistics.minsize = cellsData.cells[p].size;
+    if (cellsData.cells[p].size > statistics.maxsize)
+      statistics.maxsize = cellsData.cells[p].size;
   }
   /* this should be removed soon (do we really need to reduceall here?) */
   MPI_Allreduce(&statistics.minvel, &globalMinVel, 1, MPI_DOUBLE, MPI_MIN,

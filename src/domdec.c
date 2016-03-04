@@ -228,7 +228,7 @@ void decompositionInit(int argc, char **argv)
 
   ztn = Zoltan_Create(MPI_COMM_WORLD);
 
-  ztnMidData.c = cells;
+  ztnMidData.c = cellsData.cells;
   ztnMidData.localCellCount = localCellCount;
   ztnPostData.localCellCount = localCellCount;
   ztnPostData.tlnc = tlnc;
@@ -243,20 +243,20 @@ void decompositionInit(int argc, char **argv)
   Zoltan_Set_Param(ztn, "AUTO_MIGRATE", "1");	/* use the auto migration mechanism */
 
   Zoltan_Set_Fn(ztn, ZOLTAN_NUM_GEOM_FN_TYPE,
-                (void (*)()) ztnReturnDimension, cells);
+                (void (*)()) ztnReturnDimension, cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_GEOM_FN_TYPE, (void (*)()) ztnReturnCoords,
-                cells);
+                cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_NUM_OBJ_FN_TYPE, (void (*)()) ztnReturnNumNode,
                 localCellCount);
   Zoltan_Set_Fn(ztn, ZOLTAN_OBJ_LIST_FN_TYPE,
-                (void (*)()) ztnReturnOwnedNodes, cells);
+                (void (*)()) ztnReturnOwnedNodes, cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_OBJ_SIZE_FN_TYPE,
-                (void (*)()) ztnReturnParticleDataSize, cells);
-  Zoltan_Set_Fn(ztn, ZOLTAN_PACK_OBJ_FN_TYPE, (void (*)()) ztnPack, cells);
+                (void (*)()) ztnReturnParticleDataSize, cellsData.cells);
+  Zoltan_Set_Fn(ztn, ZOLTAN_PACK_OBJ_FN_TYPE, (void (*)()) ztnPack, cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_UNPACK_OBJ_FN_TYPE, (void (*)()) ztnUnpack,
                 &ztnMidData);
   Zoltan_Set_Fn(ztn, ZOLTAN_PRE_MIGRATE_PP_FN_TYPE, (void (*)()) ztnPre,
-                cells);
+                cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_MID_MIGRATE_PP_FN_TYPE, (void (*)()) ztnMid,
                 &ztnMidData);
   Zoltan_Set_Fn(ztn, ZOLTAN_POST_MIGRATE_PP_FN_TYPE, (void (*)()) ztnPost,

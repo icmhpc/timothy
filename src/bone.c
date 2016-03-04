@@ -48,7 +48,7 @@ int initBone()
   double v2x,v2y,v2z;
   char text[256];
   int d1,d2;
-  int ret; //TODO ?? why?
+  int ret;  //TODO ?? why?
 
   bnc=0;
   lbnc=0;
@@ -127,36 +127,36 @@ int initBone()
       for(j=0; j<ay; j++)
         for(k=0; k<az; k++) {
           if (data[i][j][k]==2) {
-            cells[lnc].size=pow(2.0, -(1.0 / 3.0)) * csize;//csize;
-            cells[lnc].x=ox + i*v0x + j*v1x + k*v2x;
-            cells[lnc].y=oy + i*v0y + j*v1y + k*v2y;
-            cells[lnc].z=oz + i*v0z + j*v1z + k*v2z;
-            maxx=(cells[lnc].x>maxx?cells[lnc].x:maxx);
-            maxy=(cells[lnc].y>maxy?cells[lnc].y:maxy);
-            maxz=(cells[lnc].z>maxz?cells[lnc].z:maxz);
-            minx=(cells[lnc].x<minx?cells[lnc].x:minx);
-            miny=(cells[lnc].y<miny?cells[lnc].y:miny);
-            minz=(cells[lnc].z<minz?cells[lnc].z:minz);
+            cellsData.cells[lnc].size=pow(2.0, -(1.0 / 3.0)) * csize;//csize;
+            cellsData.cells[lnc].x=ox + i*v0x + j*v1x + k*v2x;
+            cellsData.cells[lnc].y=oy + i*v0y + j*v1y + k*v2y;
+            cellsData.cells[lnc].z=oz + i*v0z + j*v1z + k*v2z;
+            maxx=(cellsData.cells[lnc].x>maxx?cellsData.cells[lnc].x:maxx);
+            maxy=(cellsData.cells[lnc].y>maxy?cellsData.cells[lnc].y:maxy);
+            maxz=(cellsData.cells[lnc].z>maxz?cellsData.cells[lnc].z:maxz);
+            minx=(cellsData.cells[lnc].x<minx?cellsData.cells[lnc].x:minx);
+            miny=(cellsData.cells[lnc].y<miny?cellsData.cells[lnc].y:miny);
+            minz=(cellsData.cells[lnc].z<minz?cellsData.cells[lnc].z:minz);
 
-            cells[lnc].gid =
+            cellsData.cells[lnc].gid =
               (unsigned long long int) MPIrank *(unsigned long long int)
               maxCellsPerProc + (unsigned long long int) lnc;
-            cells[lnc].v = 0.0;
-            cells[lnc].density = 0.0;
-            cells[lnc].h = 3*csize;//h;
-            cells[lnc].young = 2100.0 + sprng(stream) * 100.0;
-            cells[lnc].halo = 0;
-            cells[lnc].phase = 0;
-            cells[lnc].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
-            cells[lnc].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
-            cells[lnc].s = s * (1 + (sprng(stream) * 2 - 1) * v);
-            cells[lnc].m = m * (1 + (sprng(stream) * 2 - 1) * v);
-            cells[lnc].phasetime = 0.0;
-            cells[lnc].age = 0;
-            cells[lnc].death = 0;
-            cells[lnc].tumor = 0;
+            cellsData.cells[lnc].v = 0.0;
+            cellsData.cells[lnc].density = 0.0;
+            cellsData.cells[lnc].h = 3*csize;//h;
+            cellsData.cells[lnc].young = (float) (2100.0 + sprng(stream) * 100.0);
+            cellsData.cells[lnc].halo = 0;
+            cellsData.cells[lnc].phase = 0;
+            cellsData.cells[lnc].g1 = (float) (g1 * (1 + (sprng(stream) * 2 - 1) * v));
+            cellsData.cells[lnc].g2 = (float) (g2 * (1 + (sprng(stream) * 2 - 1) * v));
+            cellsData.cells[lnc].s = (float) (s * (1 + (sprng(stream) * 2 - 1) * v));
+            cellsData.cells[lnc].m = (float) (m * (1 + (sprng(stream) * 2 - 1) * v));
+            cellsData.cells[lnc].phasetime = 0.0;
+            cellsData.cells[lnc].age = 0;
+            cellsData.cells[lnc].death = 0;
+            cellsData.cells[lnc].tumor = 0;
             /* tag bone cell */
-            cells[lnc].ctype = 3;
+            cellsData.cells[lnc].ctype = 3;
 
             lnc++;
             lbnc++;
@@ -168,9 +168,9 @@ int initBone()
     fclose(fh2);
 
     for(i=0; i<lnc; i++) {
-      cells[i].x-=minx;
-      cells[i].y-=miny;
-      cells[i].z-=minz;
+      cellsData.cells[i].x-=minx;
+      cellsData.cells[i].y-=miny;
+      cellsData.cells[i].z-=minz;
     }
 
     /* free data */

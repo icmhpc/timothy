@@ -25,6 +25,8 @@
 #include <zoltan.h>
 #include<mpi.h>
 #include<stdint.h>
+#include <stdbool.h>
+#include "dicts.h"
 
 /*! \file global.h
  *  \brief contains the most important global variables, arrays and defines
@@ -62,10 +64,20 @@
 #endif
 
 /* cell data structure */
+enum cell_phase{
+    G0_phase,
+    G1_phase,
+    S_phase,
+    G2_phase,
+    M_phase,
+    Necrotic_phase,
+    const_cell
+};
+
 //#pragma pack(1)
 struct cellData {
   int lifetime;         /* age of the cell */
-  int phase;            /* actual phase of the cell (0=G0,1=G1,2=S,3=G2,4=M,5=Necrotic) */
+  enum cell_phase phase;            /* actual phase of the cell (0=G0,1=G1,2=S,3=G2,4=M,5=Necrotic) */
   int age;              /* cell's age */
   int death;		/* 1 - dead cell, 0 - living cell */
   int halo;		/* cell on the border of parallel region */
@@ -91,36 +103,56 @@ struct cellData {
 
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 /* the most important data */
-MIC_ATTR struct cellData *cells;		/* main array for keeping cell data */
-double **cellFields;				/* fields value for each cell - interpolated from global fields in each step */
+MIC_ATTR struct cellData *cells __attribute__ ((deprecated));		/* main array for keeping cell data */
+extern double **cellFields __attribute__ ((deprecated));				/* fields value for each cell - interpolated from global fields in each step */
 MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
-struct cellCountInfo{
-  int64_t number_of_cells;
-  int64_t g0_phase_number_of_cells;
-  int64_t g1_phase_number_of_cells;
-  int64_t s_phase_number_of_cells2;
-  int64_t g2_phase_number_of_cells;
-  int64_t m_phase_number_of_cells2;
-  int64_t number_of_cancer_cells;
-  int64_t number_of_necrotic_cells;
-  int64_t number_of_vessel_cells;
-  int64_t number_of_bone_cells;
+struct cellTypeData{
+    float g1;               /* mean duration of G1 phase - healthy tissue */
+    float s;                /* mean duration of S phase - healthy tissue */
+    float g2;               /* mean duration of G2 phase - healthy tissue */
+    float m;                /* mean duration of M phase - healthy tissue */
+    float v;                /* variability of duration of cell cycles */
+    float rd;               /* random death probability */
+    float eps;
+    char * name;
+    double max_size;
+    bool enable_random_death;
 
+};
+
+
+struct cellCountInfo{
+  uint64_t number_of_cells;
+  uint64_t g0_phase_number_of_cells;
+  uint64_t g1_phase_number_of_cells;
+  uint64_t s_phase_number_of_cells;
+  uint64_t g2_phase_number_of_cells;
+  uint64_t m_phase_number_of_cells;
+  uint64_t necrotic_phase_number_of_cells;
   //TODO check names, all needed?
 };
 
 struct cellsInfo{
-  struct cellCountInfo localCellCount;
-  struct cellCountInfo totalCellCount;
-  struct cellData * cells;
-  double ** cellFields;
+    struct cellCountInfo localCellCount;
+    struct cellCountInfo totalCellCount;
+    uint64_t * localTypeCellCount;
+    uint64_t * totalTypeCellCount;
+    struct cellData * cells;
+    double ** cellFields;
+    struct doubleVector3d *velocity;
+    struct cellTypeData * cellTypes;
+    str_uint16_dict * cellTypeNumberDict;
 };
+
+
+
+struct cellsInfo cellsData;
 #define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
 
 MIC_ATTR int64_t localCellCount[numberOfCounts];	/* array storing local cell counts */
-int64_t totalCellCount[numberOfCounts];			/* array storing global cell counts */
+int64_t totalCellCount[numberOfCounts] __attribute__ ((deprecated));			/* array storing global cell counts */
 
 #define nc   totalCellCount[0]	/* global number of cells */
 #define g0nc totalCellCount[1]	/* global number of cells in G0 phase */
@@ -215,27 +247,19 @@ int vnfout; //TODO [czaki] setings?
 
 /* cell cycle */
 
-struct cellTypeData{
-  float g1;               /* mean duration of G1 phase - healthy tissue */
-  float s;                /* mean duration of S phase - healthy tissue */
-  float g2;               /* mean duration of G2 phase - healthy tissue */
-  float m;                /* mean duration of M phase - healthy tissue */
-  float v;                /* variability of duration of cell cycles */
-  float rd;               /* random death probability */
-  char * name;
-};
 
-float g1;               /* mean duration of G1 phase - healthy tissue */
-float s;                /* mean duration of S phase - healthy tissue */
-float g2;               /* mean duration of G2 phase - healthy tissue */
-float m;                /* mean duration of M phase - healthy tissue */
-float v;                /* variability of duration of cell cycles */
-float rd;               /* random death probability */
 
-float cg1;              /* mean duration of G1 phase - cancer cells */
-float cs;               /* mean duration of S phase - cancer cells */
-float cg2;              /* mean duration of G2 phase - cancer cells */
-float cm;               /* mean duration of M phase - cancer cells */
+//float g1;               /* mean duration of G1 phase - healthy tissue */
+//float s;                /* mean duration of S phase - healthy tissue */
+//float g2;               /* mean duration of G2 phase - healthy tissue */
+//float m;                /* mean duration of M phase - healthy tissue */
+//float v;                /* variability of duration of cell cycles */
+//float rd;               /* random death probability */
+//
+//float cg1;              /* mean duration of G1 phase - cancer cells */
+//float cs;               /* mean duration of S phase - cancer cells */
+//float cg2;              /* mean duration of G2 phase - cancer cells */
+//float cm;               /* mean duration of M phase - cancer cells */
 
 //TODO [czaki] next variables should be global or specyfic for each cell type?
 double MIC_ATTR csize;           /* cell initial size, no units */
@@ -264,6 +288,12 @@ struct int64Vector3d {
   int64_t x;
   int64_t y;
   int64_t z;
+};
+
+struct size_tVector3d {
+    int64_t x;
+    int64_t y;
+    int64_t z;
 };
 
 struct floatVector3d {
@@ -349,12 +379,34 @@ int MIC_ATTR tnc;
 
 int ni; //TODO [czaki] what it is?
 
+struct environment
+{
+    double diffusion_coefficient;
+    double boundary_condition;
+    double initial_condition_mean;
+    double initial_condition_variance;
+    double lambda_delay;
+    double critical_level_1;
+    double critical_level_2;
+};
+
 struct settings{
   int64_t maxCells;	/* maximal number of cells (set in parameter file) */
   int scsim;		/* if =1 <- stem cell simulation */
   int bvsim;		/* if =1 <- blood vessel simulation */
   int bnsim;		/* if =1 <- bone simulation */
+    size_t numberOfCellTypes;
+    size_t numberOfEnvironments;
+    uint64_t maxCellsPerProc;
+    str_uint16_dict * envirormentNumberDict;
+    str_uint16_dict * cellTypeNumberDict;
+    struct cellTypeData * cellTypes;
+    struct environment * environments;
+    float gloabal_fields_time_delta;
+
 };
+
+
 
 /* GLOBAL SETTINGS */
 int64_t maxCells;	/* maximal number of cells (set in parameter file) */

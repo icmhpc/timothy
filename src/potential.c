@@ -56,12 +56,12 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
     return 0.0;
 
   if (mode == 0) {
-    x = cells[p1].x;
-    y = cells[p1].y;
-    z = cells[p1].z;
-    size = cells[p1].size;
-    young = cells[p1].young;
-    ctype = cells[p1].ctype;
+    x = cellsData.cells[p1].x;
+    y = cellsData.cells[p1].y;
+    z = cellsData.cells[p1].z;
+    size = cellsData.cells[p1].size;
+    young = cellsData.cells[p1].young;
+    ctype = cellsData.cells[p1].ctype;
   } else {
     x = recvData[p1].x;
     y = recvData[p1].y;
@@ -74,15 +74,15 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
   /* compute the distance between two cells */
   if (sdim == 2)
     dist =
-      sqrt((x - cells[p2].x) * (x - cells[p2].x) +
-           (y - cells[p2].y) * (y - cells[p2].y));
+      sqrt((x - cellsData.cells[p2].x) * (x - cellsData.cells[p2].x) +
+           (y - cellsData.cells[p2].y) * (y - cellsData.cells[p2].y));
   if (sdim == 3)
     dist =
-      sqrt((x - cells[p2].x) * (x - cells[p2].x) +
-           (y - cells[p2].y) * (y - cells[p2].y) +
-           (z - cells[p2].z) * (z - cells[p2].z));
+      sqrt((x - cellsData.cells[p2].x) * (x - cellsData.cells[p2].x) +
+           (y - cellsData.cells[p2].y) * (y - cellsData.cells[p2].y) +
+           (z - cellsData.cells[p2].z) * (z - cellsData.cells[p2].z));
 
-  if (mindist[0] > dist && ctype!=1 && cells[p2].ctype!=1) {
+  if (mindist[0] > dist && ctype!=1 && cellsData.cells[p2].ctype!=1) {
     mindist[0] = dist;
   }
 
@@ -98,25 +98,25 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
       sc = h3;
 
     if (mode == 0) {
-      cells[p1].density +=
-        sc * (cells[p2].size / csize) * sph_kernel(dist);
+      cellsData.cells[p1].density +=
+        sc * (cellsData.cells[p2].size / csize) * sph_kernel(dist);
     }
     if (mode == 1) {
       #pragma omp atomic
-      cells[p2].density += sc * (size / csize) * sph_kernel(dist);
+      cellsData.cells[p2].density += sc * (size / csize) * sph_kernel(dist);
     }
 
-    xc = size + cells[p2].size - dist;
+    xc = size + cellsData.cells[p2].size - dist;
 
     if (xc <= 0.0)
       return 0.0;
 
     D = 0.75 * ((1.0 - poisson * poisson) / young +
-                (1.0 - poisson * poisson / cells[p2].young));
+                (1.0 - poisson * poisson / cellsData.cells[p2].young));
 
     /* adhesion */
     r01 =
-      (size * size - cells[p2].size * cells[p2].size +
+      (size * size - cellsData.cells[p2].size * cellsData.cells[p2].size +
        dist * dist) / (2 * dist);
     r02 = dist - r01;
 
@@ -124,18 +124,18 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
       M_PI *
       ((size * size * (size - r01) -
         (size * size * size - r01 * r01 * r01) / 3) +
-       (cells[p2].size * cells[p2].size * (cells[p2].size - r02) -
-        (cells[p2].size * cells[p2].size * cells[p2].size -
+       (cellsData.cells[p2].size * cellsData.cells[p2].size * (cellsData.cells[p2].size - r02) -
+        (cellsData.cells[p2].size * cellsData.cells[p2].size * cellsData.cells[p2].size -
          r02 * r02 * r02) / 3));
 
     /* compute potential */
     pot =
-      (2.0 * pow(xc, 5 / 2) / (5.0 * D)) * sqrt((size * cells[p2].size) /
+      (2.0 * pow(xc, 5 / 2) / (5.0 * D)) * sqrt((size * cellsData.cells[p2].size) /
           (size +
-           cells[p2].size)) +
+                  cellsData.cells[p2].size)) +
       area * 0.1;
 
-    if(ctype==1 && cells[p2].ctype==1) pot = 0.0;
+    if(ctype==1 && cellsData.cells[p2].ctype==1) pot = 0.0;
 
     return pot;
 
@@ -167,8 +167,8 @@ MIC_ATTR void compPot()
       octHeap octh;
       octHeapInit(&octh);
 
-      cells[p].density = 0.0;
-      cells[p].v = 0.0;
+      cellsData.cells[p].density = 0.0;
+      cellsData.cells[p].v = 0.0;
 
       octComputeBox(p,&minLocCode,&maxLocCode);
       octIndex=octLocateRegion(minLocCode,maxLocCode);
@@ -185,7 +185,7 @@ MIC_ATTR void compPot()
         idx=octHeapPop(&octh);
         cellIdx=octree[idx].data;
         if(cellIdx>=0) {
-          cells[p].v += ccPot(p,cellIdx,0,&mindist);
+          cellsData.cells[p].v += ccPot(p,cellIdx,0,&mindist);
         } else {
           for(s=0; s<tnc; s++) {
             newIdx=octree[idx].child[s];
@@ -231,7 +231,7 @@ MIC_ATTR void compRPot()
         if(cellIdx>=0) {
           v=ccPot(rp,cellIdx,1,&mindist);
           #pragma omp atomic
-          cells[cellIdx].v += v;
+          cellsData.cells[cellIdx].v += v;
         } else {
           for(s=0; s<tnc; s++) {
             newIdx=octree[idx].child[s];
@@ -266,22 +266,22 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
     return;
 
   if (mode == 0) {
-    x1 = cells[p1].x;
-    x2 = cells[p2].x;
-    y1 = cells[p1].y;
-    y2 = cells[p2].y;
-    z1 = cells[p1].z;
-    z2 = cells[p2].z;
-    v = cells[p2].v;
-    density = cells[p2].density;
-    size = cells[p2].size;
+    x1 = cellsData.cells[p1].x;
+    x2 = cellsData.cells[p2].x;
+    y1 = cellsData.cells[p1].y;
+    y2 = cellsData.cells[p2].y;
+    z1 = cellsData.cells[p1].z;
+    z2 = cellsData.cells[p2].z;
+    v = cellsData.cells[p2].v;
+    density = cellsData.cells[p2].density;
+    size = cellsData.cells[p2].size;
   } else {
     x1 = recvData[p1].x;
-    x2 = cells[p2].x;
+    x2 = cellsData.cells[p2].x;
     y1 = recvData[p1].y;
-    y2 = cells[p2].y;
+    y2 = cellsData.cells[p2].y;
     z1 = recvData[p1].z;
-    z2 = cells[p2].z;
+    z2 = cellsData.cells[p2].z;
     v = recvDensPotData[p1].v;
     density = recvDensPotData[p1].density;
     size = recvData[p1].size;

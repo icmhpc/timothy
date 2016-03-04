@@ -2,21 +2,28 @@
 // Created by czaki on 18.02.16.
 //
 
-#ifndef TIMOTHY_INI_PARSER_H
-#define TIMOTHY_INI_PARSER_H
+#ifndef TIMOTHY_INI_MANIPULATOR_H
+#define TIMOTHY_INI_MANIPULATOR_H
 
 #include <string>
 #include <stdexcept>
 #include <vector>
 #include <map>
-#include <ostream>
+#include <istream>
 
 namespace timothy {
-    namespace ini_parser {
+    namespace ini_manipulator {
         class type_error : public std::logic_error{
         public:
             explicit type_error (std::string & what_arg);
             explicit type_error (const char * what_arg);
+        };
+        class fileFormatError : public std::exception {
+            std::string msg;
+        public:
+            fileFormatError(std::string);
+            virtual const char * what() const noexcept;
+
         };
         enum ini_fields_type {
             NUMBER_FIELD,
@@ -45,10 +52,10 @@ namespace timothy {
             iniField(const std::string name, const double val);
             iniField(const std::string name, const char* val);
             iniField(const std::string name, const std::string val);
-            iniField(std::istream * s);
+            iniField(std::istream & s);
             virtual ~iniField();
             std::string getName() const { return name ;}
-            bool isBolean() const;
+            bool isBoolean() const;
             bool isFloat()const;
             bool isString() const;
             bool isNumeric() const;
@@ -76,7 +83,7 @@ namespace timothy {
             iniSection(const std::string & name);
             iniSection(const std::string & name, std::vector<iniField> fields);
             bool hasField(const std::string name) const;
-            bool isBolean(const std::string name) const;
+            bool isBoolean(const std::string name) const;
             bool isFloat(const std::string name)const;
             bool isString(const std::string name) const;
             bool isNumeric(const std::string name) const;
@@ -101,23 +108,23 @@ namespace timothy {
             std::vector<std::string> sections_order;
         public:
             bool hasField(const std::string section_name, const std::string field_name) const;
-            bool isBolean(const std::string name) const;
-            bool isFloat(const std::string name)const;
-            bool isString(const std::string name) const;
-            bool isNumeric(const std::string name) const;
-            bool isRestrictBoolean(const std::string name) const;
-            bool isRestrictFloat(const std::string name) const;
-            bool isRestrictString(const std::string name) const;
-            bool isRestrictNumeric(const std::string name) const ;
-            int getIntValue(const std::string name) const;
-            double getFloatValue(const std::string name) const;
-            std::string getStringValue(const std::string name) const;
-            bool getBoolValue(const std::string name) const;
+            bool isBoolean(const std::string section_name, const std::string field_name) const;
+            bool isFloat(const std::string section_name, const std::string field_name) const;
+            bool isString(const std::string section_name, const std::string field_name) const;
+            bool isNumeric(const std::string section_name, const std::string field_name) const;
+            bool isRestrictBoolean(const std::string section_name, const std::string field_name) const;
+            bool isRestrictFloat(const std::string section_name, const std::string field_name) const;
+            bool isRestrictString(const std::string section_name, const std::string field_name) const;
+            bool isRestrictNumeric(const std::string section_name, const std::string field_name) const;
+            int getIntValue(const std::string section_name, const std::string field_name) const;
+            double getFloatValue(const std::string section_name, const std::string field_name) const;
+            std::string getStringValue(const std::string section_name, const std::string field_name) const;
+            bool getBoolValue(const std::string section_name, const std::string field_name) const;
             template<typename T>
-            void setValue(const std::string name, const T & t ) {
-              return fields.at(name).setValue(t);
+            void setValue(const std::string section_name, const std::string field_name, const T & t ) {
+              return sections.at(section_name).setValue(field_name,t);
             }
         };
     }
 }
-#endif //TIMOTHY_INI_PARSER_H
+#endif //TIMOTHY_INI_MANIPULATOR_H

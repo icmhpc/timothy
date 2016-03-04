@@ -25,6 +25,7 @@
 #include<string.h>
 #include<mpi.h>
 #include<omp.h>
+#include <stdbool.h>
 
 #include "global.h"
 #include "io.h"
@@ -45,6 +46,8 @@
  * It also contains the main simulation loop where all important simulation steps are called.
 */
 
+double **cellFields;
+
 int main(int argc, char **argv)
 {
   MPI_Init(&argc, &argv);
@@ -64,12 +67,14 @@ int main(int argc, char **argv)
     octBuild();
     createExportList();
     computeStep();
-
     if (!(step % statOutStep))
       statisticsPrint();
 
     if (simStart)
       simTime += secondsPerStep / 3600.0;	/* biological process time in hours */
+
+    vtkOutStep = 1;
+    vtkout = true;
 
     if (!(step % vtkOutStep)) {
       if (vtkout)

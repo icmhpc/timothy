@@ -197,7 +197,7 @@ void chemEnvInitSystem(int nch)
   // indicate that the matrix coefficients are ready to be set
   HYPRE_SStructMatrixInitialize(chemA[nch]);
 
-  values = calloc(nvalues, sizeof(double));
+  values = (double *) calloc(nvalues, sizeof(double));
 
   for (j = 0; j < nentries; j++)
     stencil_indices[j] = j;
@@ -230,7 +230,7 @@ void chemEnvInitSystem(int nch)
   fieldMin[nch + NGLOB] = fieldICMean[nch + NGLOB];
 
   for (c = 0; c < maxCellsPerProc; c++) {
-    cellFields[nch + NGLOB][c] = fieldICMean[nch + NGLOB];
+    cellsData.cellFields[nch + NGLOB][c] = fieldICMean[nch + NGLOB];
   }
 
   free(values);
@@ -273,8 +273,8 @@ void chemEnvInitBC(int nch)
   //switchStdOut(chfname);
 
   chemPC = (double *) calloc(nvalues, sizeof(double));
-  values = calloc(nvalues, sizeof(double));
-  bvalues = calloc(nvalues, sizeof(double));
+  values = (double *) calloc(nvalues, sizeof(double));
+  bvalues = (double *) calloc(nvalues, sizeof(double));
 
   chemEnvCellPC(nch);
 

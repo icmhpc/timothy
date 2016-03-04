@@ -91,9 +91,7 @@ MPI_Request reqFGRecv[6];
 #define OXYG 3
 #define GLUC 4
 #define HYDR 5
-void fieldsInit();
-void fieldsSolve();
-void fieldGradient();
+
 
 
 /* GLOBAL SETTINGS */
@@ -111,5 +109,8 @@ double fieldConsumption[NFIELDS]; /* units - mol (cell s)^-1 */
 double fieldProduction[NFIELDS];  /* units - mol (cell s)^-1 */
 double fieldCriticalLevel1[NFIELDS]; /* critical level 1 - for cells in G1 phase */
 double fieldCriticalLevel2[NFIELDS]; /* critical level 2 - for cells in S, G2, M phases */
+void fieldsInit();
+void fieldsSolve();
+void fieldGradient();
 
 #endif /* ifndef TIMOTHY_FIELDS_H */

@@ -194,7 +194,7 @@ void tempEnvInitSystem()
   /* indicate that the matrix coefficients are ready to be set */
   HYPRE_SStructMatrixInitialize(A);
 
-  values = calloc(nvalues, sizeof(double));
+  values = (double *) calloc(nvalues, sizeof(double));
 
   for (j = 0; j < nentries; j++)
     stencil_indices[j] = j;
@@ -236,7 +236,7 @@ void tempEnvInitBC()
   /* 5. SETUP STRUCT VECTORS FOR B AND X */
   nvalues = gridSize.x * gridSize.y * gridSize.z;
 
-  values = calloc(nvalues, sizeof(double));
+  values = (double *) calloc(nvalues, sizeof(double));
 
   /* create an empty vector object */
   HYPRE_SStructVectorCreate(MPI_CART_COMM, tempGrid, &b);
@@ -283,8 +283,8 @@ void tempEnvInitBC()
   Nmax = (Nmax < gridSize.x ? gridSize.x : Nmax);
   Nmax = (Nmax < gridSize.y ? gridSize.y : Nmax);
   Nmax = (Nmax < gridSize.z ? gridSize.z : Nmax);
-  values = calloc(nentries * Nmax * Nmax, sizeof(double));
-  bvalues = calloc(Nmax * Nmax, sizeof(double));
+  values = (double *) calloc(nentries * Nmax * Nmax, sizeof(double));
+  bvalues = (double *) calloc(Nmax * Nmax, sizeof(double));
 
   for (i = 0; i < Nmax * Nmax; i++)
     bvalues[i] = 2.0 * z * gridResolution * tempLambda * fieldICMean[TEMP];
@@ -403,8 +403,8 @@ void tempEnvInitBC()
     int nentries = 1;
     HYPRE_Int stencilDindices[1];
     nvalues = nentries * gridSize.y * gridSize.z;
-    values = calloc(nvalues, sizeof(double));
-    bvalues = calloc(nvalues, sizeof(double));
+    values = (double *) calloc(nvalues, sizeof(double));
+    bvalues = (double *) calloc(nvalues, sizeof(double));
     for (i = 0; i < nvalues; i++)
       values[i] = z;
 
@@ -485,7 +485,7 @@ void tempEnvSolve()
 
     /* update right hand side */
 
-    values = calloc(nvalues, sizeof(double));
+    values = (double *) calloc(nvalues, sizeof(double));
 
     HYPRE_SStructVectorGetBoxValues(x, 0, tempLower, tempUpper, 0, values);
     HYPRE_SStructVectorSetBoxValues(b, 0, tempLower, tempUpper, 0, values);
@@ -534,7 +534,7 @@ void tempEnvSolve()
 
   /* copy solution to field buffer */
   HYPRE_SStructVectorGather(x);
-  values = calloc(nvalues, sizeof(double));
+  values = (double *) calloc(nvalues, sizeof(double));
   HYPRE_SStructVectorGetBoxValues(x, 0, tempLower, tempUpper, 0, values);
   idx = 0;
   for (k = 0; k < gridSize.z; k++)

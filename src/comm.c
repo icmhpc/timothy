@@ -88,7 +88,7 @@ void createExportList()
     double xmin, xmax, ymin, ymax, zmin, zmax;
     double r;
 
-    cells[p].halo = 0;
+    cellsData.cells[p].halo = 0;
 
     if (nc < MPIsize*MIN_CELLS_PER_PROC)
       continue;
@@ -96,13 +96,13 @@ void createExportList()
     r = h * 1.5;
 
     /* compute neighbourhood box */
-    xmin = cells[p].x - r;
-    xmax = cells[p].x + r;
-    ymin = cells[p].y - r;
-    ymax = cells[p].y + r;
+    xmin = cellsData.cells[p].x - r;
+    xmax = cellsData.cells[p].x + r;
+    ymin = cellsData.cells[p].y - r;
+    ymax = cellsData.cells[p].y + r;
     if (sdim == 3) {
-      zmin = cells[p].z - r;
-      zmax = cells[p].z + r;
+      zmin = cellsData.cells[p].z - r;
+      zmax = cellsData.cells[p].z + r;
     } else {
       zmin = 0.0;
       zmax = 0.0;
@@ -118,7 +118,7 @@ void createExportList()
         continue;
       expList[numExp].cell = p;
       expList[numExp].proc = procs[i];
-      cells[p].halo = MPIrank + 1;
+      cellsData.cells[p].halo = MPIrank + 1;
       sendCount[procs[i]]++;
       numExp++;
       /* upps! too many refugees */
@@ -199,13 +199,13 @@ void cellsExchangeInit()
 
   /* create reduced particle data buffer for exporting */
   for (i = 0; i < numExp; i++) {
-    sendData[i].x = cells[expList[i].cell].x;
-    sendData[i].y = cells[expList[i].cell].y;
-    sendData[i].z = cells[expList[i].cell].z;
-    sendData[i].size = cells[expList[i].cell].size;
+    sendData[i].x = cellsData.cells[expList[i].cell].x;
+    sendData[i].y = cellsData.cells[expList[i].cell].y;
+    sendData[i].z = cellsData.cells[expList[i].cell].z;
+    sendData[i].size = cellsData.cells[expList[i].cell].size;
     sendData[i].h = h;
-    sendData[i].young = (double) cells[expList[i].cell].young;
-    sendData[i].ctype = cells[expList[i].cell].ctype;
+    sendData[i].young = (double) cellsData.cells[expList[i].cell].young;
+    sendData[i].ctype = cellsData.cells[expList[i].cell].ctype;
   }
 
   /* send cells - asynchronous MPI call */
@@ -287,8 +287,8 @@ void densPotExchangeInit()
 
   /* create density and potential buffer for exporting */
   for (i = 0; i < numExp; i++) {
-    sendDensPotData[i].v = cells[expList[i].cell].v;
-    sendDensPotData[i].density = cells[expList[i].cell].density;
+    sendDensPotData[i].v = cellsData.cells[expList[i].cell].v;
+    sendDensPotData[i].density = cellsData.cells[expList[i].cell].density;
   }
 
   /* send data - asynchronous MPI call */

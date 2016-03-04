@@ -46,13 +46,13 @@ void statisticsDensity()
   statistics.mindens = 1024;
 
   for (c = 0; c < lnc; c++) {
-    sum += cells[c].density;
+    sum += cellsData.cells[c].density;
     statistics.maxdens =
-      (cells[c].density >
-       statistics.maxdens ? cells[c].density : statistics.maxdens);
+      (cellsData.cells[c].density >
+       statistics.maxdens ? cellsData.cells[c].density : statistics.maxdens);
     statistics.mindens =
-      (cells[c].density <
-       statistics.mindens ? cells[c].density : statistics.mindens);
+      (cellsData.cells[c].density <
+       statistics.mindens ? cellsData.cells[c].density : statistics.mindens);
   }
 
   MPI_Allreduce(&sum, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -68,7 +68,7 @@ void statisticsDensity()
   sum = 0.0;
 
   for (c = 0; c < lnc; c++)
-    sum += (cells[c].density - mean) * (cells[c].density - mean);
+    sum += (cellsData.cells[c].density - mean) * (cellsData.cells[c].density - mean);
 
   MPI_Allreduce(&sum, &(statistics.densdev), 1, MPI_DOUBLE, MPI_SUM,
                 MPI_COMM_WORLD);

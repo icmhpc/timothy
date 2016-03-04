@@ -3,6 +3,6 @@
 void chemEnvInitSystem(int);
 void chemEnvInitBC(int);
 void chemEnvInitSolver(int);
-void chemEnvSolve();
+void chemEnvSolve(int);
 #endif /* ifndef TIMOTHY_CHEMF_H
  */

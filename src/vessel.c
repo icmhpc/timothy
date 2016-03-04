@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <math.h>
-#include <inttypes.h>
+
 #include <sprng.h>
 #include <float.h>
 
@@ -68,42 +68,42 @@ void initVessel()
     while(fscanf(fh,"%lf %lf %lf\n",&ax,&ay,&az)!=EOF) {
       int skip=0;
       for(i=0; i<lnc; i++) {
-        dist=sqrt(pow(cells[i].x-ax,2.0)+pow(cells[i].y-ay,2.0)+pow(cells[i].z-az,2.0));
+        dist=sqrt(pow(cellsData.cells[i].x-ax,2.0)+pow(cellsData.cells[i].y-ay,2.0)+pow(cellsData.cells[i].z-az,2.0));
         if(dist<0.01) {
           skip=1;
           break;
         }
       }
       if(skip) continue;
-      cells[lnc].size=pow(2.0, -(1.0 / 3.0)) * csize;//csize;
-      cells[lnc].x=ax;
-      cells[lnc].y=ay;
-      cells[lnc].z=az;
-      maxx=(cells[lnc].x>maxx?cells[lnc].x:maxx);
-      maxy=(cells[lnc].y>maxy?cells[lnc].y:maxy);
-      maxz=(cells[lnc].z>maxz?cells[lnc].z:maxz);
-      minx=(cells[lnc].x<minx?cells[lnc].x:minx);
-      miny=(cells[lnc].y<miny?cells[lnc].y:miny);
-      minz=(cells[lnc].z<minz?cells[lnc].z:minz);
-      cells[lnc].gid =
+      cellsData.cells[lnc].size=pow(2.0, -(1.0 / 3.0)) * csize;//csize;
+      cellsData.cells[lnc].x=ax;
+      cellsData.cells[lnc].y=ay;
+      cellsData.cells[lnc].z=az;
+      maxx=(cellsData.cells[lnc].x>maxx ? cellsData.cells[lnc].x : maxx);
+      maxy=(cellsData.cells[lnc].y>maxy ? cellsData.cells[lnc].y : maxy);
+      maxz=(cellsData.cells[lnc].z>maxz ? cellsData.cells[lnc].z : maxz);
+      minx=(cellsData.cells[lnc].x<minx ? cellsData.cells[lnc].x : minx);
+      miny=(cellsData.cells[lnc].y<miny ? cellsData.cells[lnc].y : miny);
+      minz=(cellsData.cells[lnc].z<minz ? cellsData.cells[lnc].z : minz);
+      cellsData.cells[lnc].gid =
         (unsigned long long int) MPIrank *(unsigned long long int)
         maxCellsPerProc + (unsigned long long int) lnc;
-      cells[lnc].v = 0.0;
-      cells[lnc].density = 0.0;
-      cells[lnc].h = 3*csize;//h;
-      cells[lnc].young = 2100.0 + sprng(stream) * 100.0;
-      cells[lnc].halo = 0;
-      cells[lnc].phase = 0;
-      cells[lnc].g1 = g1 * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[lnc].g2 = g2 * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[lnc].s = s * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[lnc].m = m * (1 + (sprng(stream) * 2 - 1) * v);
-      cells[lnc].phasetime = 0.0;
-      cells[lnc].age = 0;
-      cells[lnc].death = 0;
-      cells[lnc].tumor = 0;
+      cellsData.cells[lnc].v = 0.0;
+      cellsData.cells[lnc].density = 0.0;
+      cellsData.cells[lnc].h = 3*csize;//h;
+      cellsData.cells[lnc].young = (float) (2100.0 + sprng(stream) * 100.0);
+      cellsData.cells[lnc].halo = 0;
+      cellsData.cells[lnc].phase = 0;
+      cellsData.cells[lnc].g1 = (float) (g1 * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[lnc].g2 = (float) (g2 * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[lnc].s = (float) (s * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[lnc].m = (float) (m * (1 + (sprng(stream) * 2 - 1) * v));
+      cellsData.cells[lnc].phasetime = 0.0;
+      cellsData.cells[lnc].age = 0;
+      cellsData.cells[lnc].death = 0;
+      cellsData.cells[lnc].tumor = 0;
       /* tag vessel cell */
-      cells[lnc].ctype = 1;
+      cellsData.cells[lnc].ctype = 1;
 
       lnc++;
       lvc++;
@@ -111,25 +111,26 @@ void initVessel()
     }
     /* scale */
     for(i=0; i<lnc; i++) {
-      cells[i].x-=minx;
-      cells[i].y-=miny;
-      cells[i].z-=minz;
+      cellsData.cells[i].x-=minx;
+      cellsData.cells[i].y-=miny;
+      cellsData.cells[i].z-=minz;
     }
     /* find a single cell in the middle */
     middle[0]=0.0;
     middle[1]=0.0;
     middle[2]=0.0;
     for(i=0; i<lnc; i++) {
-      middle[0]+=cells[i].x;
-      middle[1]+=cells[i].y;
-      middle[2]+=cells[i].z;
+      middle[0]+=cellsData.cells[i].x;
+      middle[1]+=cellsData.cells[i].y;
+      middle[2]+=cellsData.cells[i].z;
     }
     middle[0]/=lnc;
     middle[1]/=lnc;
     middle[2]/=lnc;
     mindist=DBL_MAX;
     for(i=0; i<lnc; i++) {
-      dist=sqrt(pow(cells[i].x-middle[0],2.0)+pow(cells[i].y-middle[1],2.0)+pow(cells[i].z-middle[2],2.0));
+      dist=sqrt(pow(cellsData.cells[i].x-middle[0],2.0)+pow(cellsData.cells[i].y-middle[1],2.0)+
+                        pow(cellsData.cells[i].z-middle[2],2.0));
       if(dist<mindist) {
         middleCellIdx=i;
         mindist=dist;

@@ -143,9 +143,9 @@ void octBuild()
   for(i=0; i<lnc; i++) {
     double x,y,z;
     double e;
-    x=cells[i].x;
-    y=cells[i].y;
-    z=cells[i].z;
+    x=cellsData.cells[i].x;
+    y=cellsData.cells[i].y;
+    z=cellsData.cells[i].z;
     e=h+epsilon;
     bMin.x=(x-e<bMin.x?x-e:bMin.x);
     bMax.x=(x+e>bMax.x?x+e:bMax.x);
@@ -165,16 +165,16 @@ void octBuild()
   locCode=(struct uintVector3d*) malloc(sizeof(struct uintVector3d)*lnc);
   //#pragma omp parallel for
   for(c=0; c<lnc; c++) {
-    locCode[c].x=(unsigned int)( ((cells[c].x-affShift.x)/affScale) * MAXVALUE );
-    locCode[c].y=(unsigned int)( ((cells[c].y-affShift.y)/affScale) * MAXVALUE );
-    locCode[c].z=(unsigned int)( ((cells[c].z-affShift.z)/affScale) * MAXVALUE );
+    locCode[c].x=(unsigned int)( ((cellsData.cells[c].x-affShift.x)/affScale) * MAXVALUE );
+    locCode[c].y=(unsigned int)( ((cellsData.cells[c].y-affShift.y)/affScale) * MAXVALUE );
+    locCode[c].z=(unsigned int)( ((cellsData.cells[c].z-affShift.z)/affScale) * MAXVALUE );
   }
   /* memory space required to store octree (to be reviewed again!) */
   octMaxSize=lnc*16;
 #ifdef __MIC__
   octree=_mm_malloc(sizeof(octNode)*octMaxSize,64);
 #else
-  octree=malloc(sizeof(octNode)*octMaxSize);
+  octree=(octNode *) malloc(sizeof(octNode)*octMaxSize); //TODO calloc?
 #endif
   root=0;
   octSize=0;
@@ -192,9 +192,9 @@ void octBuild()
  */
 void octComputeCode(int64_t c,struct uintVector3d *code)
 {
-  code[0].x=(unsigned int)( ((cells[c].x-affShift.x)/affScale) * MAXVALUE );
-  code[0].y=(unsigned int)( ((cells[c].y-affShift.y)/affScale) * MAXVALUE );
-  code[0].z=(unsigned int)( ((cells[c].z-affShift.z)/affScale) * MAXVALUE );
+  code[0].x=(unsigned int)( ((cellsData.cells[c].x-affShift.x)/affScale) * MAXVALUE );
+  code[0].y=(unsigned int)( ((cellsData.cells[c].y-affShift.y)/affScale) * MAXVALUE );
+  code[0].z=(unsigned int)( ((cellsData.cells[c].z-affShift.z)/affScale) * MAXVALUE );
 }
 
 /*!
@@ -235,12 +235,12 @@ MIC_ATTR void octComputeBox(int64_t c,struct uintVector3d *minLocCode,struct uin
 {
   struct doubleVector3d minCor,maxCor;
   /* compute corners */
-  minCor.x=(cells[c].x-h-affShift.x)/affScale;
-  minCor.y=(cells[c].y-h-affShift.y)/affScale;
-  minCor.z=(cells[c].z-h-affShift.z)/affScale;
-  maxCor.x=(cells[c].x+h-affShift.x)/affScale;
-  maxCor.y=(cells[c].y+h-affShift.y)/affScale;
-  maxCor.z=(cells[c].z+h-affShift.z)/affScale;
+  minCor.x=(cellsData.cells[c].x-h-affShift.x)/affScale;
+  minCor.y=(cellsData.cells[c].y-h-affShift.y)/affScale;
+  minCor.z=(cellsData.cells[c].z-h-affShift.z)/affScale;
+  maxCor.x=(cellsData.cells[c].x+h-affShift.x)/affScale;
+  maxCor.y=(cellsData.cells[c].y+h-affShift.y)/affScale;
+  maxCor.z=(cellsData.cells[c].z+h-affShift.z)/affScale;
   /* compute location codes of corners */
   minLocCode[0].x=(unsigned int)(minCor.x*MAXVALUE);
   minLocCode[0].y=(unsigned int)(minCor.y*MAXVALUE);
@@ -325,7 +325,7 @@ void octHeapInit(octHeap *ttHeap)
 {
   ttHeap->size=64;
   ttHeap->count=0;
-  ttHeap->data=malloc(sizeof(int)*ttHeap->size);
+  ttHeap->data= (int *) malloc(sizeof(int)*ttHeap->size);
 }
 
 /*!
@@ -335,7 +335,8 @@ void octHeapPush(octHeap *ttHeap,int idx)
 {
   if(ttHeap->count==ttHeap->size) {
     ttHeap->size+=64;
-    ttHeap->data=realloc(ttHeap->data,sizeof(int)*ttHeap->size);
+    ttHeap->data= (int *) realloc(ttHeap->data,sizeof(int)*ttHeap->size);
+    //FIXME check that realloc finish with success
     printf("realloc again\n");
   }
   ttHeap->data[ttHeap->count]=idx;

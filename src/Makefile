@@ -102,8 +102,8 @@ endif
 
 # General GNU x86 configuration
 ifeq ($(SYSTYPE),gnu-x86)
-CC = mpicc 
-OPT = -O2 -fopenmp  -ffast-math -ftree-vectorize -finline-functions -Winline -Wall -Wextra -g
+CC = mpicc
+OPT = -O2 -fopenmp  -ffast-math -ftree-vectorize -finline-functions -Winline -Wall -Wextra -g # -Wconversion
 DEFS = #-DDEBUG
 INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)
 LIBS = -lm $(ZOLTANLIB) $(SPRNGLIB) $(GMPLIB) $(HYPRELIB)

@@ -69,7 +69,7 @@ void swap_Nbyte(char *data, int n, int m)
 /*!
  * This function is used to handle various critical errors.
  */
-void stopRun(int ierr, char *name, char *file, int line)
+void stopRun(int ierr, const char *name, const char *file, int line)
 {
   switch (ierr) {
   case 100:
