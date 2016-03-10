@@ -156,7 +156,7 @@ int initBone()
             cellsData.cells[lnc].death = 0;
             cellsData.cells[lnc].tumor = 0;
             /* tag bone cell */
-            cellsData.cells[lnc].ctype = 3;
+            cellsData.cells[lnc].cell_type = 3;
 
             lnc++;
             lbnc++;

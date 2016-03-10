@@ -1101,14 +1101,14 @@ void ioDefineOutputFields()
 
     nfOut++;
 
-    strcpy(nameOut[nfOut], "ctype");
+    strcpy(nameOut[nfOut], "cell_type");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &cellsData.cells[0].ctype;
+    addrOut[nfOut] = &cellsData.cells[0].cell_type;
     if(lnc>1)
       jumpOut[nfOut] =
-        (& cellsData.cells[1].ctype) -
-        (& cellsData.cells[0].ctype);
+        (& cellsData.cells[1].cell_type) -
+        (& cellsData.cells[0].cell_type);
     else
       jumpOut[nfOut] = 0;
 
@@ -1720,7 +1720,7 @@ void readRstFile(int argc, char **argv)
       swap_Nbyte((char *) (&cellsData.cells[i].young), 1, sizeof(float));
       swap_Nbyte((char *) (&cellsData.cells[i].tumor), 1, sizeof(unsigned char));
       swap_Nbyte((char *) (&cellsData.cells[i].scalarField), 1, sizeof(double));
-      swap_Nbyte((char *) (&cellsData.cells[i].ctype), 1, sizeof(int));
+      swap_Nbyte((char *) (&cellsData.cells[i].cell_type), 1, sizeof(int));
       swap_Nbyte((char *) (&cellsData.cells[i].scstage), 1, sizeof(int));
       swap_Nbyte((char *) (&cellsData.cells[i].halo), 1, sizeof(int));
     }
@@ -1769,7 +1769,7 @@ void readRstFile(int argc, char **argv)
       lcancer = 1;
     }
 
-    if (cellsData.cells[i].ctype == 1)
+    if (cellsData.cells[i].cell_type == 1)
       lvc++;
 
   }

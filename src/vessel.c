@@ -103,7 +103,7 @@ void initVessel()
       cellsData.cells[lnc].death = 0;
       cellsData.cells[lnc].tumor = 0;
       /* tag vessel cell */
-      cellsData.cells[lnc].ctype = 1;
+      cellsData.cells[lnc].cell_type = 1;
 
       lnc++;
       lvc++;

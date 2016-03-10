@@ -229,7 +229,7 @@ void doInterpolation()
               t.y = 1.0 - d.y;
               t.z = 1.0 - d.z;
 
-              if(cellsData.cells[c].ctype==1) { /* endothelial cell - production */
+              if(cellsData.cells[c].cell_type==1) { /* endothelial cell - production */
                 patch(p,1,idx.x,idx.y,idx.z) +=
                   1.0 * (ax * d.x + (1 - ax) * t.x) * (ay * d.y +
                                                        (1 -

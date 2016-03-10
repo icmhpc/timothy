@@ -205,7 +205,7 @@ void cellsExchangeInit()
     sendData[i].size = cellsData.cells[expList[i].cell].size;
     sendData[i].h = h;
     sendData[i].young = (double) cellsData.cells[expList[i].cell].young;
-    sendData[i].ctype = cellsData.cells[expList[i].cell].ctype;
+    sendData[i].ctype = cellsData.cells[expList[i].cell].cell_type;
   }
 
   /* send cells - asynchronous MPI call */

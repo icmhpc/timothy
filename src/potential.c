@@ -61,7 +61,7 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
     z = cellsData.cells[p1].z;
     size = cellsData.cells[p1].size;
     young = cellsData.cells[p1].young;
-    ctype = cellsData.cells[p1].ctype;
+    ctype = cellsData.cells[p1].cell_type;
   } else {
     x = recvData[p1].x;
     y = recvData[p1].y;
@@ -82,7 +82,7 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
            (y - cellsData.cells[p2].y) * (y - cellsData.cells[p2].y) +
            (z - cellsData.cells[p2].z) * (z - cellsData.cells[p2].z));
 
-  if (mindist[0] > dist && ctype!=1 && cellsData.cells[p2].ctype!=1) {
+  if (mindist[0] > dist && ctype!=1 && cellsData.cells[p2].cell_type!=1) {
     mindist[0] = dist;
   }
 
@@ -135,7 +135,7 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
                   cellsData.cells[p2].size)) +
       area * 0.1;
 
-    if(ctype==1 && cellsData.cells[p2].ctype==1) pot = 0.0;
+    if(ctype==1 && cellsData.cells[p2].cell_type==1) pot = 0.0;
 
     return pot;
 

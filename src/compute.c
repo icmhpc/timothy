@@ -142,7 +142,7 @@ void computeStep()
 
   /* 8. Correct velocity for various cell types */
   for(p=0; p<lnc; p++)
-    if(cellsData.cells[p].ctype!=1) {
+    if(cellsData.cells[p].cell_type!=1) {
       velocity[p].x += 0.0001*cellsData.cellFields[NFIELDS][p];
       velocity[p].y += 0.0001*cellsData.cellFields[NFIELDS+1][p];
       velocity[p].z += 0.0001*cellsData.cellFields[NFIELDS+2][p];

@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     createExportList();
     computeStep();
     if (!(step % statOutStep))
-      statisticsPrint();
+      statisticsPrint(&cellsData, &statistics);
 
     if (simStart)
       simTime += secondsPerStep / 3600.0;	/* biological process time in hours */
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         ioWriteFields(step);
     }
 
-    updateCellPositions();
+    updateCellPositions(&cellsData, &statistics);
     updateCellStates();
     commCleanup();
     octFree();

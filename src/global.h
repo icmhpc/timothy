@@ -71,7 +71,8 @@ enum cell_phase{
     G2_phase,
     M_phase,
     Necrotic_phase,
-    const_cell
+    const_cell,
+    cell_to_destroy
 };
 
 //#pragma pack(1)
@@ -96,7 +97,7 @@ struct cellData {
   double v;             /* particle potential */
   double density;       /* particle density */
   double scalarField;   /* additional scalar field which can be used for analysis of results (printed to the output VTK files) */
-  int ctype;		/* cell type 1=endothelial */
+  int cell_type;		/* cell type 1=endothelial */
   int scstage;          /* stem cells stage (in the course of differentiation) */
   unsigned char tumor;	/* 1 - tumor cell, 0 - healthly cell */
 };
@@ -119,7 +120,10 @@ struct cellTypeData{
     char * name;
     double max_size;
     bool enable_random_death;
-
+    double h;
+    double h2;
+    double h3;
+    double h4;
 };
 
 
@@ -139,11 +143,14 @@ struct cellsInfo{
     struct cellCountInfo totalCellCount;
     uint64_t * localTypeCellCount;
     uint64_t * totalTypeCellCount;
+    uint64_t * numberOfCellsInEachProcess;
     struct cellData * cells;
     double ** cellFields;
+    size_t numberOfCellTypes;
     struct doubleVector3d *velocity;
     struct cellTypeData * cellTypes;
     str_uint16_dict * cellTypeNumberDict;
+    double minimal_density_to_keep_necrotic_cell;
 };
 
 
@@ -395,6 +402,7 @@ struct settings{
   int scsim;		/* if =1 <- stem cell simulation */
   int bvsim;		/* if =1 <- blood vessel simulation */
   int bnsim;		/* if =1 <- bone simulation */
+    int MPI_group_size;
     size_t numberOfCellTypes;
     size_t numberOfEnvironments;
     uint64_t maxCellsPerProc;
@@ -403,6 +411,17 @@ struct settings{
     struct cellTypeData * cellTypes;
     struct environment * environments;
     float gloabal_fields_time_delta;
+    char dimension;
+
+    bool enable_step_transformation;
+    void (*step_transformation)(struct cellsInfo * ci, const struct settings * s);
+    int numOfDimensions;
+    int size_x;
+    int size_y;
+    int size_z;
+    double neighbourhood;
+
+    bool mitosis_random_direction;
 
 };
 
