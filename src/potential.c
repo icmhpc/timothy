@@ -148,17 +148,17 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
  * This function implements tree walk algorithm for each local cell.
  * Function ccPot(..) is called for each pair of neighbours.
  */
-MIC_ATTR void compPot()
+MIC_ATTR void compPot(uint64_t local_number_of_cells)
 {
-  if(lnc<=1) return;
+  if(local_number_of_cells <= 1) return;
   #pragma omp parallel
   {
-    int p;
+    uint64_t p;
     double mindist;
     mindist=nx;
 
     #pragma omp for schedule(dynamic,64)
-    for (p = 0; p < lnc; p++) {
+    for (p = 0; p < local_number_of_cells; p++) {
       int64_t cellIdx;
       int newIdx;
       int s;
@@ -327,12 +327,12 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
  * This function implements tree walk algorithm for each local cell to compute potential gradient.
  * Function ccPotGrad(..) is called for each pair of neighbours.
  */
-MIC_ATTR void compPotGrad()
+MIC_ATTR void compPotGrad(uint64_t local_number_of_cells)
 {
-  int p;
-  if(lnc<=1) return;
+  uint64_t p;
+  if(local_number_of_cells<=1) return;
   #pragma omp parallel for schedule(dynamic,64)
-  for(p=0; p<lnc; p++) {
+  for(p=0; p<local_number_of_cells; p++) {
     int64_t cellIdx;
     int newIdx;
     int s;

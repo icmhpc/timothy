@@ -47,17 +47,6 @@ ZOLTAN_ID_PTR exportLocalGids;	/* local IDs of the objects I must send */
 int *exportProcs;		/* process to which I send each of the objects */
 int *exportToPart;		/* partition to which each object will belong */
 
-struct ztnMidData {
-  struct cellData *c;
-  int64_t * localCellCount;
-};
-static struct ztnMidData  ztnMidData;
-
-struct ztnPostData {
-  int64_t * localCellCount;
-  int64_t * tlnc;
-};
-static struct ztnPostData ztnPostData;
 
 /*!
  * Zoltan callback function. This function returns the dimension (2D or 3D) of the system.
@@ -95,8 +84,8 @@ void ztnReturnCoords(void *data, int numGidEntries __attribute__((unused)), int 
  */
 int ztnReturnNumNode(void *data __attribute__((unused)), int *ierr __attribute__((unused)))
 {
-  int64_t * localCellCount = (int64_t *) data;
-  return lnc;
+  uint64_t * localCellCount = (uint64_t *) data;
+  return (int) *localCellCount;
 }
 
 /*!
@@ -104,11 +93,12 @@ int ztnReturnNumNode(void *data __attribute__((unused)), int *ierr __attribute__
  */
 void ztnReturnOwnedNodes(void *data, int numGIdEntries, int numLIdEntries,
                          ZOLTAN_ID_PTR globalIds, ZOLTAN_ID_PTR localIds,
-                         int wgtDim, float *objWgts, int *ierr __attribute__((unused)))
+                         int wgtDim __attribute__((unused)), float *objWgts, int *ierr __attribute__((unused)))
 {
-  struct cellData * cells = (struct cellData *) data;
-  int i;
-  for (i = 0; i < lnc; i++) { //TODO maybe use wgtDim instead of lnc?
+  struct cellData * cells = ((struct cellsInfo *) data)->cells;
+  uint64_t i;
+  uint64_t local_number_of_cells = ((struct cellsInfo *) data)->localCellCount.number_of_cells;
+  for (i = 0; i < local_number_of_cells; i++) { //TODO maybe use wgtDim instead of lnc?
     globalIds[i * numGIdEntries] = cells[i].gid;
     localIds[i * numLIdEntries] = i;
     objWgts[i] = 1.0;
@@ -162,19 +152,19 @@ void ztnMid(void *data, int numGIdEntries __attribute__((unused)), int numLIdEnt
             ZOLTAN_ID_PTR exportGlobalIds __attribute__((unused)), ZOLTAN_ID_PTR exportLocalIds __attribute__((unused)),
             int *exportProcs __attribute__((unused)), int *exportToPart __attribute__((unused)), int *ierr __attribute__((unused)))
 {
-  int pos, i;
-  struct ztnMidData * d = (struct ztnMidData * ) data;
-  struct cellData *c = d->c;
-  int64_t * localCellCount = d->localCellCount;
+  uint64_t pos, i;
+  //struct ztnMidData * d = (struct ztnMidData * ) data;
+  struct cellData *c = ((struct cellsInfo *) data)->cells;
+  uint64_t * localCellCount = &((struct cellsInfo *) data)->localCellCount.number_of_cells;
   pos = 0;
-  for (i = 0; i < lnc; i++) {
+  for (i = 0; i < *localCellCount; i++) {
     if (i != pos && c[i].gid != (unsigned long) -1) { //TODO why compare unsigned long with -1?
       c[pos] = c[i];
     }
     if (c[i].gid != (unsigned long) -1)
       pos++;
   }
-  lnc = lnc - numExport;
+  *localCellCount = *localCellCount - numExport;
 }
 
 /*!
@@ -187,12 +177,10 @@ void ztnPost(void *data, int numGIdEntries __attribute__((unused)), int numLIdEn
              ZOLTAN_ID_PTR exportGlobalIds __attribute__((unused)), ZOLTAN_ID_PTR exportLocalIds __attribute__((unused)),
              int *exportProcs __attribute__((unused)), int *exportToPart __attribute__((unused)), int *ierr __attribute__((unused)))
 {
-  struct ztnPostData *d = (struct ztnPostData *) data;
-  int64_t * localCellCount = d->localCellCount;
-  int64_t * tlnc = d->tlnc;
+  struct cellsInfo * ci = (struct cellsInfo *) data;
   /* any post communication operations should go here */
   /* gather number of cells from each process */
-  MPI_Allgather(&lnc, 1, MPI_INT64_T, tlnc, 1, MPI_INT64_T,
+  MPI_Allgather(&ci->localCellCount.number_of_cells, 1, MPI_UINT64_T, ci->numberOfCellsInEachProcess, 1, MPI_UINT64_T,
                 MPI_COMM_WORLD);
 }
 
@@ -202,12 +190,12 @@ void ztnPost(void *data, int numGIdEntries __attribute__((unused)), int numLIdEn
 void ztnUnpack(void *data, int numGIdEntries __attribute__((unused)), ZOLTAN_ID_PTR globalId __attribute__((unused)),
                int size __attribute__((unused)), char *buf, int *ierr __attribute__((unused)))
 {
-  struct ztnMidData * d = (struct ztnMidData * ) data;
-  struct cellData *c = d->c;
-  int64_t * localCellCount = d->localCellCount;
+  struct cellsInfo * ci = (struct cellsInfo * ) data;
+  //struct cellData *c = d->c;
+  //int64_t * localCellCount = d->localCellCount;
   //struct cellData *c = (struct cellData *) data;
-  memcpy(&c[lnc], buf, sizeof(struct cellData));
-  lnc++;
+  memcpy(&ci->cells[ci->localCellCount.number_of_cells], buf, sizeof(struct cellData));
+  ci->localCellCount.number_of_cells++;
 }
 
 /*!
@@ -228,10 +216,7 @@ void decompositionInit(int argc, char **argv)
 
   ztn = Zoltan_Create(MPI_COMM_WORLD);
 
-  ztnMidData.c = cellsData.cells;
-  ztnMidData.localCellCount = localCellCount;
-  ztnPostData.localCellCount = localCellCount;
-  ztnPostData.tlnc = tlnc;
+
 
   Zoltan_Set_Param(ztn, "IMBALANCE_TOL", "1.4");
   Zoltan_Set_Param(ztn, "LB_METHOD", "HSFC");	/* Hilbert Space-Filling Curve Partitioning */
@@ -247,20 +232,20 @@ void decompositionInit(int argc, char **argv)
   Zoltan_Set_Fn(ztn, ZOLTAN_GEOM_FN_TYPE, (void (*)()) ztnReturnCoords,
                 cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_NUM_OBJ_FN_TYPE, (void (*)()) ztnReturnNumNode,
-                localCellCount);
+                &cellsData.localCellCount.number_of_cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_OBJ_LIST_FN_TYPE,
-                (void (*)()) ztnReturnOwnedNodes, cellsData.cells);
+                (void (*)()) ztnReturnOwnedNodes, &cellsData);
   Zoltan_Set_Fn(ztn, ZOLTAN_OBJ_SIZE_FN_TYPE,
                 (void (*)()) ztnReturnParticleDataSize, cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_PACK_OBJ_FN_TYPE, (void (*)()) ztnPack, cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_UNPACK_OBJ_FN_TYPE, (void (*)()) ztnUnpack,
-                &ztnMidData);
+                &cellsData);
   Zoltan_Set_Fn(ztn, ZOLTAN_PRE_MIGRATE_PP_FN_TYPE, (void (*)()) ztnPre,
                 cellsData.cells);
   Zoltan_Set_Fn(ztn, ZOLTAN_MID_MIGRATE_PP_FN_TYPE, (void (*)()) ztnMid,
-                &ztnMidData);
+                &cellsData);
   Zoltan_Set_Fn(ztn, ZOLTAN_POST_MIGRATE_PP_FN_TYPE, (void (*)()) ztnPost,
-                &ztnPostData);
+                &cellsData);
 
 }
 
@@ -268,11 +253,11 @@ void decompositionInit(int argc, char **argv)
  * This function calls the Zoltan's domain decomposition and migration functions.
  * It is called at the beginning of each simulation step.
  */
-void decompositionExecute()
+void decompositionExecute(uint64_t total_number_of_cells)
 {
   int rc;
 
-  if (nc < MPIsize*MIN_CELLS_PER_PROC)
+  if (total_number_of_cells < uMPIsize*MIN_CELLS_PER_PROC)
     return;
 
   rc = Zoltan_LB_Partition(ztn,	/* input (all remaining fields are output) */

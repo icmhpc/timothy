@@ -158,8 +158,8 @@ struct cellsInfo{
 struct cellsInfo cellsData;
 #define numberOfCounts 10	/* number of cell counts used for simulation state reporting */
 
-MIC_ATTR int64_t localCellCount[numberOfCounts];	/* array storing local cell counts */
-int64_t totalCellCount[numberOfCounts] __attribute__ ((deprecated));			/* array storing global cell counts */
+//MIC_ATTR int64_t localCellCount[numberOfCounts] __attribute__ ((deprecated));	/* array storing local cell counts */
+//int64_t totalCellCount[numberOfCounts] __attribute__ ((deprecated));			/* array storing global cell counts */
 
 #define nc   totalCellCount[0]	/* global number of cells */
 #define g0nc totalCellCount[1]	/* global number of cells in G0 phase */
@@ -172,7 +172,7 @@ int64_t totalCellCount[numberOfCounts] __attribute__ ((deprecated));			/* array 
 #define vc   totalCellCount[8]	/* global number of vessel cells */
 #define bnc  totalCellCount[9]	/* global number of bone cells */
 
-#define lnc   localCellCount[0]	/* local number of cells */
+//#define lnc   localCellCount[0]	/* local number of cells */
 #define lg0nc localCellCount[1]	/* local number of cells in G0 phase */
 #define lg1nc localCellCount[2]	/* local number of cells in G1 phase */
 #define lsnc  localCellCount[3]	/* local number of cells in S phase */
@@ -183,10 +183,10 @@ int64_t totalCellCount[numberOfCounts] __attribute__ ((deprecated));			/* array 
 #define lvc   localCellCount[8]	/* local number of vessel cells */
 #define lbnc  localCellCount[9]	/* local number of bone cells */
 
-int64_t *tlnc;		/* array storing information about local number of cells on all parallel processes */ 
+//int64_t *tlnc;		/* array storing information about local number of cells on all parallel processes */
 
-int nscstages; 		/* number of stem cells stages */
-double *sctprob; 	/* stem cells stages transition probabilities */
+int nscstages __attribute__ ((deprecated)); 		/* number of stem cells stages */
+double *sctprob __attribute__ ((deprecated)); 	/* stem cells stages transition probabilities */
 int64_t *nscinst; 	/* local number of stem cells in different stages */
 int64_t *gnscinst; 	/* global number of stem cells in different stages */
 int64_t localbc;	/* local number of blood cells, used in stem cells simulation only */
@@ -215,10 +215,11 @@ struct densPotData { /* this structure keeps additional cell data (potential & d
 #define MIN_CELLS_PER_PROC 128
 
 //#define MAX_CELLS_PER_PROC 10485760
-int maxCellsPerProc;
+uint64_t maxCellsPerProc;
 
 int MPIrank;                    /* MPI rank */
 int MPIsize;                    /* MPI size */
+unsigned int uMPIsize;           /* MPI size - unsigned version */
 int MPIdim[3];                  /* processor topology dimensions (MPI_Dims_create) */
 int OMPthreads;                 /* number of OpenMP threads in use */
 
@@ -236,7 +237,6 @@ MIC_ATTR struct partData *recvData;
 struct densPotData *sendDensPotData;
 MIC_ATTR struct densPotData *recvDensPotData;
 
-int numExp;
 MIC_ATTR int numImp;
 
 /* system */
@@ -351,7 +351,7 @@ double globalMaxVel;
 int *stream;
 
 
-#define N_LEVELS 30
+#define N_LEVELS 30u
 #define ROOT_LEVEL N_LEVELS-1
 #define MAXVALUE powf(2,ROOT_LEVEL)
 
@@ -397,6 +397,15 @@ struct environment
     double critical_level_2;
 };
 
+struct state {
+    int MPIrank;                    /* MPI rank */
+    unsigned int uMPIrank;                    /* MPI rank */
+    int MPIsize;                    /* MPI size */
+    unsigned int uMPIsize;           /* MPI size - unsigned version */
+};
+
+extern struct state State;
+
 struct settings{
   int64_t maxCells;	/* maximal number of cells (set in parameter file) */
   int scsim;		/* if =1 <- stem cell simulation */
@@ -410,7 +419,7 @@ struct settings{
     str_uint16_dict * cellTypeNumberDict;
     struct cellTypeData * cellTypes;
     struct environment * environments;
-    float gloabal_fields_time_delta;
+    float global_fields_time_delta;
     char dimension;
 
     bool enable_step_transformation;
@@ -425,10 +434,11 @@ struct settings{
 
 };
 
+struct settings mainSettings;
 
 
 /* GLOBAL SETTINGS */
-int64_t maxCells;	/* maximal number of cells (set in parameter file) */
+uint64_t maxCells;	/* maximal number of cells (set in parameter file) */
 int scsim;		/* if =1 <- stem cell simulation */
 int bvsim;		/* if =1 <- blood vessel simulation */
 int bnsim;		/* if =1 <- bone simulation */

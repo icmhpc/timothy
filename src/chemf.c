@@ -129,7 +129,8 @@ void chemSetBoundary(int coord, int boundary)
  */
 void chemEnvInitSystem(int nch)
 {
-  int i, j, k, c;
+  int i, j, k;
+  uint64_t c;
   int entry;
   HYPRE_Int offsets[7][3] = {
     {0, 0, 0}, {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {

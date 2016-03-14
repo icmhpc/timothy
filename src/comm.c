@@ -31,7 +31,7 @@
 
 /* data type for IDs of exported cells */
 struct expData {
-  int cell;
+   uint64_t cell;
   int proc;
 };
 
@@ -40,6 +40,9 @@ MPI_Request *reqRecv;
 
 int64_t *sendOffset;
 int64_t *recvOffset;
+
+uint64_t numExp;
+
 
 struct expData *expList;
 
@@ -62,47 +65,48 @@ int comm_compare_exp_list(const void *a, const void *b)
  * to find possible intersections of cells' neighbourhoods
  * and other processes' geometries.
  */
-void createExportList()
+void createExportList(struct cellsInfo *ci)
 {
 
-  int i, p;
-  int procs[MPIsize];
+  unsigned int i;
+  uint64_t p;
+  int procs[uMPIsize];
   int numprocs;
 
   numExp = 0;
   numImp = 0;
-  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
+  if (ci->totalCellCount.number_of_cells < uMPIsize*MIN_CELLS_PER_PROC || uMPIsize == 1)
     return;
 
   expList =
     (struct expData *) malloc(sizeof(struct expData) *
                               MAX_EXPORTED_PER_PROC);
-  recvCount = (int *) calloc(MPIsize, sizeof(int));
-  sendCount = (int *) calloc(MPIsize, sizeof(int));
-  sendOffset = (int64_t *) calloc(MPIsize, sizeof(int64_t));
-  recvOffset = (int64_t *) calloc(MPIsize, sizeof(int64_t));
+  recvCount = (int *) calloc(uMPIsize, sizeof(int));
+  sendCount = (int *) calloc(uMPIsize, sizeof(int));
+  sendOffset = (int64_t *) calloc(uMPIsize, sizeof(int64_t));
+  recvOffset = (int64_t *) calloc(uMPIsize, sizeof(int64_t));
 
   /* loop over local cells */
   /*#pragma omp parallel for private(procs) */
-  for (p = 0; p < lnc; p++) {
+  for (p = 0; p < ci->localCellCount.number_of_cells; p++) {
     double xmin, xmax, ymin, ymax, zmin, zmax;
     double r;
 
-    cellsData.cells[p].halo = 0;
+    ci->cells[p].halo = 0;
 
-    if (nc < MPIsize*MIN_CELLS_PER_PROC)
+    if (ci->totalCellCount.number_of_cells < uMPIsize*MIN_CELLS_PER_PROC) // FIXME I do not understand this line [Grzegorz Bokota]
       continue;
 
     r = h * 1.5;
 
     /* compute neighbourhood box */
-    xmin = cellsData.cells[p].x - r;
-    xmax = cellsData.cells[p].x + r;
-    ymin = cellsData.cells[p].y - r;
-    ymax = cellsData.cells[p].y + r;
+    xmin = ci->cells[p].x - r;
+    xmax = ci->cells[p].x + r;
+    ymin = ci->cells[p].y - r;
+    ymax = ci->cells[p].y + r;
     if (sdim == 3) {
-      zmin = cellsData.cells[p].z - r;
-      zmax = cellsData.cells[p].z + r;
+      zmin = ci->cells[p].z - r;
+      zmax = ci->cells[p].z + r;
     } else {
       zmin = 0.0;
       zmax = 0.0;
@@ -113,12 +117,12 @@ void createExportList()
                          &numprocs);
 
     /* loop over receivers */
-    for (i = 0; i < numprocs; i++) {
-      if (procs[i] == MPIrank || tlnc[procs[i]] == 0)
+    for (int i = 0; i < numprocs; i++) {
+      if (procs[i] == MPIrank || ci->numberOfCellsInEachProcess[procs[i]] == 0)
         continue;
       expList[numExp].cell = p;
       expList[numExp].proc = procs[i];
-      cellsData.cells[p].halo = MPIrank + 1;
+      ci->cells[p].halo = MPIrank + 1;
       sendCount[procs[i]]++;
       numExp++;
       /* upps! too many refugees */
@@ -136,16 +140,16 @@ void createExportList()
 
   /* compute send offsets */
   sendOffset[0] = 0;
-  for (i = 1; i < MPIsize; i++)
+  for (i = 1; i < uMPIsize; i++)
     sendOffset[i] = sendOffset[i - 1] + sendCount[i - 1];
 
   /* compute receive offsets */
   recvOffset[0] = 0;
-  for (i = 1; i < MPIsize; i++)
+  for (i = 1; i < uMPIsize; i++)
     recvOffset[i] = recvOffset[i - 1] + recvCount[i - 1];
 
   /* count cells to be imported */
-  for (i = 0; i < MPIsize; i++)
+  for (i = 0; i < uMPIsize; i++)
     numImp += recvCount[i];
 
 }
@@ -154,9 +158,9 @@ void createExportList()
  * This function deallocates all communication buffers and
  * auxiliary tables.
  */
-void commCleanup()
+void commCleanup(uint64_t total_number_of_cells)
 {
-  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
+  if (total_number_of_cells < uMPIsize*MIN_CELLS_PER_PROC || uMPIsize == 1)
     return;
 
 #ifdef __MIC__
@@ -180,11 +184,11 @@ void commCleanup()
 /*!
  * This function initiate sending and receiving cells' data between processes.
  */
-void cellsExchangeInit()
+void cellsExchangeInit(struct cellsInfo * ci)
 {
-  int i;
+  uint64_t i;
 
-  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
+  if (ci->totalCellCount.number_of_cells < uMPIsize*MIN_CELLS_PER_PROC || uMPIsize == 1)
     return;
 
   /* allocate communication buffers */
@@ -194,23 +198,23 @@ void cellsExchangeInit()
 #else
   recvData = (struct partData *) malloc(numImp * sizeof(struct partData));
 #endif
-  reqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
-  reqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
+  reqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * uMPIsize);
+  reqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * uMPIsize);
 
   /* create reduced particle data buffer for exporting */
   for (i = 0; i < numExp; i++) {
-    sendData[i].x = cellsData.cells[expList[i].cell].x;
-    sendData[i].y = cellsData.cells[expList[i].cell].y;
-    sendData[i].z = cellsData.cells[expList[i].cell].z;
-    sendData[i].size = cellsData.cells[expList[i].cell].size;
+    sendData[i].x = ci->cells[expList[i].cell].x;
+    sendData[i].y = ci->cells[expList[i].cell].y;
+    sendData[i].z = ci->cells[expList[i].cell].z;
+    sendData[i].size = ci->cells[expList[i].cell].size;
     sendData[i].h = h;
-    sendData[i].young = (double) cellsData.cells[expList[i].cell].young;
-    sendData[i].ctype = cellsData.cells[expList[i].cell].cell_type;
+    sendData[i].young = (double) ci->cells[expList[i].cell].young;
+    sendData[i].ctype = ci->cells[expList[i].cell].cell_type;
   }
 
   /* send cells - asynchronous MPI call */
-  for (i = 0; i < MPIsize; i++) {
-    if (sendCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
+  for (i = 0; i < uMPIsize; i++) {
+    if (sendCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
       continue;
     MPI_Isend(&sendData[sendOffset[i]],
               sendCount[i] * sizeof(struct partData), MPI_BYTE, i, MPIrank,
@@ -218,9 +222,9 @@ void cellsExchangeInit()
   }
 
   /* receive cells - asynchronous MPI call */
-  for (i = 0; i < MPIsize; i++) {
-    if (recvCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
-      continue;
+  for (i = 0; i < uMPIsize; i++) {
+    if (recvCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
+      continue; //FIXME second "or"
     MPI_Irecv(&recvData[recvOffset[i]],
               recvCount[i] * sizeof(struct partData), MPI_BYTE, i, i,
               MPI_COMM_WORLD, &reqRecv[i]);
@@ -231,25 +235,25 @@ void cellsExchangeInit()
 /*!
  * This function waits for cells' data exchange completion.
  */
-void cellsExchangeWait()
+void cellsExchangeWait(struct cellsInfo *ci)
 {
-  int i;
+  unsigned int i;
   MPI_Status status;
 
-  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
+  if (ci->totalCellCount.number_of_cells < uMPIsize*MIN_CELLS_PER_PROC || uMPIsize == 1)
     return;
 
   /* wait for send completion */
-  for (i = 0; i < MPIsize; i++) {
-    if (sendCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
+  for (i = 0; i < uMPIsize; i++) {
+    if (sendCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
       continue;
     if (MPI_Wait(&reqSend[i], &status) != MPI_SUCCESS)
       stopRun(103, "reqSend", __FILE__, __LINE__);
   }
 
   /* wait for receive completion */
-  for (i = 0; i < MPIsize; i++) {
-    if (recvCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
+  for (i = 0; i < uMPIsize; i++) {
+    if (recvCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
       continue;
     if (MPI_Wait(&reqRecv[i], &status) != MPI_SUCCESS)
       stopRun(103, "reqRecv", __FILE__, __LINE__);
@@ -265,11 +269,11 @@ void cellsExchangeWait()
  * This function initiate sending and receiving density
  * and potential values between processes.
  */
-void densPotExchangeInit()
+void densPotExchangeInit(struct cellsInfo *ci)
 {
-  int i;
+  uint64_t i;
 
-  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
+  if (ci->totalCellCount.number_of_cells < uMPIsize*MIN_CELLS_PER_PROC || uMPIsize == 1)
     return;
 
   /* allocate communication buffers */
@@ -282,18 +286,18 @@ void densPotExchangeInit()
   recvDensPotData =
     (struct densPotData *) malloc(numImp * sizeof(struct densPotData));
 #endif
-  reqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
-  reqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
+  reqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * uMPIsize);
+  reqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * uMPIsize);
 
   /* create density and potential buffer for exporting */
   for (i = 0; i < numExp; i++) {
-    sendDensPotData[i].v = cellsData.cells[expList[i].cell].v;
-    sendDensPotData[i].density = cellsData.cells[expList[i].cell].density;
+    sendDensPotData[i].v = ci->cells[expList[i].cell].v;
+    sendDensPotData[i].density = ci->cells[expList[i].cell].density;
   }
 
   /* send data - asynchronous MPI call */
-  for (i = 0; i < MPIsize; i++) {
-    if (sendCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
+  for (i = 0; i < uMPIsize; i++) {
+    if (sendCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
       continue;
     MPI_Isend(&sendDensPotData[sendOffset[i]],
               sendCount[i] * sizeof(struct densPotData), MPI_BYTE, i,
@@ -301,8 +305,8 @@ void densPotExchangeInit()
   }
 
   /* receive data - asynchronous MPI call */
-  for (i = 0; i < MPIsize; i++) {
-    if (recvCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
+  for (i = 0; i < uMPIsize; i++) {
+    if (recvCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
       continue;
     MPI_Irecv(&recvDensPotData[recvOffset[i]],
               recvCount[i] * sizeof(struct densPotData), MPI_BYTE, i, i,
@@ -314,25 +318,25 @@ void densPotExchangeInit()
 /*!
  * This function waits for density and potential data exchange completion.
  */
-void densPotExchangeWait()
+void densPotExchangeWait(struct cellsInfo *ci)
 {
-  int i;
+  unsigned int i;
   MPI_Status status;
 
-  if (nc < MPIsize*MIN_CELLS_PER_PROC || MPIsize == 1)
+  if (ci->totalCellCount.number_of_cells < uMPIsize*MIN_CELLS_PER_PROC || uMPIsize == 1)
     return;
 
   // Wait for send completion
-  for (i = 0; i < MPIsize; i++) {
-    if (sendCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
+  for (i = 0; i < uMPIsize; i++) {
+    if (sendCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
       continue;
     if (MPI_Wait(&reqSend[i], &status) != MPI_SUCCESS)
       stopRun(103, "sending", __FILE__, __LINE__);
   }
 
   // Wait for receive completion
-  for (i = 0; i < MPIsize; i++) {
-    if (recvCount[i] == 0 || tlnc[i] == 0 || lnc == 0)
+  for (i = 0; i < uMPIsize; i++) {
+    if (recvCount[i] == 0 || ci->numberOfCellsInEachProcess[i] == 0 || ci->localCellCount.number_of_cells == 0)
       continue;
     if (MPI_Wait(&reqRecv[i], &status) != MPI_SUCCESS)
       stopRun(103, "receiving", __FILE__, __LINE__);

@@ -225,7 +225,7 @@ void initParams()
   strcpy(params[nr], "NC");
   strcpy(desc[nr], "number of cells");
   req[nr] = 1;
-  addr[nr] = &nc;
+  addr[nr] = &cellsData.totalCellCount.number_of_cells;
   type[nr] = LONG;
   nr++;
 
@@ -997,13 +997,13 @@ void ioDefineOutputFields()
 
   nfOut = 0;
 
-  if (lnc > 0) {
+  if (cellsData.localCellCount.number_of_cells > 0) {
 
     strcpy(nameOut[nfOut], "density");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = REAL;
     addrOut[nfOut] = &cellsData.cells[0].density;
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].density) - (& cellsData.cells[0].density);
     else
@@ -1015,7 +1015,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = REAL;
     addrOut[nfOut] = &cellsData.cells[0].size;
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].size) - ( & cellsData.cells[0].size);
     else
@@ -1035,7 +1035,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cellsData.cells[0].phase;
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].phase) - ( & cellsData.cells[0].phase);
     else
@@ -1047,7 +1047,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cellsData.cells[0].tumor;
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].tumor) - ( & cellsData.cells[0].tumor);
     else
@@ -1059,7 +1059,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cellsData.cells[0].halo;
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].halo) - (& cellsData.cells[0].halo);
     else
@@ -1071,7 +1071,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = VECTOR;
     typeOut[nfOut] = REAL;
     addrOut[nfOut] = &velocity[0];
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] = (& velocity[1]) - ( & velocity[0]);
     else
       jumpOut[nfOut] = 0;
@@ -1082,7 +1082,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cellsData.cells[0].age;
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] = (& cellsData.cells[1].age) - (& cellsData.cells[0].age);
     else
       jumpOut[nfOut] = 0;
@@ -1093,7 +1093,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = REAL;
     addrOut[nfOut] = &cellsData.cells[0].scalarField;
-    if (lnc > 1)
+    if (cellsData.localCellCount.number_of_cells > 1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].scalarField) -  (& cellsData.cells[0].scalarField);
     else
@@ -1105,7 +1105,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cellsData.cells[0].cell_type;
-    if(lnc>1)
+    if(cellsData.localCellCount.number_of_cells>1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].cell_type) -
         (& cellsData.cells[0].cell_type);
@@ -1118,7 +1118,7 @@ void ioDefineOutputFields()
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
     addrOut[nfOut] = &cellsData.cells[0].scstage;
-    if(lnc>1)
+    if(cellsData.localCellCount.number_of_cells>1)
       jumpOut[nfOut] =
         (& cellsData.cells[1].scstage) -
         (& cellsData.cells[0].scstage);
@@ -1140,7 +1140,8 @@ void ioDefineOutputFields()
 void ioWriteStepVTK(int step) //FIXME void* arithmetics
 {
 
-  int i, j;
+  int i;
+  uint64_t j;
   MPI_File fh;
   float *floatVectorField;
   float *floatScalarField;
@@ -1152,9 +1153,9 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
 
   ioDefineOutputFields();
 
-  floatVectorField = (float *) calloc(lnc * 3, sizeof(float));
-  floatScalarField = (float *) calloc(lnc, sizeof(float));
-  integerScalarField = (int *) calloc(lnc, sizeof(int));
+  floatVectorField = (float *) calloc(cellsData.localCellCount.number_of_cells * 3, sizeof(float));
+  floatScalarField = (float *) calloc(cellsData.localCellCount.number_of_cells, sizeof(float));
+  integerScalarField = (int *) calloc(cellsData.localCellCount.number_of_cells, sizeof(int));
 
   sprintf(fstname, "%s/step%08d.vtk", outdir, step);
 
@@ -1168,10 +1169,10 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
           "# vtk DataFile Version 2.0\nTimothy output\nBINARY\nDATASET UNSTRUCTURED_GRID\n");
 
   /* gather number of cells from each process */
-  MPI_Allgather(&lnc, 1, MPI_LONG_LONG, tlnc, 1, MPI_LONG_LONG,
+  MPI_Allgather(&cellsData.localCellCount.number_of_cells, 1, MPI_LONG_LONG, cellsData.numberOfCellsInEachProcess, 1, MPI_LONG_LONG,
                 MPI_COMM_WORLD);
   for (i = 0; i < MPIrank; i++)
-    nprev += tlnc[i];
+    nprev += cellsData.numberOfCellsInEachProcess[i];
 
 
   /* write the VTK header */
@@ -1183,7 +1184,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
 
   /* adding positions */
   memset(header, 0, 256);
-  sprintf(header, "\nPOINTS %" PRId64 " float\n", nc);
+  sprintf(header, "\nPOINTS %" PRId64 " float\n", cellsData.totalCellCount.number_of_cells);
   if (MPIrank == 0)
     MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                    MPI_STATUS_IGNORE);
@@ -1192,21 +1193,21 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
 
   offset = nprev * sizeof(float) * 3;
   MPI_File_seek(fh, offset, MPI_SEEK_CUR);
-  for (j = 0; j < lnc; j++) {
+  for (j = 0; j < cellsData.localCellCount.number_of_cells; j++) {
     floatVectorField[3 * j] = (float) (cellsData.cells[j].x);
     floatVectorField[3 * j + 1] = (float) (cellsData.cells[j].y);
     floatVectorField[3 * j + 2] = (float) (cellsData.cells[j].z);
   }
   if (endian)
-    swap_Nbyte((char *) floatVectorField, lnc * 3, sizeof(float));
-  MPI_File_write(fh, floatVectorField, 3 * lnc, MPI_FLOAT,
+    swap_Nbyte((char *) floatVectorField, cellsData.localCellCount.number_of_cells * 3, sizeof(float));
+  MPI_File_write(fh, floatVectorField, 3 * (int) cellsData.localCellCount.number_of_cells, MPI_FLOAT,
                  MPI_STATUS_IGNORE);
-  goffset += nc * sizeof(float) * 3;
+  goffset += cellsData.totalCellCount.number_of_cells * sizeof(float) * 3;
   MPI_File_seek(fh, goffset, MPI_SEEK_SET);
 
   /* adding cell types */
   memset(header, 0, 256);
-  sprintf(header, "\nCELL_TYPES %" PRId64 "\n", nc);
+  sprintf(header, "\nCELL_TYPES %" PRId64 "\n", cellsData.totalCellCount.number_of_cells);
   if (MPIrank == 0)
     MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                    MPI_STATUS_IGNORE);
@@ -1214,17 +1215,17 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
   MPI_File_seek(fh, goffset, MPI_SEEK_SET);
   offset = nprev * sizeof(int);
   MPI_File_seek(fh, offset, MPI_SEEK_CUR);
-  for (j = 0; j < lnc; j++)
+  for (j = 0; j < cellsData.localCellCount.number_of_cells; j++)
     integerScalarField[j] = 1;
   if (endian)
-    swap_Nbyte((char *) integerScalarField, lnc, sizeof(int));
-  MPI_File_write(fh, integerScalarField, lnc, MPI_INT, MPI_STATUS_IGNORE);
-  goffset += nc * sizeof(int);
+    swap_Nbyte((char *) integerScalarField, cellsData.localCellCount.number_of_cells, sizeof(int));
+  MPI_File_write(fh, integerScalarField, (int) cellsData.localCellCount.number_of_cells, MPI_INT, MPI_STATUS_IGNORE);
+  goffset += cellsData.totalCellCount.number_of_cells * sizeof(int);
   MPI_File_seek(fh, goffset, MPI_SEEK_SET);
 
   /* point data */
   memset(header, 0, 256);
-  sprintf(header, "\nPOINT_DATA %" PRId64, nc);
+  sprintf(header, "\nPOINT_DATA %" PRId64, cellsData.totalCellCount.number_of_cells);
   if (MPIrank == 0)
     MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                    MPI_STATUS_IGNORE);
@@ -1244,35 +1245,35 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
-        for (j = 0; j < lnc; j++)
+        for (j = 0; j < cellsData.localCellCount.number_of_cells; j++)
           floatScalarField[j] =
             (float) (*( ((double *)addrOut[i]) + j * jumpOut[i]));
         offset = nprev * sizeof(float);
         MPI_File_seek(fh, offset, MPI_SEEK_CUR);
         if (endian)
-          swap_Nbyte((char *) floatScalarField, lnc, sizeof(float));
-        MPI_File_write(fh, floatScalarField, lnc, MPI_FLOAT,
+          swap_Nbyte((char *) floatScalarField, cellsData.localCellCount.number_of_cells, sizeof(float));
+        MPI_File_write(fh, floatScalarField, (int) cellsData.localCellCount.number_of_cells, MPI_FLOAT,
                        MPI_STATUS_IGNORE);
-        goffset += nc * sizeof(float);
+        goffset += cellsData.totalCellCount.number_of_cells * sizeof(float);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
         break;
       case INT:
         sprintf(header, "\nSCALARS %s integer 1\nLOOKUP_TABLE default\n",
                 nameOut[i]);
         if (MPIrank == 0)
-          MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
+          MPI_File_write(fh, &header, (int) strlen(header), MPI_BYTE,
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
-        for (j = 0; j < lnc; j++)
+        for (j = 0; j < cellsData.localCellCount.number_of_cells; j++)
           integerScalarField[j] = *( ((int *)addrOut[i] + j * jumpOut[i]));
         offset = nprev * sizeof(int);
         MPI_File_seek(fh, offset, MPI_SEEK_CUR);
         if (endian)
-          swap_Nbyte((char *) integerScalarField, lnc, sizeof(int));
-        MPI_File_write(fh, integerScalarField, lnc, MPI_INT,
+          swap_Nbyte((char *) integerScalarField, cellsData.localCellCount.number_of_cells, sizeof(int));
+        MPI_File_write(fh, integerScalarField, (int) cellsData.localCellCount.number_of_cells, MPI_INT,
                        MPI_STATUS_IGNORE);
-        goffset += nc * sizeof(int);
+        goffset += cellsData.totalCellCount.number_of_cells * sizeof(int);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
         break;
       }
@@ -1282,11 +1283,11 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
       case REAL:
         sprintf(header, "\nVECTORS %s float\n", nameOut[i]);
         if (MPIrank == 0)
-          MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
+          MPI_File_write(fh, &header, (int) strlen(header), MPI_BYTE,
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
-        for (j = 0; j < lnc; j++) {
+        for (j = 0; j < cellsData.localCellCount.number_of_cells; j++) {
           floatVectorField[3 * j] =
             (float) (*( ((double *)addrOut[i] + j)));
           floatVectorField[3 * j + 1] =
@@ -1301,10 +1302,10 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
         offset = nprev * sizeof(float) * 3;
         MPI_File_seek(fh, offset, MPI_SEEK_CUR);
         if (endian)
-          swap_Nbyte((char *) floatVectorField, lnc * 3, sizeof(float));
-        MPI_File_write(fh, floatVectorField, lnc * 3, MPI_FLOAT,
+          swap_Nbyte((char *) floatVectorField, cellsData.localCellCount.number_of_cells * 3, sizeof(float));
+        MPI_File_write(fh, floatVectorField, (int) cellsData.localCellCount.number_of_cells * 3, MPI_FLOAT,
                        MPI_STATUS_IGNORE);
-        goffset += nc * 3 * sizeof(float);
+        goffset += cellsData.totalCellCount.number_of_cells * 3 * sizeof(float);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
         break;
       case INT:
@@ -1315,7 +1316,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
-        for (j = 0; j < lnc; j++) {
+        for (j = 0; j < cellsData.localCellCount.number_of_cells; j++) {
           floatVectorField[3 * j] =
             (*((float *) (addrOut[i] + j * jumpOut[i])));
           floatVectorField[3 * j + 1] =
@@ -1330,10 +1331,10 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
         offset = nprev * sizeof(float) * 3;
         MPI_File_seek(fh, offset, MPI_SEEK_CUR);
         if (endian)
-          swap_Nbyte((char *) floatVectorField, lnc * 3, sizeof(float));
-        MPI_File_write(fh, floatVectorField, lnc * 3, MPI_FLOAT,
+          swap_Nbyte((char *) floatVectorField, cellsData.localCellCount.number_of_cells * 3, sizeof(float));
+        MPI_File_write(fh, floatVectorField, (int) cellsData.localCellCount.number_of_cells * 3, MPI_FLOAT,
                        MPI_STATUS_IGNORE);
-        goffset += nc * 3 * sizeof(float);
+        goffset += cellsData.totalCellCount.number_of_cells * 3 * sizeof(float);
         MPI_File_seek(fh, goffset, MPI_SEEK_SET);
         break;
       }
@@ -1357,7 +1358,7 @@ void printStepNum()
     printf
     ("\n-------------------------------------------------------------------------\n");
     printf(" Step %8d,%15s%8.4f%20s%14" PRId64 " ", step, "Time step = ",
-           secondsPerStep, "Number of cells = ", nc);
+           secondsPerStep, "Number of cells = ", cellsData.totalCellCount.number_of_cells);
     fflush(stdout);
     printf
     ("\n-------------------------------------------------------------------------\n\n");
@@ -1411,7 +1412,7 @@ void ioDefineRstGlobalParams()
   /* number of cells */
   typeRst[nRst] = INT64_T;
   sizeRst[nRst] = 1;
-  addrRst[nRst] = &nc;
+  addrRst[nRst] = &cellsData.totalCellCount.number_of_cells;
   nRst++;
   /* "Simulation started" flag */
   typeRst[nRst] = INT;
@@ -1512,10 +1513,10 @@ void saveRstFile()
   MPI_File_set_size(fh, 0);
 
   /* gather number of cells from each process */
-  MPI_Allgather(&lnc, 1, MPI_INT64_T, tlnc, 1, MPI_INT64_T,
+  MPI_Allgather(&cellsData.localCellCount.number_of_cells, 1, MPI_UINT64_T, cellsData.numberOfCellsInEachProcess, 1, MPI_UINT64_T,
                 MPI_COMM_WORLD);
   for (i = 0; i < MPIrank; i++)
-    nprev += tlnc[i];
+    nprev += cellsData.numberOfCellsInEachProcess[i];
 
   /* write out the simulation global variables and parameters (single process) */
   if (MPIrank == 0) {
@@ -1562,7 +1563,7 @@ void saveRstFile()
 
   MPI_File_seek(fh, goffset, MPI_SEEK_SET);
   /* write out cells' data */
-  MPI_File_write(fh, cellsData.cells, lnc * sizeof(struct cellData), MPI_BYTE,
+  MPI_File_write(fh, cellsData.cells, (int) cellsData.localCellCount.number_of_cells * sizeof(struct cellData), MPI_BYTE,
                  MPI_STATUS_IGNORE);
   /* close file */
   MPI_File_close(&fh);
@@ -1577,10 +1578,10 @@ void readRstFile(int argc, char **argv)
   int i;
   MPI_File fh;
   MPI_Offset goffset;
-  int64_t nk, nr;
+  uint64_t nk, nr;
   int64_t nprev = 0;
   int swap;
-  int lcancer = 0;
+  //int lcancer = 0;
 
   if (MPIrank == 0)
     printf("Reading restart file: %s\n", rstFileName);
@@ -1670,11 +1671,11 @@ void readRstFile(int argc, char **argv)
   }
 
   /* set local number of cells to be read by each process */
-  nk = nc / MPIsize;
-  nr = nc % MPIsize;
-  lnc = (MPIrank < nr ? nk + 1 : nk);
+  nk = cellsData.totalCellCount.number_of_cells / MPIsize;
+  nr = cellsData.totalCellCount.number_of_cells % MPIsize;
+  cellsData.localCellCount.number_of_cells = ((uint64_t) MPIrank < nr ? nk + 1 : nk);
 
-  if (nc > maxCells)
+  if (cellsData.totalCellCount.number_of_cells > maxCells)
     stopRun(115, NULL, __FILE__, __LINE__);
 
   h = 2.5 * csize;
@@ -1683,23 +1684,23 @@ void readRstFile(int argc, char **argv)
   h3 = h2 * h;
   h4 = h3 * h;
 
-  cellsAllocate();
+  initiateCellsInfo(&cellsData, &mainSettings);
 
   /* gather number of cells from each process */
-  MPI_Allgather(&lnc, 1, MPI_INT64_T, tlnc, 1, MPI_INT64_T,
+  MPI_Allgather(&cellsData.localCellCount.number_of_cells, 1, MPI_INT64_T, cellsData.numberOfCellsInEachProcess, 1, MPI_INT64_T,
                 MPI_COMM_WORLD);
   for (i = 0; i < MPIrank; i++)
-    nprev += tlnc[i];
+    nprev += cellsData.numberOfCellsInEachProcess[i];
 
   goffset += nprev * sizeof(struct cellData);
 
   MPI_File_seek(fh, goffset, MPI_SEEK_SET);
   /* read cells data */
-  MPI_File_read(fh, cellsData.cells, lnc * sizeof(struct cellData), MPI_BYTE,
+  MPI_File_read(fh, cellsData.cells, (int) cellsData.localCellCount.number_of_cells * sizeof(struct cellData), MPI_BYTE,
                 MPI_STATUS_IGNORE);
 
   if (swap) {
-    for (i = 0; i < lnc; i++) {
+    for (uint64_t i = 0; i < cellsData.localCellCount.number_of_cells; i++) {
       swap_Nbyte((char *) (&cellsData.cells[i].gid), 1, sizeof(ZOLTAN_ID_TYPE));
       swap_Nbyte((char *) (&cellsData.cells[i].lifetime), 1, sizeof(int));
       swap_Nbyte((char *) (&cellsData.cells[i].phase), 1, sizeof(int));
@@ -1725,68 +1726,46 @@ void readRstFile(int argc, char **argv)
       swap_Nbyte((char *) (&cellsData.cells[i].halo), 1, sizeof(int));
     }
   }
-
-  lg0nc = 0;
-  lg1nc = 0;
-  lsnc = 0;
-  lg2nc = 0;
-  lmnc = 0;
-  lcnc = 0;
-  lnnc = 0;
-  lvc = 0;
-  cancer = 0;
+  memset(&cellsData.localCellCount, 0, sizeof(struct cellCountInfo));
+  memset(&cellsData.localTypeCellCount, 0, sizeof(uint64_t) * cellsData.numberOfCellTypes);
 
   /* count cell types and phases */
-  for (i = 0; i < lnc; i++) {
+  for (uint64_t i = 0; i < cellsData.localCellCount.number_of_cells; i++) {
 
     cellsData.cells[i].gid =
       (unsigned long long int) MPIrank *(unsigned long long int)
       maxCellsPerProc + (unsigned long long int) i;
 
     switch (cellsData.cells[i].phase) {
-    case 0:			/* G0 phase */
-      lg0nc++;
+    case G0_phase:			/* G0 phase */
+      cellsData.localCellCount.g0_phase_number_of_cells++;
       break;
-    case 1:			/* G1 phase */
-      lg1nc++;
+    case G1_phase:			/* G1 phase */
+      cellsData.localCellCount.g1_phase_number_of_cells++;
       break;
-    case 2:			/* S phase */
-      lsnc++;
+    case S_phase:			/* S phase */
+      cellsData.localCellCount.s_phase_number_of_cells++;
       break;
-    case 3:			/* G2 phase */
-      lg2nc++;
+    case G2_phase:			/* G2 phase */
+      cellsData.localCellCount.g2_phase_number_of_cells++;
       break;
-    case 4:			/* M phase */
-      lmnc++;
+    case M_phase:			/* M phase */
+      cellsData.localCellCount.m_phase_number_of_cells++;
       break;
-    case 5:			/* Necrotic cells */
-      lnnc++;
+    case Necrotic_phase:			/* Necrotic cells */
+      cellsData.localCellCount.necrotic_phase_number_of_cells++;
       break;
+      default:break;
     }
-
-    if (cellsData.cells[i].tumor == 1) {
-      lcnc++;
-      lcancer = 1;
-    }
-
-    if (cellsData.cells[i].cell_type == 1)
-      lvc++;
+    cellsData.localTypeCellCount[cellsData.cells[i].cell_type]++;
 
   }
 
-  for(i=0; i<lnc; i++)
-    nscinst[cellsData.cells[i].scstage]+=1;
 
-  localID = lnc;
+  localID = cellsData.localCellCount.number_of_cells;
 
   randomStreamInit();
-
-  MPI_Allreduce(localCellCount, totalCellCount, numberOfCounts,
-                MPI_INT64_T, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(nscinst,gnscinst,nscstages,
-                MPI_INT64_T, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(&localbc,&globalbc,1,MPI_INT64_T,MPI_SUM,MPI_COMM_WORLD);
-  MPI_Allreduce(&lcancer, &cancer, 1, MPI_INT, MPI_LOR, MPI_COMM_WORLD);
+  updateCellCounters(&cellsData);
 
   nsteps = 512;			/* set by default in the case of the restart simulation */
 
@@ -1837,13 +1816,14 @@ void ioDefineOutputGlobalFields()
  */
 void ioWriteFields(int step)
 {
-  int j,f;
+  uint64_t j;
+  int f;
   MPI_File fh1, fh2;
   FILE *fh3;
   struct floatVector3d *floatVectorField;
   float *floatScalarField;
   int *integerScalarField;
-  int64_t size;
+  uint64_t size;
   int bdim;
   int gsize[3];
   int bsize[3];			/* box size */
@@ -1942,7 +1922,7 @@ void ioWriteFields(int step)
     }
     if (!endian)
       swap_Nbyte((char *) floatVectorField, size * 3, sizeof(float));
-    MPI_File_write(fh1, floatVectorField, 3 * size, MPI_FLOAT,
+    MPI_File_write(fh1, floatVectorField, (int) (3 * size), MPI_FLOAT,
                    MPI_STATUS_IGNORE);
     MPI_File_close(&fh1);
 
@@ -1963,7 +1943,7 @@ void ioWriteFields(int step)
         floatScalarField[j] = fieldAddr[f][j];
       if (!endian)
         swap_Nbyte((char *) floatScalarField, size, sizeof(float));
-      MPI_File_write(fh2, floatScalarField, size, MPI_FLOAT,
+      MPI_File_write(fh2, floatScalarField, (int) size, MPI_FLOAT,
                      MPI_STATUS_IGNORE);
     } else {
       for (j = 0; j < size; j++) {
@@ -1976,7 +1956,7 @@ void ioWriteFields(int step)
       }
       if (!endian)
         swap_Nbyte((char *) floatVectorField, size*3, sizeof(float));
-      MPI_File_write(fh2, floatVectorField, size*3, MPI_FLOAT,
+      MPI_File_write(fh2, floatVectorField, (int) size*3, MPI_FLOAT,
                      MPI_STATUS_IGNORE);
     }
 
@@ -2183,7 +2163,7 @@ void defineColormaps()
  */
 void ioWriteStepPovRay(int step, int type)
 {
-  int c;
+  uint64_t c;
   int i;
   char fstname[256];
   MPI_File fh;
@@ -2227,25 +2207,25 @@ void ioWriteStepPovRay(int step, int type)
   maxCorner[1] = -DBL_MAX;
   maxCorner[2] = -DBL_MAX;
 
-  for (i = 0; i < lnc; i++) {
+  for (c = 0; c < cellsData.localCellCount.number_of_cells; c++) {
     minCorner[0] =
-      (cellsData.cells[i].x - cellsData.cells[i].size <
-       minCorner[0] ? cellsData.cells[i].x - cellsData.cells[i].size : minCorner[0]);
+      (cellsData.cells[c].x - cellsData.cells[c].size <
+       minCorner[0] ? cellsData.cells[c].x - cellsData.cells[c].size : minCorner[0]);
     maxCorner[0] =
-      (cellsData.cells[i].x + cellsData.cells[i].size >
-       maxCorner[0] ? cellsData.cells[i].x + cellsData.cells[i].size : maxCorner[0]);
+      (cellsData.cells[c].x + cellsData.cells[c].size >
+       maxCorner[0] ? cellsData.cells[c].x + cellsData.cells[c].size : maxCorner[0]);
     minCorner[1] =
-      (cellsData.cells[i].y - cellsData.cells[i].size <
-       minCorner[1] ? cellsData.cells[i].y - cellsData.cells[i].size : minCorner[1]);
+      (cellsData.cells[c].y - cellsData.cells[c].size <
+       minCorner[1] ? cellsData.cells[c].y - cellsData.cells[c].size : minCorner[1]);
     maxCorner[1] =
-      (cellsData.cells[i].y + cellsData.cells[i].size >
-       maxCorner[1] ? cellsData.cells[i].y + cellsData.cells[i].size : maxCorner[1]);
+      (cellsData.cells[c].y + cellsData.cells[c].size >
+       maxCorner[1] ? cellsData.cells[c].y + cellsData.cells[c].size : maxCorner[1]);
     minCorner[2] =
-      (cellsData.cells[i].z - cellsData.cells[i].size <
-       minCorner[2] ? cellsData.cells[i].z - cellsData.cells[i].size : minCorner[2]);
+      (cellsData.cells[c].z - cellsData.cells[c].size <
+       minCorner[2] ? cellsData.cells[c].z - cellsData.cells[c].size : minCorner[2]);
     maxCorner[2] =
-      (cellsData.cells[i].z + cellsData.cells[i].size >
-       maxCorner[2] ? cellsData.cells[i].z + cellsData.cells[i].size : maxCorner[2]);
+      (cellsData.cells[c].z + cellsData.cells[c].size >
+       maxCorner[2] ? cellsData.cells[c].z + cellsData.cells[c].size : maxCorner[2]);
   }
   MPI_Allreduce(minCorner, gMinCorner, 3, MPI_DOUBLE, MPI_MIN,
                 MPI_COMM_WORLD);
@@ -2258,7 +2238,7 @@ void ioWriteStepPovRay(int step, int type)
   lmass = 0.0;
   gmass = 0.0;
 
-  for (c = 0; c < lnc; c++) {
+  for (c = 0; c < cellsData.localCellCount.number_of_cells; c++) {
     middlePointLocal[0] += cellsData.cells[c].size * cellsData.cells[c].x;
     middlePointLocal[1] += cellsData.cells[c].size * cellsData.cells[c].y;
     middlePointLocal[2] += cellsData.cells[c].size * cellsData.cells[c].z;
@@ -2289,7 +2269,7 @@ void ioWriteStepPovRay(int step, int type)
             cellsData.cells[1].size, cr, cg, cb);
   if (!
       (txtData =
-         (char *) malloc(numCharsPerCell * (lnc + 16) * sizeof(char))))
+         (char *) malloc(numCharsPerCell * (cellsData.localCellCount.number_of_cells + 16) * sizeof(char))))
     stopRun(106, "txtData", __FILE__, __LINE__);
   txtData_p = txtData;
 
@@ -2406,7 +2386,7 @@ void ioWriteStepPovRay(int step, int type)
 
   MPI_Bcast(&headerSize, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  for (c = 0; c < lnc; c++) {
+  for (c = 0; c < cellsData.localCellCount.number_of_cells; c++) {
     float color = 0.0;
     int jump;
     if (beta == 360.0

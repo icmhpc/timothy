@@ -27,6 +27,8 @@
 #include <mpi.h>
 #include <unistd.h>
 
+
+
 #if defined(__bg__) && defined(__bgq__)
 #include <spi/include/kernel/process.h>
 #include <spi/include/kernel/location.h>
@@ -54,9 +56,10 @@ int checkEndiannes()
  * This function swaps endiannes within a table of n elements
  * of a given size m (given in bytes).
  */
-void swap_Nbyte(char *data, int n, int m)
+void swap_Nbyte(char *data, uint64_t n, int m)
 {
-  int i, j;
+  int i;
+  uint64_t j;
   char old_data[16];
 
   for (j = 0; j < n; j++) {

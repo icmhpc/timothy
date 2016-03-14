@@ -22,9 +22,9 @@
 #ifndef TIMOTHY_POTENTIAL_H
 #define TIMOTHY_POTENTIAL_H
 #include "global.h"
-MIC_ATTR void compPot();
+MIC_ATTR void compPot(uint64_t local_number_of_cells);
 MIC_ATTR void compRPot();
-MIC_ATTR void compPotGrad();
+MIC_ATTR void compPotGrad(uint64_t local_number_of_cells);
 MIC_ATTR void compRPotGrad();
 
 #endif /* ifndef TIMOTHY_POTENTIAL_H

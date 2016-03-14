@@ -34,7 +34,7 @@
 /*!
  * This function creates an empty octree node in a given position.
  */
-void octEmptyNode(int64_t father,int level,unsigned int xbit,unsigned int ybit,unsigned int zbit)
+void octEmptyNode(int64_t father,unsigned int level,unsigned int xbit,unsigned int ybit,unsigned int zbit)
 {
   int i;
   unsigned int len;
@@ -42,9 +42,9 @@ void octEmptyNode(int64_t father,int level,unsigned int xbit,unsigned int ybit,u
     octree[octSize].xcode=0;
     octree[octSize].ycode=0;
     octree[octSize].zcode=0;
-    octree[octSize].xlimit=1<<level;
-    octree[octSize].ylimit=1<<level;
-    octree[octSize].zlimit=1<<level;
+    octree[octSize].xlimit=1u<<level;
+    octree[octSize].ylimit=1u<<level;
+    octree[octSize].zlimit=1u<<level;
   } else {
     octree[octSize].xcode=octree[father].xcode|xbit;
     octree[octSize].ycode=octree[father].ycode|ybit;
@@ -81,7 +81,7 @@ void octInsertCell(int64_t c)
       inserted=1;
     } else {
       if(octree[octIdx].data==-2) { /* this is not a leaf */
-        childBranchBit = 1 << (level);
+        childBranchBit = 1u << (level);
         xbit=(locCode[c].x) & childBranchBit;
         ybit=(locCode[c].y) & childBranchBit;
         zbit=(locCode[c].z) & childBranchBit;
@@ -100,7 +100,7 @@ void octInsertCell(int64_t c)
       } else { /* occupied leaf */
         int64_t oc;
         oc=octree[octIdx].data;
-        childBranchBit = 1 << (level);
+        childBranchBit = 1u << (level);
         xbit=(locCode[oc].x) & childBranchBit;
         ybit=(locCode[oc].y) & childBranchBit;
         zbit=(locCode[oc].z) & childBranchBit;
@@ -124,14 +124,14 @@ void octInsertCell(int64_t c)
 /*!
  * This is a driving function for creating an octree.
  */
-void octBuild()
+void octBuild(struct cellsInfo *ci)
 {
-  int i,c;
-  int64_t octMaxSize;
+  uint64_t i,c;
+  uint64_t octMaxSize;
   struct doubleVector3d bMin,bMax;
   double epsilon=0.01;
 
-  if(lnc==0)
+  if(ci->localCellCount.number_of_cells == 0)
     return;
 
   bMin.x= DBL_MAX;
@@ -140,12 +140,12 @@ void octBuild()
   bMax.x=-DBL_MAX;
   bMax.y=-DBL_MAX;
   bMax.z=-DBL_MAX;
-  for(i=0; i<lnc; i++) {
+  for(i=0; i < ci->localCellCount.number_of_cells; i++) {
     double x,y,z;
     double e;
-    x=cellsData.cells[i].x;
-    y=cellsData.cells[i].y;
-    z=cellsData.cells[i].z;
+    x=ci->cells[i].x;
+    y=ci->cells[i].y;
+    z=ci->cells[i].z;
     e=h+epsilon;
     bMin.x=(x-e<bMin.x?x-e:bMin.x);
     bMax.x=(x+e>bMax.x?x+e:bMax.x);
@@ -162,15 +162,15 @@ void octBuild()
   affShift.z=bMin.z;
   /* each cell coordinate will be shifted by affShift and scaled by affScale */
 
-  locCode=(struct uintVector3d*) malloc(sizeof(struct uintVector3d)*lnc);
+  locCode=(struct uintVector3d*) malloc(sizeof(struct uintVector3d) * ci->localCellCount.number_of_cells);
   //#pragma omp parallel for
-  for(c=0; c<lnc; c++) {
-    locCode[c].x=(unsigned int)( ((cellsData.cells[c].x-affShift.x)/affScale) * MAXVALUE );
-    locCode[c].y=(unsigned int)( ((cellsData.cells[c].y-affShift.y)/affScale) * MAXVALUE );
-    locCode[c].z=(unsigned int)( ((cellsData.cells[c].z-affShift.z)/affScale) * MAXVALUE );
+  for(c=0; c < ci->localCellCount.number_of_cells; c++) {
+    locCode[c].x=(unsigned int)( ((ci->cells[c].x-affShift.x)/affScale) * MAXVALUE );
+    locCode[c].y=(unsigned int)( ((ci->cells[c].y-affShift.y)/affScale) * MAXVALUE );
+    locCode[c].z=(unsigned int)( ((ci->cells[c].z-affShift.z)/affScale) * MAXVALUE );
   }
   /* memory space required to store octree (to be reviewed again!) */
-  octMaxSize=lnc*16;
+  octMaxSize = ci->localCellCount.number_of_cells * 16;
 #ifdef __MIC__
   octree=_mm_malloc(sizeof(octNode)*octMaxSize,64);
 #else
@@ -180,7 +180,7 @@ void octBuild()
   octSize=0;
   octEmptyNode(-1,ROOT_LEVEL,0,0,0);
 
-  for(c=0; c<lnc; c++) {
+  for(c=0; c < ci->localCellCount.number_of_cells; c++) {
     octInsertCell(c);
   }
 
@@ -303,9 +303,9 @@ MIC_ATTR int octLocateRegion(struct uintVector3d minLocCode,struct uintVector3d 
 /*!
  * This function deallocates memory used by octree.
  */
-void octFree()
+void octFree(struct cellsInfo *ci)
 {
-  if(lnc==0) return;
+  if(ci->localCellCount.number_of_cells == 0) return;
 #ifdef __MIC__
   _mm_free(octree);
 #else

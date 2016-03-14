@@ -175,7 +175,7 @@ void fieldsSolve()
   for (gfIter = 0; gfIter < gfIterPerStep; gfIter++) {
     /* update cell state (if more than one iteration) */
     if (gfIter > 0)
-      updateCellStates();
+      updateCellStates(&cellsData, &mainSettings);
     /* solve temperature field */
     if (temperature)
       tempEnvSolve();

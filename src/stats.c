@@ -37,7 +37,7 @@
  */
 void statisticsDensity(struct cellsInfo *ci, struct statisticsData *st)
 {
-  int c;
+  uint64_t c;
   double sum = 0.0, mean;
   double globalMaxDens;
   double globalMinDens;
@@ -45,7 +45,7 @@ void statisticsDensity(struct cellsInfo *ci, struct statisticsData *st)
   st->maxdens = 0;
   st->mindens = 1024;
 
-  for (c = 0; c < lnc; c++) {
+  for (c = 0; c < ci->localCellCount.number_of_cells; c++) {
     sum += ci->cells[c].density;
     st->maxdens =
       (ci->cells[c].density >
@@ -67,7 +67,7 @@ void statisticsDensity(struct cellsInfo *ci, struct statisticsData *st)
   st->densavg = mean;
   sum = 0.0;
 
-  for (c = 0; c < lnc; c++)
+  for (c = 0; c < ci->localCellCount.number_of_cells; c++)
     sum += (ci->cells[c].density - mean) * (ci->cells[c].density - mean);
 
   MPI_Allreduce(&sum, &(st->densdev), 1, MPI_DOUBLE, MPI_SUM,

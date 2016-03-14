@@ -66,7 +66,7 @@ void defaultValues()
   cellVolume = (4.0 / 3.0) * M_PI * pow(csizeInUnits * 0.0001, 3.0);
 
 }
-
+/*
 void scInit()
 {
   nscstages=5;
@@ -80,7 +80,7 @@ void scInit()
   //sctprob[4]=0.8;
   localbc=0;
   globalbc=0;
-}
+}*/
 
 
 /*!
@@ -139,7 +139,7 @@ void simulationInit(int argc, char **argv)
   defaultValues();
 
   /* stem cells parameters init */
-  scInit();
+  //scInit();
 
   /* initialize random number generator */
   randomStreamInit();
@@ -150,21 +150,21 @@ void simulationInit(int argc, char **argv)
   if (!rst) {
     simStart = 0;
     /* calculating number of cells per process */
-    lnc = nc / MPIsize;
+    /*lnc = nc / MPIsize;
     if (MPIrank < nc % MPIsize)
-      lnc++;
+      lnc++;*/
+    //FIXME small correct
     /* allocating tables */
-    cellsAllocate();
-    if(bvsim) initVessel();
-    if(bnsim) initBone();
+    initiateCellsInfo(&cellsData, &mainSettings);
+    //if(bvsim) initVessel();
+    //if(bnsim) initBone();
     /* total number of cells - initialization */
 //    for (i = 0; i < MPIsize; i++)
 //      tlnc[i] = lnc;		//ZLE!!!!!
-    /* cell cycle init */
-    cellsCycleInit();
+
     /* random cell placement */
     //initVessel();
-    cellsRandomInit();
+    middleCellInit(&cellsData, &mainSettings, 0); //FIXME from configuration get type
     //initVessel();
     /* decomposition - initialization */
     decompositionInit(argc, argv);

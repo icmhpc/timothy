@@ -31,8 +31,8 @@ MIC_ATTR void octHeapFree(octHeap *ttHeap);
 //MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode);
 MIC_ATTR void octComputeBoxR(int64_t c,struct uintVector3d *minLocCode,struct uintVector3d *maxLocCode);
 
-void octBuild();
-void octFree();
+void octBuild(struct cellsInfo *ci);
+void octFree(struct cellsInfo *ci);
 #endif /* ifndef TIMOTHY_OCTREE_H
  */
 

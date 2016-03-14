@@ -38,9 +38,9 @@
 /*!
  * This function calls all important simulation steps (cellular dynamics and global fields computations).
  */
-void computeStep()
+void computeStep(struct cellsInfo *ci)
 {
-  int p;
+  uint64_t p;
   double dvel,sf;
 #ifdef __MIC__
   double *phiwork1,*phiwork2;
@@ -49,7 +49,7 @@ void computeStep()
   /* 0. Initialization */
 
   /* initialize statistics data */
-  if(nc>1)
+  if(ci->totalCellCount.number_of_cells > 1)
     statistics.mindist=DBL_MAX;
   else
     statistics.mindist=0.0;
@@ -61,7 +61,7 @@ void computeStep()
   initCellsToGridExchange();
 
   /* initiate asynchronous data transfers between processors */
-  cellsExchangeInit();
+  cellsExchangeInit(ci);
 
   /* 1. Compute potential for local cells */
 
@@ -73,7 +73,7 @@ void computeStep()
 #ifdef __MIC__
 #pragma offload target(mic:MPIrank%2) signal(phiwork1) nocopy(cells:length(lnc) alloc_if(0) free_if(0)) nocopy(octree:length(octSize) alloc_if(0) free_if(0)) in(affShift,affScale,h,tnc,lnc,nx,sdim,h2,h3,csize)
 #endif
-  compPot();
+  compPot(ci->localCellCount.number_of_cells);
 
   /* 2. Solve global fields */
 
@@ -85,7 +85,7 @@ void computeStep()
 #pragma offload_wait target(mic:MPIrank%2) wait(phiwork1)
 #endif
   /* wait for data transfers to finish */
-  cellsExchangeWait();
+  cellsExchangeWait(ci);
 
   /* 3. Compute potential for remote cells */
 
@@ -98,8 +98,8 @@ void computeStep()
 
   /* add chemotaxis term to potential */
   if(bvsim) {
-    int p;
-    for(p=0; p<lnc; p++)
+    uint64_t p;
+    for(p=0; p < ci->localCellCount.number_of_cells ; p++)
       cellsData.cells[p].v+=10000*sqrt(pow(cellsData.cellFields[NFIELDS][p],2)+
                                      pow(cellsData.cellFields[NFIELDS+1][p],2)+
                                      pow(cellsData.cellFields[NFIELDS+2][p],2));
@@ -111,12 +111,12 @@ void computeStep()
 #pragma offload_transfer target(mic:MPIrank%2) out(cells:length(lnc) alloc_if(0) free_if(0)) out(statistics)
 #endif
   /* initiate transfer of the density and potential data from remote cells */
-  densPotExchangeInit();
+  densPotExchangeInit(ci);
   /* compute gradient of the potential for local cells */
 #ifdef __MIC__
 #pragma offload target(mic:MPIrank%2) signal(phiwork2) nocopy(cells:length(lnc) alloc_if(0) free_if(0)) nocopy(octree:length(octSize) alloc_if(0) free_if(0)) in(affShift,affScale,h,tnc,lnc,nx,sdim,h2,h3,h4,csize) nocopy(velocity:length(lnc) alloc_if(0) free_if(0))
 #endif
-  compPotGrad();
+  compPotGrad(ci->localCellCount.number_of_cells);
 
   /* 6. Interpolate global fields and compute gradient */
 
@@ -130,7 +130,7 @@ void computeStep()
 
   /* 7. Compute gradient of the potential for remote cells */
   /* wait for density and potential data from remote cells */
-  densPotExchangeWait();
+  densPotExchangeWait(ci);
 #ifdef __MIC__
 #pragma offload_transfer target(mic:MPIrank%2) out(cells:length(lnc) alloc_if(0) free_if(1)) nocopy(octree:length(octSize) alloc_if(0) free_if(1)) out(velocity:length(lnc) alloc_if(0) free_if(1))
 #endif
@@ -141,7 +141,7 @@ void computeStep()
   compRPotGrad();
 
   /* 8. Correct velocity for various cell types */
-  for(p=0; p<lnc; p++)
+  for(p=0; p < ci->localCellCount.number_of_cells; p++)
     if(cellsData.cells[p].cell_type!=1) {
       velocity[p].x += 0.0001*cellsData.cellFields[NFIELDS][p];
       velocity[p].y += 0.0001*cellsData.cellFields[NFIELDS+1][p];
@@ -149,7 +149,7 @@ void computeStep()
     }
 
   /* 9. Compute and collect statistical data */
-  for (p = 0; p < lnc; p++) {
+  for (p = 0; p < ci->localCellCount.number_of_cells; p++) {
     dvel =
       sqrt(velocity[p].x * velocity[p].x +
            velocity[p].y * velocity[p].y +
@@ -177,7 +177,7 @@ void computeStep()
   statistics.minvel = DBL_MAX;  /* minimal velocity is set to DBL_MAX */
   statistics.maxvel = 0;        /* maximal velocity is set to zero */
 
-  for (p = 0; p < lnc; p++) {
+  for (p = 0; p < ci->localCellCount.number_of_cells; p++) {
     velocity[p].x *= sf;
     velocity[p].y *= sf;
     velocity[p].z *= sf;

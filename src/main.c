@@ -46,12 +46,15 @@
  * It also contains the main simulation loop where all important simulation steps are called.
 */
 
+struct state State;
+
 double **cellFields;
 
 int main(int argc, char **argv)
 {
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &MPIsize);
+  uMPIsize = (unsigned int) MPIsize;
   MPI_Comm_rank(MPI_COMM_WORLD, &MPIrank);
 
   OMPthreads = omp_get_max_threads();
@@ -63,10 +66,10 @@ int main(int argc, char **argv)
     if (!(step % statOutStep))
       printStepNum();
 
-    decompositionExecute();
-    octBuild();
-    createExportList();
-    computeStep();
+    decompositionExecute(cellsData.totalCellCount.number_of_cells);
+    octBuild(&cellsData);
+    createExportList(&cellsData);
+    computeStep(&cellsData);
     if (!(step % statOutStep))
       statisticsPrint(&cellsData, &statistics);
 
@@ -86,9 +89,9 @@ int main(int argc, char **argv)
     }
 
     updateCellPositions(&cellsData, &statistics);
-    updateCellStates();
-    commCleanup();
-    octFree();
+    updateCellStates(&cellsData, &mainSettings);
+    commCleanup(cellsData.totalCellCount.number_of_cells);
+    octFree(&cellsData);
 
     if (!(step % rstOutStep))
       saveRstFile();
@@ -98,7 +101,7 @@ int main(int argc, char **argv)
 
   decompositionFinalize();
   randomStreamFree();
-  cellsCleanup();
+  freeCellsInfo(&cellsData);
 
   if (MPIrank == 0)
     printf("\nEnd of simulation run.\n");

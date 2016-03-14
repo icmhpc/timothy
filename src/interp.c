@@ -7,7 +7,7 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+9 * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -58,10 +58,11 @@ struct int64Vector3d *patchSize;
  * rather than sendind it one by one.
  * This function identifies patches and allocate memory buffers for patches.
  */
-void findPatches()
+void findPatches(struct cellsInfo *ci)
 {
 
-  int c,p;
+  uint64_t c;
+  int p;
   struct int64Vector3d cellIdx;
 
   cicPatch = (double **) calloc(MPIsize, sizeof(double *));
@@ -106,13 +107,13 @@ void findPatches()
   //#pragma omp parallel for default(none) private(p,c,cellIdx) shared(cells,gridResolution,lnc,MPIsize,gridStartIdx,gridEndIdx,lowerPatchCorner,upperPatchCorner,cicIntersect,sdim,lowerGridCorner)
   for (p = 0; p < MPIsize; p++) {
 
-    for (c = 0; c < lnc; c++) {
+    for (c = 0; c < ci->localCellCount.number_of_cells; c++) {
 
       int ax, ay, az;
 
-      cellIdx.x = (int64_t) ((cellsData.cells[c].x - lowerGridCorner.x) / gridResolution);
-      cellIdx.y = (int64_t) ((cellsData.cells[c].y - lowerGridCorner.y) / gridResolution);
-      cellIdx.z = (int64_t) ((cellsData.cells[c].z - lowerGridCorner.z) / gridResolution);
+      cellIdx.x = (int64_t) ((ci->cells[c].x - lowerGridCorner.x) / gridResolution);
+      cellIdx.y = (int64_t) ((ci->cells[c].y - lowerGridCorner.y) / gridResolution);
+      cellIdx.z = (int64_t) ((ci->cells[c].z - lowerGridCorner.z) / gridResolution);
 
       for (ax = 0; ax < 2; ax++)
         for (ay = 0; ay < 2; ay++)
@@ -179,10 +180,11 @@ void findPatches()
  * Computed values are stored in patches instead in field buffers.
  * No additional memory allocations are made here.
  */
-void doInterpolation()
+void doInterpolation(struct cellsInfo *ci)
 {
 
-  int c, i, p, j, k, f;
+  uint64_t c;
+  int i, p, j, k, f;
   struct int64Vector3d idx;
   struct doubleVector3d d, t;
   struct int64Vector3d cellIdx;
@@ -195,7 +197,7 @@ void doInterpolation()
           for (k = 0; k < patchSize[p].z; k++)
             patch(p, f, i, j, k) = 0.0;
 
-  for (c = 0; c < lnc; c++) {
+  for (c = 0; c < ci->localCellCount.number_of_cells; c++) {
 
     cellIdx.x = ((cellsData.cells[c].x - lowerGridCorner.x) / gridResolution);
     cellIdx.y = ((cellsData.cells[c].y - lowerGridCorner.y) / gridResolution);
@@ -559,10 +561,11 @@ void waitFieldsPatchesExchange()
  * remote processes received in patches.
  * Receiveing field patches are deallocated here.
  */
-void applyFieldsPatches()
+void applyFieldsPatches(struct cellsInfo *ci)
 {
 
-  int p,c,f;
+  uint64_t c;
+  int p,f;
   struct int64Vector3d idx;
   struct doubleVector3d d, t;
   struct int64Vector3d cellIdx;
@@ -570,13 +573,13 @@ void applyFieldsPatches()
 
   /* reset fields */
   for (f = 0; f < NFIELDS+NCHEM*3; f++)
-    for (c = 0; c < lnc; c++)
-      cellsData.cellFields[f][c] = 0.0;
+    for (c = 0; c < ci->localCellCount.number_of_cells; c++)
+      ci->cellFields[f][c] = 0.0;
 
-  for (c = 0; c < lnc; c++) {	/* for every cell */
-    cellIdx.x = ((cellsData.cells[c].x - lowerGridCorner.x) / gridResolution);
-    cellIdx.y = ((cellsData.cells[c].y - lowerGridCorner.y) / gridResolution);
-    cellIdx.z = ((cellsData.cells[c].z - lowerGridCorner.z) / gridResolution);
+  for (c = 0; c < ci->localCellCount.number_of_cells; c++) {	/* for every cell */
+    cellIdx.x = ((ci->cells[c].x - lowerGridCorner.x) / gridResolution);
+    cellIdx.y = ((ci->cells[c].y - lowerGridCorner.y) / gridResolution);
+    cellIdx.z = ((ci->cells[c].z - lowerGridCorner.z) / gridResolution);
     for (p = 0; p < MPIsize; p++) {	/* for each process */
       int ax, ay, az;
       if (!cicReceiver[p])
@@ -599,9 +602,9 @@ void applyFieldsPatches()
               cicCoord.y = lowerGridCorner.y + cellIdx.y * gridResolution;
               cicCoord.z = lowerGridCorner.z + cellIdx.z * gridResolution;
 
-              d.x = (cellsData.cells[c].x - cicCoord.x) / gridResolution;
-              d.y = (cellsData.cells[c].y - cicCoord.y) / gridResolution;
-              d.z = (cellsData.cells[c].z - cicCoord.z) / gridResolution;
+              d.x = (ci->cells[c].x - cicCoord.x) / gridResolution;
+              d.y = (ci->cells[c].y - cicCoord.y) / gridResolution;
+              d.z = (ci->cells[c].z - cicCoord.z) / gridResolution;
 
               t.x = 1.0 - d.x;
               t.y = 1.0 - d.y;
@@ -610,12 +613,12 @@ void applyFieldsPatches()
               /* interpolating back to cells */
               /* scaling from mol/cm^3 to mol/cell */
               for (f = 0; f < NFIELDS; f++) {
-                cellsData.cellFields[f][c] += fieldsPatches[p][f * patchSize[p].x * patchSize[p].y * patchSize[p].z + patchSize[p].y * patchSize[p].z * idx.x + patchSize[p].z * idx.y + idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);	//*cellVolume;
+                ci->cellFields[f][c] += fieldsPatches[p][f * patchSize[p].x * patchSize[p].y * patchSize[p].z + patchSize[p].y * patchSize[p].z * idx.x + patchSize[p].z * idx.y + idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);	//*cellVolume;
               }
               for (f = 0; f < NCHEM; f++) {
-                cellsData.cellFields[NFIELDS+3*f][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
-                cellsData.cellFields[NFIELDS+3*f+1][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 1] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
-                cellsData.cellFields[NFIELDS+3*f+2][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 2] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
+                ci->cellFields[NFIELDS+3*f][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
+                ci->cellFields[NFIELDS+3*f+1][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 1] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
+                ci->cellFields[NFIELDS+3*f+2][c] += fieldsPatches[p][NFIELDS* patchSize[p].x * patchSize[p].y * patchSize[p].z + f * 3 * patchSize[p].x * patchSize[p].y * patchSize[p].z + 3 * patchSize[p].y * patchSize[p].z * idx.x + 3* patchSize[p].z * idx.y + 3 * idx.z + 2] * (ax * d.x + (1 - ax) * t.x) * (ay * d.y + (1 - ay) * t.y) * (az * d.z + (1 - az) * t.z);
               }
             }			// if
           }			// az
@@ -637,8 +640,8 @@ void applyFieldsPatches()
  */
 void interpolateCellsToGrid()
 {
-  findPatches();
-  doInterpolation();
+  findPatches(&cellsData);
+  doInterpolation(&cellsData);
   initPatchExchange();
   waitPatchExchange();
   applyPatches();
@@ -654,8 +657,8 @@ void initCellsToGridExchange()
 {
   if (!gfields)
     return;
-  findPatches();
-  doInterpolation();
+  findPatches(&cellsData);
+  doInterpolation(&cellsData);
   initPatchExchange();
 }
 
@@ -686,7 +689,7 @@ void interpolateFieldsToCells()
 
   initFieldsPatchesExchange();
   waitFieldsPatchesExchange();
-  applyFieldsPatches();
+  applyFieldsPatches(&cellsData);
 
   free(cicReceiver);
   free(cicSender);
