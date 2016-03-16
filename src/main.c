@@ -57,7 +57,7 @@ int main(int argc, char **argv)
   State.uMPIsize = (unsigned int) State.MPIsize;
   MPI_Comm_rank(MPI_COMM_WORLD, &State.MPIrank);
 
-  OMPthreads = omp_get_max_threads();
+  State.OMPthreads = omp_get_max_threads();
 
   simulationInit(argc, argv);
 

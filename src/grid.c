@@ -59,15 +59,15 @@ void computeGridSize()
   else
     gridK = 0;
 
-  gridI = gridI + (MPIdim[0] - gridI % MPIdim[0]);
-  gridJ = gridJ + (MPIdim[1] - gridJ % MPIdim[1]);
+  gridI = gridI + (State.MPIdim[0] - gridI % State.MPIdim[0]);
+  gridJ = gridJ + (State.MPIdim[1] - gridJ % State.MPIdim[1]);
   if (sdim == 3)
-    gridK = gridK + (MPIdim[2] - gridK % MPIdim[2]);
+    gridK = gridK + (State.MPIdim[2] - gridK % State.MPIdim[2]);
 
-  gridSize.x = gridI / MPIdim[0];
-  gridSize.y = gridJ / MPIdim[1];
+  gridSize.x = gridI / State.MPIdim[0];
+  gridSize.y = gridJ / State.MPIdim[1];
   if (sdim == 3)
-    gridSize.z = gridK / MPIdim[2];
+    gridSize.z = gridK / State.MPIdim[2];
   else
     gridSize.z = 1;
 

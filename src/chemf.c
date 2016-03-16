@@ -332,7 +332,7 @@ void chemEnvInitBC(int nch)
     HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper, 0,
                                       bvalues);
   }
-  if (MPIcoords[State.MPIrank][0] == MPIdim[0] - 1) {
+  if (MPIcoords[State.MPIrank][0] == State.MPIdim[0] - 1) {
     nvalues = nentries * gridSize.y * gridSize.z;
     chemSetBoundary(0, 1);
     stencil_indices[0] = 2;
@@ -350,7 +350,7 @@ void chemEnvInitBC(int nch)
     HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper, 0,
                                       bvalues);
   }
-  if (MPIcoords[State.MPIrank][1] == MPIdim[1] - 1) {
+  if (MPIcoords[State.MPIrank][1] == State.MPIdim[1] - 1) {
     nvalues = nentries * gridSize.x * gridSize.z;
     chemSetBoundary(1, 1);
     stencil_indices[0] = 4;
@@ -368,7 +368,7 @@ void chemEnvInitBC(int nch)
     HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper, 0,
                                       bvalues);
   }
-  if (MPIcoords[State.MPIrank][2] == MPIdim[2] - 1) {
+  if (MPIcoords[State.MPIrank][2] == State.MPIdim[2] - 1) {
     nvalues = nentries * gridSize.x * gridSize.y;
     chemSetBoundary(2, 1);
     stencil_indices[0] = 6;
@@ -470,7 +470,7 @@ void chemEnvSolve(int nch)
         HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper,
                                           0, values);
       }
-      if (MPIcoords[State.MPIrank][0] == MPIdim[0] - 1) {
+      if (MPIcoords[State.MPIrank][0] == State.MPIdim[0] - 1) {
         chemSetBoundary(0, 1);
         HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper,
                                           0, values);
@@ -480,7 +480,7 @@ void chemEnvSolve(int nch)
         HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper,
                                           0, values);
       }
-      if (MPIcoords[State.MPIrank][1] == MPIdim[1] - 1) {
+      if (MPIcoords[State.MPIrank][1] == State.MPIdim[1] - 1) {
         chemSetBoundary(1, 1);
         HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper,
                                           0, values);
@@ -490,7 +490,7 @@ void chemEnvSolve(int nch)
         HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper,
                                           0, values);
       }
-      if (MPIcoords[State.MPIrank][2] == MPIdim[2] - 1) {
+      if (MPIcoords[State.MPIrank][2] == State.MPIdim[2] - 1) {
         chemSetBoundary(2, 1);
         HYPRE_SStructVectorAddToBoxValues(chemb[nch], 0, bcLower, bcUpper,
                                           0, values);

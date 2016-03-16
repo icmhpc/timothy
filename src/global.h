@@ -401,6 +401,8 @@ struct state {
     unsigned int uMPIrank;                    /* MPI rank */
     int MPIsize;                    /* MPI size */
     unsigned int uMPIsize;           /* MPI size - unsigned version */
+    int OMPthreads;
+    int MPIdim[3];
 };
 
 extern struct state State;

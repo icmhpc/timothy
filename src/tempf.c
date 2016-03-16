@@ -289,7 +289,7 @@ void tempEnvInitBC()
   for (i = 0; i < Nmax * Nmax; i++)
     bvalues[i] = 2.0 * z * gridResolution * tempLambda * fieldICMean[TEMP];
 
-  if (MPIcoords[State.MPIrank][0] == MPIdim[0] - 1) {
+  if (MPIcoords[State.MPIrank][0] == State.MPIdim[0] - 1) {
     nvalues = nentries * gridSize.y * gridSize.z;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -331,7 +331,7 @@ void tempEnvInitBC()
 
   }
 
-  if (MPIcoords[State.MPIrank][1] == MPIdim[1] - 1) {
+  if (MPIcoords[State.MPIrank][1] == State.MPIdim[1] - 1) {
     nvalues = nentries * gridSize.x * gridSize.z;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -373,7 +373,7 @@ void tempEnvInitBC()
 
   }
 
-  if (MPIcoords[State.MPIrank][2] == MPIdim[2] - 1) {
+  if (MPIcoords[State.MPIrank][2] == State.MPIdim[2] - 1) {
     nvalues = nentries * gridSize.x * gridSize.y;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -494,7 +494,7 @@ void tempEnvSolve()
       values[i] =
         2.0 * z * gridResolution * tempLambda * fieldICMean[TEMP];
 
-    if (MPIcoords[State.MPIrank][0] == MPIdim[0] - 1) {
+    if (MPIcoords[State.MPIrank][0] == State.MPIdim[0] - 1) {
       tempSetBoundary(0, 1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
@@ -502,7 +502,7 @@ void tempEnvSolve()
       tempSetBoundary(1, -1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
-    if (MPIcoords[State.MPIrank][1] == MPIdim[1] - 1) {
+    if (MPIcoords[State.MPIrank][1] == State.MPIdim[1] - 1) {
       tempSetBoundary(1, 1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
@@ -510,7 +510,7 @@ void tempEnvSolve()
       tempSetBoundary(2, -1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
-    if (MPIcoords[State.MPIrank][2] == MPIdim[2] - 1) {
+    if (MPIcoords[State.MPIrank][2] == State.MPIdim[2] - 1) {
       tempSetBoundary(2, 1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }

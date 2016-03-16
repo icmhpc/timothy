@@ -154,8 +154,8 @@ void printExecInfo()
       printf("processes ");
     else
       printf("process ");
-    printf("x %d OpenMP ", OMPthreads);
-    if (OMPthreads > 1)
+    printf("x %d OpenMP ", State.OMPthreads);
+    if (State.OMPthreads > 1)
       printf("threads,\n");
     else
       printf("thread,\n");

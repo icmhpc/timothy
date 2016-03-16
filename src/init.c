@@ -203,12 +203,12 @@ void simulationInit(int argc, char **argv)
     vnfout = 1;
 
   /* organizing processes in a Cartesian grid for global fields computations */
-  MPI_Dims_create(State.MPIsize, sdim, MPIdim);
+  MPI_Dims_create(State.MPIsize, sdim, State.MPIdim);
   periods[0] = 0;
   periods[1] = 0;
   periods[2] = 0;
   reorder = 0;
-  MPI_Cart_create(MPI_COMM_WORLD, sdim, MPIdim, periods, reorder,
+  MPI_Cart_create(MPI_COMM_WORLD, sdim, State.MPIdim, periods, reorder,
                   &MPI_CART_COMM);
   MPIcoords = (int **) malloc(State.MPIsize * sizeof(int *));
   for (i = 0; i < State.MPIsize; i++) {
