@@ -65,28 +65,28 @@ void findPatches(struct cellsInfo *ci)
   int p;
   struct int64Vector3d cellIdx;
 
-  cicPatch = (double **) calloc(MPIsize, sizeof(double *));
-  cicIntersect = (int *) calloc(MPIsize, sizeof(int));
+  cicPatch = (double **) calloc(State.MPIsize, sizeof(double *));
+  cicIntersect = (int *) calloc(State.MPIsize, sizeof(int));
   lowerPatchCorner =
-    (struct int64Vector3d *) calloc(MPIsize,
+    (struct int64Vector3d *) calloc(State.MPIsize,
                                     sizeof(struct int64Vector3d));
   upperPatchCorner =
-    (struct int64Vector3d *) calloc(MPIsize,
+    (struct int64Vector3d *) calloc(State.MPIsize,
                                     sizeof(struct int64Vector3d));
   lowerPatchCornerR =
-    (struct int64Vector3d *) calloc(MPIsize,
+    (struct int64Vector3d *) calloc(State.MPIsize,
                                     sizeof(struct int64Vector3d));
   upperPatchCornerR =
-    (struct int64Vector3d *) calloc(MPIsize,
+    (struct int64Vector3d *) calloc(State.MPIsize,
                                     sizeof(struct int64Vector3d));
   patchSize =
-    (struct int64Vector3d *) calloc(MPIsize,
+    (struct int64Vector3d *) calloc(State.MPIsize,
                                     sizeof(struct int64Vector3d));
   //patchSizeR =
   //    (struct int64Vector3d *) calloc(MPIsize,
 //				      sizeof(struct int64Vector3d));
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     cicIntersect[p] = 0;
     patchSize[p].x = 0;
     patchSize[p].y = 0;
@@ -105,7 +105,7 @@ void findPatches(struct cellsInfo *ci)
   }
 
   //#pragma omp parallel for default(none) private(p,c,cellIdx) shared(cells,gridResolution,lnc,MPIsize,gridStartIdx,gridEndIdx,lowerPatchCorner,upperPatchCorner,cicIntersect,sdim,lowerGridCorner)
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
 
     for (c = 0; c < ci->localCellCount.number_of_cells; c++) {
 
@@ -158,7 +158,7 @@ void findPatches(struct cellsInfo *ci)
     }
   }
 
-  for (p = 0; p < MPIsize; p++)
+  for (p = 0; p < State.MPIsize; p++)
     if (cicIntersect[p]) {
       patchSize[p].x = upperPatchCorner[p].x - lowerPatchCorner[p].x + 1;
       patchSize[p].y = upperPatchCorner[p].y - lowerPatchCorner[p].y + 1;
@@ -190,7 +190,7 @@ void doInterpolation(struct cellsInfo *ci)
   struct int64Vector3d cellIdx;
   struct doubleVector3d cicCoord;
 
-  for (p = 0; p < MPIsize; p++)
+  for (p = 0; p < State.MPIsize; p++)
     for(f = 0; f < NIF; f++)
       for (i = 0; i < patchSize[p].x; i++)
         for (j = 0; j < patchSize[p].y; j++)
@@ -203,7 +203,7 @@ void doInterpolation(struct cellsInfo *ci)
     cellIdx.y = ((cellsData.cells[c].y - lowerGridCorner.y) / gridResolution);
     cellIdx.z = ((cellsData.cells[c].z - lowerGridCorner.z) / gridResolution);
 
-    for (p = 0; p < MPIsize; p++) {
+    for (p = 0; p < State.MPIsize; p++) {
       int ax, ay, az;
       for (ax = 0; ax < 2; ax++)
         for (ay = 0; ay < 2; ay++)
@@ -270,10 +270,10 @@ void initPatchExchange()
 {
   int p;
 
-  cicReceiver = (int *) calloc(MPIsize, sizeof(int));
-  cicSender = (int *) calloc(MPIsize, sizeof(int));
+  cicReceiver = (int *) calloc(State.MPIsize, sizeof(int));
+  cicSender = (int *) calloc(State.MPIsize, sizeof(int));
 
-  for (p = 0; p < MPIsize; p++)
+  for (p = 0; p < State.MPIsize; p++)
     cicReceiver[p] = cicIntersect[p];
 
   MPI_Alltoall(cicReceiver, 1, MPI_INT, cicSender, 1, MPI_INT,
@@ -286,15 +286,15 @@ void initPatchExchange()
                upperPatchCornerR, sizeof(struct int64Vector3d), MPI_BYTE,
                MPI_COMM_WORLD);
 
-  cicRecvPatch = (double **) calloc(MPIsize, sizeof(double *));
-  cicReqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
-  cicReqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
+  cicRecvPatch = (double **) calloc(State.MPIsize, sizeof(double *));
+  cicReqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * State.MPIsize);
+  cicReqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * State.MPIsize);
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     if (cicReceiver[p]) {
       MPI_Isend(&(cicPatch[p][0]),
                 patchSize[p].x * patchSize[p].y * patchSize[p].z * NIF,
-                MPI_DOUBLE, p, MPIrank, MPI_COMM_WORLD, &cicReqSend[p]);
+                MPI_DOUBLE, p, State.MPIrank, MPI_COMM_WORLD, &cicReqSend[p]);
     }
     if (cicSender[p]) {
       int recvSize;
@@ -321,14 +321,14 @@ int waitPatchExchange()
   int p;
   MPI_Status status;
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     if (!cicReceiver[p])
       continue;
     if (MPI_Wait(&cicReqSend[p], &status) != MPI_SUCCESS)
       stopRun(103, "sending", __FILE__, __LINE__);
   }
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     if (!cicSender[p])
       continue;
     if (MPI_Wait(&cicReqRecv[p], &status) != MPI_SUCCESS)
@@ -356,7 +356,7 @@ int applyPatches()
     if(bvsim) vesselField[i] = 0.0;
   }
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     int i, j, k;
     if (!cicSender[p])
       continue;
@@ -370,13 +370,13 @@ int applyPatches()
           c.x = i - lowerPatchCornerR[p].x;
           c.y = j - lowerPatchCornerR[p].y;
           c.z = k - lowerPatchCornerR[p].z;
-          if (i >= gridStartIdx[MPIrank].x && i <= gridEndIdx[MPIrank].x
-              && j >= gridStartIdx[MPIrank].y && j <= gridEndIdx[MPIrank].y
-              && k >= gridStartIdx[MPIrank].z
-              && k <= gridEndIdx[MPIrank].z) {
-            g.x = i - gridStartIdx[MPIrank].x;
-            g.y = j - gridStartIdx[MPIrank].y;
-            g.z = k - gridStartIdx[MPIrank].z;
+          if (i >= gridStartIdx[State.MPIrank].x && i <= gridEndIdx[State.MPIrank].x
+              && j >= gridStartIdx[State.MPIrank].y && j <= gridEndIdx[State.MPIrank].y
+              && k >= gridStartIdx[State.MPIrank].z
+              && k <= gridEndIdx[State.MPIrank].z) {
+            g.x = i - gridStartIdx[State.MPIrank].x;
+            g.y = j - gridStartIdx[State.MPIrank].y;
+            g.z = k - gridStartIdx[State.MPIrank].z;
             tissueField[gridSize.z * gridSize.y * g.x + gridSize.z * g.y +
                         g.z] +=
                           cicRecvPatch[p][size.z * size.y * c.x + size.z * c.y +
@@ -392,7 +392,7 @@ int applyPatches()
 
   free(cicRecvPatch);
 
-  for (p = 0; p < MPIsize; p++)
+  for (p = 0; p < State.MPIsize; p++)
     if (cicIntersect[p])
       free(cicPatch[p]);
 
@@ -419,8 +419,8 @@ void initFieldsPatchesExchange()
   struct int64Vector3d idx, g;
   struct int64Vector3d size;
 
-  fieldsPatchesCommBuff = (double **) calloc(MPIsize, sizeof(double *));
-  for (p = 0; p < MPIsize; p++) {
+  fieldsPatchesCommBuff = (double **) calloc(State.MPIsize, sizeof(double *));
+  for (p = 0; p < State.MPIsize; p++) {
     int fieldPatchSize;
     if (!cicSender[p])
       continue;			/* continue to next process if current process do not overlap domain */
@@ -445,9 +445,9 @@ void initFieldsPatchesExchange()
             idx.x = i - lowerPatchCornerR[p].x;
             idx.y = j - lowerPatchCornerR[p].y;
             idx.z = k - lowerPatchCornerR[p].z;
-            g.x = i - gridStartIdx[MPIrank].x;
-            g.y = j - gridStartIdx[MPIrank].y;
-            g.z = k - gridStartIdx[MPIrank].z;
+            g.x = i - gridStartIdx[State.MPIrank].x;
+            g.y = j - gridStartIdx[State.MPIrank].y;
+            g.z = k - gridStartIdx[State.MPIrank].z;
             fieldsPatchesCommBuff[p][f * fieldPatchSize +
                                      size.z * size.y * idx.x +
                                      size.z * idx.y + idx.z] =
@@ -468,9 +468,9 @@ void initFieldsPatchesExchange()
             idx.x = i - lowerPatchCornerR[p].x;
             idx.y = j - lowerPatchCornerR[p].y;
             idx.z = k - lowerPatchCornerR[p].z;
-            g.x = i - gridStartIdx[MPIrank].x;
-            g.y = j - gridStartIdx[MPIrank].y;
-            g.z = k - gridStartIdx[MPIrank].z;
+            g.x = i - gridStartIdx[State.MPIrank].x;
+            g.y = j - gridStartIdx[State.MPIrank].y;
+            g.z = k - gridStartIdx[State.MPIrank].z;
             fieldsPatchesCommBuff[p][fieldPatchSize*NFIELDS + f * 3 * fieldPatchSize +
                                      3* size.z * size.y * idx.x +
                                      3* size.z * idx.y + 3*idx.z] =
@@ -491,13 +491,13 @@ void initFieldsPatchesExchange()
 
   }
 
-  if (!(fieldsPatches = (double **) calloc(MPIsize, sizeof(double *))))
+  if (!(fieldsPatches = (double **) calloc(State.MPIsize, sizeof(double *))))
     stopRun(106, "fieldsPatches", __FILE__, __LINE__);
 
-  cicReqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
-  cicReqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * MPIsize);
+  cicReqSend = (MPI_Request *) malloc(sizeof(MPI_Request) * State.MPIsize);
+  cicReqRecv = (MPI_Request *) malloc(sizeof(MPI_Request) * State.MPIsize);
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     if (cicSender[p]) {
       int sendSize;
       sendSize =
@@ -506,7 +506,7 @@ void initFieldsPatchesExchange()
                1) * (upperPatchCornerR[p].z - lowerPatchCornerR[p].z +
                      1) * (NFIELDS+NCHEM*3);
       MPI_Isend(&(fieldsPatchesCommBuff[p][0]), sendSize, MPI_DOUBLE, p,
-                MPIrank, MPI_COMM_WORLD, &cicReqSend[p]);
+                State.MPIrank, MPI_COMM_WORLD, &cicReqSend[p]);
     }
     if (cicReceiver[p]) {
       int recvSize;
@@ -532,14 +532,14 @@ void waitFieldsPatchesExchange()
   int p;
   MPI_Status status;
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     if (!cicSender[p])
       continue;
     if (MPI_Wait(&cicReqSend[p], &status) != MPI_SUCCESS)
       stopRun(103, "sending", __FILE__, __LINE__);
   }
 
-  for (p = 0; p < MPIsize; p++) {
+  for (p = 0; p < State.MPIsize; p++) {
     if (!cicReceiver[p])
       continue;
     if (MPI_Wait(&cicReqRecv[p], &status) != MPI_SUCCESS)
@@ -549,7 +549,7 @@ void waitFieldsPatchesExchange()
   free(cicReqSend);
   free(cicReqRecv);
 
-  for (p = 0; p < MPIsize; p++)
+  for (p = 0; p < State.MPIsize; p++)
     free(fieldsPatchesCommBuff[p]);
   free(fieldsPatchesCommBuff);
 
@@ -580,7 +580,7 @@ void applyFieldsPatches(struct cellsInfo *ci)
     cellIdx.x = ((ci->cells[c].x - lowerGridCorner.x) / gridResolution);
     cellIdx.y = ((ci->cells[c].y - lowerGridCorner.y) / gridResolution);
     cellIdx.z = ((ci->cells[c].z - lowerGridCorner.z) / gridResolution);
-    for (p = 0; p < MPIsize; p++) {	/* for each process */
+    for (p = 0; p < State.MPIsize; p++) {	/* for each process */
       int ax, ay, az;
       if (!cicReceiver[p])
         continue;		/* there is no patch from this process */
@@ -625,7 +625,7 @@ void applyFieldsPatches(struct cellsInfo *ci)
     }				// p
   }				// c
 
-  for (p = 0; p < MPIsize; p++)
+  for (p = 0; p < State.MPIsize; p++)
     free(fieldsPatches[p]);
   free(fieldsPatches);
 

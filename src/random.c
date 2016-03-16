@@ -36,7 +36,7 @@ void randomStreamInit()
 {
   int gtype;			// RNG type: DEFAULT_RNG_TYPE, SPRNG_LFG, SPRNG_LCG, SPRNG_LCG64, SPRNG_CMRG, SPRNG_MLFG, SPRNG_PMLCG
   gtype = DEFAULT_RNG_TYPE;
-  stream = init_sprng(gtype, MPIrank, MPIsize, SEED, SPRNG_DEFAULT);
+  stream = init_sprng(gtype, State.MPIrank, State.MPIsize, SEED, SPRNG_DEFAULT);
 }
 
 /*!

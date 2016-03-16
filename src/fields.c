@@ -170,8 +170,10 @@ void fieldsInit()
 void fieldsSolve()
 {
   int i;
+  int gfIter;
   if (!gfields)
     return;
+
   for (gfIter = 0; gfIter < gfIterPerStep; gfIter++) {
     /* update cell state (if more than one iteration) */
     if (gfIter > 0)
@@ -241,28 +243,28 @@ void initFieldHaloExchange(int chf)
       }
 
   if(rX0!=MPI_PROC_NULL) {
-    MPI_Isend(haloSX0,gridSize.y*gridSize.z,MPI_DOUBLE,rX0,MPIrank,MPI_CART_COMM,&reqFGSend[0]);
-    MPI_Irecv(haloRX0,gridSize.y*gridSize.z,MPI_DOUBLE,rX0,MPIsize+rX0,MPI_CART_COMM,&reqFGRecv[0]);
+    MPI_Isend(haloSX0,gridSize.y*gridSize.z,MPI_DOUBLE,rX0,State.MPIrank,MPI_CART_COMM,&reqFGSend[0]);
+    MPI_Irecv(haloRX0,gridSize.y*gridSize.z,MPI_DOUBLE,rX0,State.MPIsize+rX0,MPI_CART_COMM,&reqFGRecv[0]);
   }
   if(rX1!=MPI_PROC_NULL) {
-    MPI_Isend(haloSX1,gridSize.y*gridSize.z,MPI_DOUBLE,rX1,MPIsize+MPIrank,MPI_CART_COMM,&reqFGSend[1]);
+    MPI_Isend(haloSX1,gridSize.y*gridSize.z,MPI_DOUBLE,rX1,State.MPIsize+State.MPIrank,MPI_CART_COMM,&reqFGSend[1]);
     MPI_Irecv(haloRX1,gridSize.y*gridSize.z,MPI_DOUBLE,rX1,rX1,MPI_CART_COMM,&reqFGRecv[1]);
   }
   if(rY0!=MPI_PROC_NULL) {
-    MPI_Isend(haloSY0,gridSize.x*gridSize.z,MPI_DOUBLE,rY0,2*MPIsize+MPIrank,MPI_CART_COMM,&reqFGSend[2]);
-    MPI_Irecv(haloRY0,gridSize.x*gridSize.z,MPI_DOUBLE,rY0,3*MPIsize+rY0,MPI_CART_COMM,&reqFGRecv[2]);
+    MPI_Isend(haloSY0,gridSize.x*gridSize.z,MPI_DOUBLE,rY0,2*State.MPIsize+State.MPIrank,MPI_CART_COMM,&reqFGSend[2]);
+    MPI_Irecv(haloRY0,gridSize.x*gridSize.z,MPI_DOUBLE,rY0,3*State.MPIsize+rY0,MPI_CART_COMM,&reqFGRecv[2]);
   }
   if(rY1!=MPI_PROC_NULL) {
-    MPI_Isend(haloSY1,gridSize.x*gridSize.z,MPI_DOUBLE,rY1,3*MPIsize+MPIrank,MPI_CART_COMM,&reqFGSend[3]);
-    MPI_Irecv(haloRY1,gridSize.x*gridSize.z,MPI_DOUBLE,rY1,2*MPIsize+rY1,MPI_CART_COMM,&reqFGRecv[3]);
+    MPI_Isend(haloSY1,gridSize.x*gridSize.z,MPI_DOUBLE,rY1,3*State.MPIsize+State.MPIrank,MPI_CART_COMM,&reqFGSend[3]);
+    MPI_Irecv(haloRY1,gridSize.x*gridSize.z,MPI_DOUBLE,rY1,2*State.MPIsize+rY1,MPI_CART_COMM,&reqFGRecv[3]);
   }
   if(rZ0!=MPI_PROC_NULL) {
-    MPI_Isend(haloSZ0,gridSize.y*gridSize.x,MPI_DOUBLE,rZ0,4*MPIsize+MPIrank,MPI_CART_COMM,&reqFGSend[4]);
-    MPI_Irecv(haloRZ0,gridSize.y*gridSize.x,MPI_DOUBLE,rZ0,5*MPIsize+rZ0,MPI_CART_COMM,&reqFGRecv[4]);
+    MPI_Isend(haloSZ0,gridSize.y*gridSize.x,MPI_DOUBLE,rZ0,4*State.MPIsize+State.MPIrank,MPI_CART_COMM,&reqFGSend[4]);
+    MPI_Irecv(haloRZ0,gridSize.y*gridSize.x,MPI_DOUBLE,rZ0,5*State.MPIsize+rZ0,MPI_CART_COMM,&reqFGRecv[4]);
   }
   if(rZ1!=MPI_PROC_NULL) {
-    MPI_Isend(haloSZ1,gridSize.y*gridSize.x,MPI_DOUBLE,rZ1,5*MPIsize+MPIrank,MPI_CART_COMM,&reqFGSend[5]);
-    MPI_Irecv(haloRZ1,gridSize.y*gridSize.x,MPI_DOUBLE,rZ1,4*MPIsize+rZ1,MPI_CART_COMM,&reqFGRecv[5]);
+    MPI_Isend(haloSZ1,gridSize.y*gridSize.x,MPI_DOUBLE,rZ1,5*State.MPIsize+State.MPIrank,MPI_CART_COMM,&reqFGSend[5]);
+    MPI_Irecv(haloRZ1,gridSize.y*gridSize.x,MPI_DOUBLE,rZ1,4*State.MPIsize+rZ1,MPI_CART_COMM,&reqFGRecv[5]);
   }
 
   return;

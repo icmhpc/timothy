@@ -76,7 +76,7 @@ void statisticsDensity(struct cellsInfo *ci, struct statisticsData *st)
   st->densdev /= ci->totalCellCount.number_of_cells;
   st->densdev = sqrt(st->densdev);
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("%12s%10.4lf%10.4lf%10.4lf%10.4lf\n", "Density    ",
            globalMinDens, globalMaxDens, mean, st->densdev);
 }
@@ -93,7 +93,7 @@ void statisticsDistance(struct statisticsData *st)
 
   st->mindist = globalMinDist;
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("%12s%10.4lf%10s%10s%10s\n", "Distance   ", globalMinDist, "-",
            "-", "-");
 }
@@ -107,7 +107,7 @@ void statisticsVelocity(struct statisticsData *st)
              MPI_COMM_WORLD);
   MPI_Reduce(&st->maxvel, &globalMaxVel, 1, MPI_DOUBLE, MPI_MAX, 0,
              MPI_COMM_WORLD);
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("%12s%10.4lf%10.4lf%10s%10s\n", "Velocity   ", globalMinVel,
            globalMaxVel, "-", "-");
 }
@@ -124,7 +124,7 @@ void statisticsSize(struct statisticsData *st)
   MPI_Reduce(&st->minsize, &globalMinSize, 1, MPI_DOUBLE, MPI_MIN,
              0, MPI_COMM_WORLD);
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("%12s%10.4lf%10.4lf%10s%10s\n", "Size       ", globalMinSize,
            globalMaxSize, "-", "-");
 }
@@ -134,7 +134,7 @@ void statisticsSize(struct statisticsData *st)
  */
 void statisticsPhases(struct cellsInfo *ci)
 {
-  if (MPIrank == 0) {
+  if (State.MPIrank == 0) {
     printf("%12s%12s%12s%12s%12s%12s\n", "Cell phase ", "G0", "G1", "S",
            "G2", "M");
     printf("%12s%12" PRId64 "%12" PRId64 "%12" PRId64 "%12" PRId64 "%12"
@@ -154,13 +154,13 @@ void statisticsPhases(struct cellsInfo *ci)
  */
 void statisticsPrint(struct cellsInfo *ci, struct statisticsData *st)
 {
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("%12s%10s%10s%10s%10s\n", "", "Min", "Max", "Avg", "Dev");
   statisticsDensity(ci, st);
   statisticsDistance(st);
   /*statisticsVelocity(); */
   statisticsSize(st);
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("\n");
   statisticsPhases(ci);
 }

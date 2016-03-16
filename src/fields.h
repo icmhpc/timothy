@@ -109,6 +109,8 @@ double fieldConsumption[NFIELDS]; /* units - mol (cell s)^-1 */
 double fieldProduction[NFIELDS];  /* units - mol (cell s)^-1 */
 double fieldCriticalLevel1[NFIELDS]; /* critical level 1 - for cells in G1 phase */
 double fieldCriticalLevel2[NFIELDS]; /* critical level 2 - for cells in S, G2, M phases */
+
+
 void fieldsInit();
 void fieldsSolve();
 void fieldGradient();

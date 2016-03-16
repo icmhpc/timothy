@@ -134,7 +134,7 @@ void readRstFile(int argc, char **argv);
  */
 void printBasicInfo()
 {
-  if (MPIrank == 0) {
+  if (State.MPIrank == 0) {
     printf("\nTimothy v.%s - Tissue Modelling Framework\n", VERSION);
     printf(" M.Cytowski, Z.Szymanska\n");
     printf(" ICM, University of Warsaw\n");
@@ -148,9 +148,9 @@ void printBasicInfo()
  */
 void printExecInfo()
 {
-  if (MPIrank == 0) {
-    printf("Exec.info: %d ", MPIsize);
-    if (MPIsize > 1)
+  if (State.MPIrank == 0) {
+    printf("Exec.info: %d ", State.MPIsize);
+    if (State.MPIsize > 1)
       printf("processes ");
     else
       printf("process ");
@@ -174,7 +174,7 @@ void printExecInfo()
 void printHelp()
 {
   int i;
-  if (MPIrank == 0) {
+  if (State.MPIrank == 0) {
     printf
     ("This help prints all Timothy parameters and their meaning.\n\n");
     for (i = 0; i < NPAR; i++)
@@ -725,12 +725,12 @@ void readParams(int argc, char **argv)
   }
   sprintf(paramFileName, "%s", argv[2]);
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("Reading parameters file: %s\n", paramFileName);
 
   fhandle = fopen(paramFileName, "r");
   if (fhandle == NULL) {
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       fprintf(stderr, "\nERROR while opening parameter file.\n\n");
     stopRun(0, NULL, __FILE__, __LINE__);
   }
@@ -789,7 +789,7 @@ void readParams(int argc, char **argv)
       /* in the case of the restart simulation we do not allow to change the number of cells */
       if (rst == 1 && strcmp(params[i], "NC") == 0
           && strcmp(params[i], buf1) == 0) {
-        if (MPIrank == 0)
+        if (State.MPIrank == 0)
           printf
           ("NC value from the parameter file will be ignored. This is a restart simulation.\n");
         continue;
@@ -915,7 +915,7 @@ void readParams(int argc, char **argv)
     }
   }
   if (!rst && nhs == -1 && tgs == 1) {
-    if (MPIrank == 0) {
+    if (State.MPIrank == 0) {
       fprintf(stderr,
               "This is a tumor growth simulation. NHS is undefined. Define NHS in parameter file\n");
       fflush(stdout);
@@ -926,7 +926,7 @@ void readParams(int argc, char **argv)
   if (!rst) {
     for (i = 0; i < NPAR; i++)
       if (req[i] == 1 && set[i] == 0) {
-        if (MPIrank == 0) {
+        if (State.MPIrank == 0) {
           fprintf(stderr, "Missing parameter: %s - %s.\nProgram Abort.\n",
                   params[i], desc[i]);
           fflush(stdout);
@@ -939,24 +939,24 @@ void readParams(int argc, char **argv)
     stopRun(111, NULL, __FILE__, __LINE__);
 
   if (!POWER_OF_TWO(nx)) {
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       printf("SIZEX = %d. Must be a power of two.\n\n", nx);
     stopRun(100, "X", __FILE__, __LINE__);
   }
   if (!POWER_OF_TWO(ny)) {
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       printf("SIZEY = %d. Must be a power of two.\n\n", ny);
     stopRun(100, "Y", __FILE__, __LINE__);
   }
   if (!POWER_OF_TWO(nz)) {
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       printf("SIZEZ = %d. Must be a power of two.\n\n", nz);
     stopRun(100, "Z", __FILE__, __LINE__);
   }
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("Box size: %dx%dx%d\n", nx, ny, nz);
 
-  if (MPIrank == 0) {
+  if (State.MPIrank == 0) {
     struct stat s;
     int err;
     printf("Output directory: %s\n", outdir);
@@ -1026,7 +1026,7 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "rank");
     dimOut[nfOut] = SCALAR;
     typeOut[nfOut] = INT;
-    addrOut[nfOut] = &MPIrank;
+    addrOut[nfOut] = &State.MPIrank;
     jumpOut[nfOut] = 0;
 
     nfOut++;
@@ -1126,7 +1126,7 @@ void ioDefineOutputFields()
       jumpOut[nfOut] = 0;
 
     nfOut++;
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       for (int i=0; i< NOUT; i++){
         printf("%s: %ld\n", nameOut[i], jumpOut[i]);
       }
@@ -1171,12 +1171,12 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
   /* gather number of cells from each process */
   MPI_Allgather(&cellsData.localCellCount.number_of_cells, 1, MPI_LONG_LONG, cellsData.numberOfCellsInEachProcess, 1, MPI_LONG_LONG,
                 MPI_COMM_WORLD);
-  for (i = 0; i < MPIrank; i++)
+  for (i = 0; i < State.MPIrank; i++)
     nprev += cellsData.numberOfCellsInEachProcess[i];
 
 
   /* write the VTK header */
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                    MPI_STATUS_IGNORE);
   goffset += strlen(header);
@@ -1185,7 +1185,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
   /* adding positions */
   memset(header, 0, 256);
   sprintf(header, "\nPOINTS %" PRId64 " float\n", cellsData.totalCellCount.number_of_cells);
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                    MPI_STATUS_IGNORE);
   goffset += strlen(header);
@@ -1208,7 +1208,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
   /* adding cell types */
   memset(header, 0, 256);
   sprintf(header, "\nCELL_TYPES %" PRId64 "\n", cellsData.totalCellCount.number_of_cells);
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                    MPI_STATUS_IGNORE);
   goffset += strlen(header);
@@ -1226,7 +1226,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
   /* point data */
   memset(header, 0, 256);
   sprintf(header, "\nPOINT_DATA %" PRId64, cellsData.totalCellCount.number_of_cells);
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                    MPI_STATUS_IGNORE);
   goffset += strlen(header);
@@ -1240,7 +1240,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
       case REAL:
         sprintf(header, "\nSCALARS %s float 1\nLOOKUP_TABLE default\n",
                 nameOut[i]);
-        if (MPIrank == 0)
+        if (State.MPIrank == 0)
           MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
@@ -1260,7 +1260,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
       case INT:
         sprintf(header, "\nSCALARS %s integer 1\nLOOKUP_TABLE default\n",
                 nameOut[i]);
-        if (MPIrank == 0)
+        if (State.MPIrank == 0)
           MPI_File_write(fh, &header, (int) strlen(header), MPI_BYTE,
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
@@ -1282,7 +1282,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
       switch (typeOut[i]) {
       case REAL:
         sprintf(header, "\nVECTORS %s float\n", nameOut[i]);
-        if (MPIrank == 0)
+        if (State.MPIrank == 0)
           MPI_File_write(fh, &header, (int) strlen(header), MPI_BYTE,
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
@@ -1311,7 +1311,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
       case INT:
         /* note: INTs are converted to FLOATs */
         printf(header, "\nVECTORS %s float\n", nameOut[i]);
-        if (MPIrank == 0)
+        if (State.MPIrank == 0)
           MPI_File_write(fh, &header, strlen(header), MPI_BYTE,
                          MPI_STATUS_IGNORE);
         goffset += strlen(header);
@@ -1354,7 +1354,7 @@ void ioWriteStepVTK(int step) //FIXME void* arithmetics
  */
 void printStepNum()
 {
-  if (MPIrank == 0) {
+  if (State.MPIrank == 0) {
     printf
     ("\n-------------------------------------------------------------------------\n");
     printf(" Step %8d,%15s%8.4f%20s%14" PRId64 " ", step, "Time step = ",
@@ -1515,11 +1515,11 @@ void saveRstFile()
   /* gather number of cells from each process */
   MPI_Allgather(&cellsData.localCellCount.number_of_cells, 1, MPI_UINT64_T, cellsData.numberOfCellsInEachProcess, 1, MPI_UINT64_T,
                 MPI_COMM_WORLD);
-  for (i = 0; i < MPIrank; i++)
+  for (i = 0; i < State.MPIrank; i++)
     nprev += cellsData.numberOfCellsInEachProcess[i];
 
   /* write out the simulation global variables and parameters (single process) */
-  if (MPIrank == 0) {
+  if (State.MPIrank == 0) {
 
     ioDefineRstGlobalParams();
     offset = 0;
@@ -1583,7 +1583,7 @@ void readRstFile(int argc, char **argv)
   int swap;
   //int lcancer = 0;
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("Reading restart file: %s\n", rstFileName);
 
   goffset = 0;
@@ -1631,18 +1631,18 @@ void readRstFile(int argc, char **argv)
   char *p = (char *) &one;
   swap = 0;
   if (p[0] == 1) {
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       printf("Restart file in little endian format.\n");
     if (endian == 0) {
-      if (MPIrank == 0)
+      if (State.MPIrank == 0)
         printf("Conversion to big endian.\n");
       swap = 1;
     }
   } else {
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       printf("Restart file in big endian format.\n");
     if (endian == 1) {
-      if (MPIrank == 0)
+      if (State.MPIrank == 0)
         printf("Conversion to little endian.\n");
       swap = 1;
     }
@@ -1671,9 +1671,9 @@ void readRstFile(int argc, char **argv)
   }
 
   /* set local number of cells to be read by each process */
-  nk = cellsData.totalCellCount.number_of_cells / MPIsize;
-  nr = cellsData.totalCellCount.number_of_cells % MPIsize;
-  cellsData.localCellCount.number_of_cells = ((uint64_t) MPIrank < nr ? nk + 1 : nk);
+  nk = cellsData.totalCellCount.number_of_cells / State.MPIsize;
+  nr = cellsData.totalCellCount.number_of_cells % State.MPIsize;
+  cellsData.localCellCount.number_of_cells = ((uint64_t) State.MPIrank < nr ? nk + 1 : nk);
 
   if (cellsData.totalCellCount.number_of_cells > maxCells)
     stopRun(115, NULL, __FILE__, __LINE__);
@@ -1689,7 +1689,7 @@ void readRstFile(int argc, char **argv)
   /* gather number of cells from each process */
   MPI_Allgather(&cellsData.localCellCount.number_of_cells, 1, MPI_INT64_T, cellsData.numberOfCellsInEachProcess, 1, MPI_INT64_T,
                 MPI_COMM_WORLD);
-  for (i = 0; i < MPIrank; i++)
+  for (i = 0; i < State.MPIrank; i++)
     nprev += cellsData.numberOfCellsInEachProcess[i];
 
   goffset += nprev * sizeof(struct cellData);
@@ -1733,7 +1733,7 @@ void readRstFile(int argc, char **argv)
   for (uint64_t i = 0; i < cellsData.localCellCount.number_of_cells; i++) {
 
     cellsData.cells[i].gid =
-      (unsigned long long int) MPIrank *(unsigned long long int)
+      (unsigned long long int) State.MPIrank *(unsigned long long int)
       maxCellsPerProc + (unsigned long long int) i;
 
     switch (cellsData.cells[i].phase) {
@@ -1842,9 +1842,9 @@ void ioWriteFields(int step)
   bsize[0] = gridSize.x;
   bsize[1] = gridSize.y;
   bsize[2] = gridSize.z;
-  bstart[0] = gridStartIdx[MPIrank].x;
-  bstart[1] = gridStartIdx[MPIrank].y;
-  bstart[2] = gridStartIdx[MPIrank].z;
+  bstart[0] = gridStartIdx[State.MPIrank].x;
+  bstart[1] = gridStartIdx[State.MPIrank].y;
+  bstart[2] = gridStartIdx[State.MPIrank].z;
 
   MPI_Type_vector(1, 3, 0, MPI_FLOAT, &float3_t);
   MPI_Type_commit(&float3_t);
@@ -1859,9 +1859,9 @@ void ioWriteFields(int step)
   bsize[0] = gridSize.x;
   bsize[1] = gridSize.y;
   bsize[2] = gridSize.z;
-  bstart[0] = gridStartIdx[MPIrank].x;
-  bstart[1] = gridStartIdx[MPIrank].y;
-  bstart[2] = gridStartIdx[MPIrank].z;
+  bstart[0] = gridStartIdx[State.MPIrank].x;
+  bstart[1] = gridStartIdx[State.MPIrank].y;
+  bstart[2] = gridStartIdx[State.MPIrank].z;
 
   MPI_Type_create_subarray(bdim, gsize, bsize, bstart, MPI_ORDER_C,
                            MPI_FLOAT, &subarray2_t);
@@ -1891,7 +1891,7 @@ void ioWriteFields(int step)
     sprintf(fstname2, "%s/%s%08dvalues.bin", outdir, nameOut[f], step);
     sprintf(fstname3, "%s/%s%08d.vnf", outdir, nameOut[f], step);
 
-    if(MPIrank==0) {
+    if(State.MPIrank==0) {
       fh3=fopen(fstname3,"w");
       fprintf(fh3,"#VisNow regular field\n");
       fprintf(fh3,"field %s%08d, dim %" PRId64 " %" PRId64 " %" PRId64 ", coords\n",nameOut[f],step,gridI,gridJ,gridK);
@@ -2185,7 +2185,7 @@ void ioWriteStepPovRay(int step, int type)
   int istart[1];
   int isize[1];
   int64_t printed = 0;
-  int64_t tPrinted[MPIsize];
+  int64_t tPrinted[State.MPIsize];
   double fmin, fmax, fepsilon;
   int cm;
   int cmReverse = 0;
@@ -2273,7 +2273,7 @@ void ioWriteStepPovRay(int step, int type)
     stopRun(106, "txtData", __FILE__, __LINE__);
   txtData_p = txtData;
 
-  for (i = 0; i < MPIsize; i++)
+  for (i = 0; i < State.MPIsize; i++)
     tPrinted[i] = 0;
 
   switch (type) {
@@ -2315,13 +2315,13 @@ void ioWriteStepPovRay(int step, int type)
     MPI_File_open(MPI_COMM_WORLD, fstname,
                   MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh);
   if (error != MPI_SUCCESS)
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       stopRun(113, NULL, __FILE__, __LINE__);
 
   MPI_File_set_size(fh, 0);
 
   /* write header */
-  if (MPIrank == 0) {
+  if (State.MPIrank == 0) {
 
     float cameraLocation[3];
     float lookAt[3];
@@ -2401,15 +2401,15 @@ void ioWriteStepPovRay(int step, int type)
     if (type == 1)
       color = ((cellsData.cellFields[OXYG][c] - fmin) / (fmax - fmin));
     if (type == 2 || type == 3 || type == 4)
-      color = (((float) cellsData.cells[c].phase) / 5.0);
+      color = (((float) cellsData.cells[c].phase) / 5.0f);
     if (type == 2)
-      color = (((float) MPIrank) / 512.0);
+      color = (((float) State.MPIrank) / 512.0f);
 
     if (type == 0)
-      color = color / 4 + 0.75;
+      color = color / 4 + 0.75f;
 
     if (cmReverse)
-      color = 1.0 - color;
+      color = 1.0f - color;
     if (cmShift) {
       color = color * (1 - cmPad);
       if (color == 1 - cmPad)
@@ -2471,17 +2471,17 @@ void ioWriteStepPovRay(int step, int type)
   }
 
   gdims = 1;
-  tPrinted[MPIrank] = printed;
+  tPrinted[State.MPIrank] = printed;
   MPI_Allgather(&printed, 1, MPI_INT64_T, tPrinted, 1, MPI_INT64_T,
                 MPI_COMM_WORLD);
 
   gsize[0] = 0;
   istart[0] = 0;
   isize[0] = printed * numCharsPerCell;
-  for (i = 0; i < MPIrank; i++)
+  for (i = 0; i < State.MPIrank; i++)
     istart[0] += tPrinted[i] * numCharsPerCell;
 
-  for (i = 0; i < MPIsize; i++)
+  for (i = 0; i < State.MPIsize; i++)
     gsize[0] += tPrinted[i] * numCharsPerCell;
 
   MPI_Type_create_subarray(gdims, gsize, isize, istart, MPI_ORDER_C,

@@ -80,13 +80,13 @@ void stopRun(int ierr, const char *name, const char *file, int line)
             line);
     break;
   case 101:
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       fprintf(stderr,
               "Number of processes must be a power of two at %s, line %d\n",
               file, line);
     break;
   case 102:
-    if (MPIrank == 0) {
+    if (State.MPIrank == 0) {
       fprintf(stderr,
               "Bad or missing Program parameters, at %s, line %d\n", file,
               line);
@@ -115,7 +115,7 @@ void stopRun(int ierr, const char *name, const char *file, int line)
     break;
   case 110:
     fprintf(stderr, "Too many exported cells on process %d. Abort.\n",
-            MPIrank);
+            State.MPIrank);
     break;
   case 111:
     fprintf(stderr,
@@ -153,7 +153,7 @@ void stopRun(int ierr, const char *name, const char *file, int line)
   case 999:
     break;
   default:
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       fprintf(stderr, "Error at %s, line %d\n", file, line);
     break;
   }

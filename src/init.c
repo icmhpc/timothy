@@ -124,12 +124,12 @@ void simulationInit(int argc, char **argv)
     printHelp();
 
   /* check number of processes */
-  if (!POWER_OF_TWO(MPIsize))
+  if (!POWER_OF_TWO(State.MPIsize))
     stopRun(101, NULL, __FILE__, __LINE__);
 
   /* checking system and runtime configuration */
   checkEndiannes();
-  getLocalRankAndSize(MPIrank, MPIsize, &MPINodeRank, &MPINodeSize);
+  getLocalRankAndSize(State.MPIrank, State.MPIsize, &MPINodeRank, &MPINodeSize);
   memPerProc = getMemoryPerProcess(MPINodeSize);
 
   /* print execution informations */
@@ -203,15 +203,15 @@ void simulationInit(int argc, char **argv)
     vnfout = 1;
 
   /* organizing processes in a Cartesian grid for global fields computations */
-  MPI_Dims_create(MPIsize, sdim, MPIdim);
+  MPI_Dims_create(State.MPIsize, sdim, MPIdim);
   periods[0] = 0;
   periods[1] = 0;
   periods[2] = 0;
   reorder = 0;
   MPI_Cart_create(MPI_COMM_WORLD, sdim, MPIdim, periods, reorder,
                   &MPI_CART_COMM);
-  MPIcoords = (int **) malloc(MPIsize * sizeof(int *));
-  for (i = 0; i < MPIsize; i++) {
+  MPIcoords = (int **) malloc(State.MPIsize * sizeof(int *));
+  for (i = 0; i < State.MPIsize; i++) {
     MPIcoords[i] = (int *) malloc(3 * sizeof(int));
     MPI_Cart_coords(MPI_CART_COMM, i, sdim, MPIcoords[i]);
   }

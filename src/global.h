@@ -325,8 +325,7 @@ double boxmin[3],boxmax[3];
 double boxsize;
 
 
-int gfIter;
-int gfIterPerStep;
+
 
 /* statistics */
 struct statisticsData {
@@ -474,6 +473,8 @@ int rstOutStep;
 int vtkOutStep;
 float gfDt;
 float gfH;
+int gfIterPerStep;
+
 
 
 #endif

@@ -71,7 +71,7 @@ void computeGridSize()
   else
     gridSize.z = 1;
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("Grid size:%" PRId64 "x%" PRId64 "x%" PRId64 "\n", gridI, gridJ,
            gridK);
 }
@@ -84,13 +84,13 @@ void allocateGrid()
   int i, j, k;
 
   gridStartIdx =
-    (struct int64Vector3d *) malloc(MPIsize *
+    (struct int64Vector3d *) malloc(State.MPIsize *
                                     sizeof(struct int64Vector3d));
   gridEndIdx =
-    (struct int64Vector3d *) malloc(MPIsize *
+    (struct int64Vector3d *) malloc(State.MPIsize *
                                     sizeof(struct int64Vector3d));
 
-  for (i = 0; i < MPIsize; i++) {
+  for (i = 0; i < State.MPIsize; i++) {
     gridStartIdx[i].x = gridSize.x * MPIcoords[i][0];
     gridStartIdx[i].y = gridSize.y * MPIcoords[i][1];
     if (sdim == 3)
@@ -117,13 +117,13 @@ void allocateGrid()
     for (j = 0; j < gridSize.y; j++)
       for (k = 0; k < gridSize.z; k++) {
         grid(i, j, k).x =
-          lowerGridCorner.x + gridResolution * (gridStartIdx[MPIrank].x +
+          lowerGridCorner.x + gridResolution * (gridStartIdx[State.MPIrank].x +
                                                 i);
         grid(i, j, k).y =
-          lowerGridCorner.y + gridResolution * (gridStartIdx[MPIrank].y +
+          lowerGridCorner.y + gridResolution * (gridStartIdx[State.MPIrank].y +
                                                 j);
         grid(i, j, k).z =
-          lowerGridCorner.z + gridResolution * (gridStartIdx[MPIrank].z +
+          lowerGridCorner.z + gridResolution * (gridStartIdx[State.MPIrank].z +
                                                 k);
       }
 }

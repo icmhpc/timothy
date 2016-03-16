@@ -100,7 +100,7 @@ void markMiddleCell(struct cellsInfo *ci, int to_type, int from_type)
   MPI_Allreduce(center, global_center, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
   /* initialization */
-  local_min_dist.rank = MPIrank;
+  local_min_dist.rank = State.MPIrank;
   local_min_dist.val = INT_MAX;
 
   /* each process finds local cell closest to the global center of mass */
@@ -113,7 +113,7 @@ void markMiddleCell(struct cellsInfo *ci, int to_type, int from_type)
              (ci->cells[c].z - global_center[2]) * (ci->cells[c].z - global_center[2]);
       if (dist < local_min_dist.val) {
         local_min_dist.val = dist;
-        middle = c;
+        middle = (int) c;
       }
     }
   }
@@ -122,7 +122,7 @@ void markMiddleCell(struct cellsInfo *ci, int to_type, int from_type)
   MPI_Allreduce(&local_min_dist, &global_min_dist, 1, MPI_DOUBLE_INT, MPI_MINLOC,
                 MPI_COMM_WORLD);
   /* mark the found cell as cancer one */
-  if (MPIrank == global_min_dist.rank) {
+  if (State.MPIrank == global_min_dist.rank) {
     struct cellData * cell  = &ci->cells[middle];
     switch (cell->phase){
       case G0_phase: ci->localCellCount.g0_phase_number_of_cells--; break;
@@ -161,7 +161,7 @@ void updateCellPositions(struct cellsInfo *ci, struct statisticsData *st)
   if ((st->mindist >= 0.95 * 2.0 * pow(2.0, -(1.0 / 3.0)) * csize
        && simStart == 0) || (ci->totalCellCount.number_of_cells == 1 && simStart == 0)) {
     simStart = 1;
-    if (MPIrank == 0)
+    if (State.MPIrank == 0)
       printf("\nSimulation started.\n");
   }
 

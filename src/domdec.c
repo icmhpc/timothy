@@ -211,7 +211,7 @@ void decompositionInit(int argc, char **argv)
   if (rc != ZOLTAN_OK)
     stopRun(112, NULL, __FILE__, __LINE__);
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("Zoltan Version %.3f. Initialized.\n", version);
 
   ztn = Zoltan_Create(MPI_COMM_WORLD);
@@ -257,7 +257,7 @@ void decompositionExecute(uint64_t total_number_of_cells)
 {
   int rc;
 
-  if (total_number_of_cells < uMPIsize*MIN_CELLS_PER_PROC)
+  if (total_number_of_cells < State.uMPIsize*MIN_CELLS_PER_PROC)
     return;
 
   rc = Zoltan_LB_Partition(ztn,	/* input (all remaining fields are output) */

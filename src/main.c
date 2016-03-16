@@ -53,9 +53,9 @@ double **cellFields;
 int main(int argc, char **argv)
 {
   MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &MPIsize);
-  uMPIsize = (unsigned int) MPIsize;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MPIrank);
+  MPI_Comm_size(MPI_COMM_WORLD, &State.MPIsize);
+  State.uMPIsize = (unsigned int) State.MPIsize;
+  MPI_Comm_rank(MPI_COMM_WORLD, &State.MPIrank);
 
   OMPthreads = omp_get_max_threads();
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
   randomStreamFree();
   freeCellsInfo(&cellsData);
 
-  if (MPIrank == 0)
+  if (State.MPIrank == 0)
     printf("\nEnd of simulation run.\n");
 
   MPI_Finalize();

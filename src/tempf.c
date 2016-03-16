@@ -155,13 +155,13 @@ void tempEnvInitSystem()
   HYPRE_SStructGridCreate(MPI_CART_COMM, 3, tempNParts, &tempGrid);
 
   /* set this process box */
-  tempLower[0] = gridStartIdx[MPIrank].x;
-  tempLower[1] = gridStartIdx[MPIrank].y;
-  tempLower[2] = gridStartIdx[MPIrank].z;
+  tempLower[0] = gridStartIdx[State.MPIrank].x;
+  tempLower[1] = gridStartIdx[State.MPIrank].y;
+  tempLower[2] = gridStartIdx[State.MPIrank].z;
 
-  tempUpper[0] = gridEndIdx[MPIrank].x;
-  tempUpper[1] = gridEndIdx[MPIrank].y;
-  tempUpper[2] = gridEndIdx[MPIrank].z;
+  tempUpper[0] = gridEndIdx[State.MPIrank].x;
+  tempUpper[1] = gridEndIdx[State.MPIrank].y;
+  tempUpper[2] = gridEndIdx[State.MPIrank].z;
 
   /* add a new box to the grid */
   HYPRE_SStructGridSetExtents(tempGrid, 0, tempLower, tempUpper);
@@ -289,7 +289,7 @@ void tempEnvInitBC()
   for (i = 0; i < Nmax * Nmax; i++)
     bvalues[i] = 2.0 * z * gridResolution * tempLambda * fieldICMean[TEMP];
 
-  if (MPIcoords[MPIrank][0] == MPIdim[0] - 1) {
+  if (MPIcoords[State.MPIrank][0] == MPIdim[0] - 1) {
     nvalues = nentries * gridSize.y * gridSize.z;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -310,7 +310,7 @@ void tempEnvInitBC()
 
   }
 
-  if (MPIcoords[MPIrank][1] == 0) {
+  if (MPIcoords[State.MPIrank][1] == 0) {
     nvalues = nentries * gridSize.x * gridSize.z;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -331,7 +331,7 @@ void tempEnvInitBC()
 
   }
 
-  if (MPIcoords[MPIrank][1] == MPIdim[1] - 1) {
+  if (MPIcoords[State.MPIrank][1] == MPIdim[1] - 1) {
     nvalues = nentries * gridSize.x * gridSize.z;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -352,7 +352,7 @@ void tempEnvInitBC()
 
   }
 
-  if (MPIcoords[MPIrank][2] == 0) {
+  if (MPIcoords[State.MPIrank][2] == 0) {
     nvalues = nentries * gridSize.x * gridSize.y;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -373,7 +373,7 @@ void tempEnvInitBC()
 
   }
 
-  if (MPIcoords[MPIrank][2] == MPIdim[2] - 1) {
+  if (MPIcoords[State.MPIrank][2] == MPIdim[2] - 1) {
     nvalues = nentries * gridSize.x * gridSize.y;
     for (i = 0; i < nvalues; i += nentries) {
       values[i] = 2.0 * z * gridResolution * tempLambda;
@@ -398,7 +398,7 @@ void tempEnvInitBC()
   free(bvalues);
 
   /* Dirichlet conditions */
-  if (MPIcoords[MPIrank][0] == 0) {
+  if (MPIcoords[State.MPIrank][0] == 0) {
 
     int nentries = 1;
     HYPRE_Int stencilDindices[1];
@@ -494,28 +494,28 @@ void tempEnvSolve()
       values[i] =
         2.0 * z * gridResolution * tempLambda * fieldICMean[TEMP];
 
-    if (MPIcoords[MPIrank][0] == MPIdim[0] - 1) {
+    if (MPIcoords[State.MPIrank][0] == MPIdim[0] - 1) {
       tempSetBoundary(0, 1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
-    if (MPIcoords[MPIrank][1] == 0) {
+    if (MPIcoords[State.MPIrank][1] == 0) {
       tempSetBoundary(1, -1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
-    if (MPIcoords[MPIrank][1] == MPIdim[1] - 1) {
+    if (MPIcoords[State.MPIrank][1] == MPIdim[1] - 1) {
       tempSetBoundary(1, 1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
-    if (MPIcoords[MPIrank][2] == 0) {
+    if (MPIcoords[State.MPIrank][2] == 0) {
       tempSetBoundary(2, -1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
-    if (MPIcoords[MPIrank][2] == MPIdim[2] - 1) {
+    if (MPIcoords[State.MPIrank][2] == MPIdim[2] - 1) {
       tempSetBoundary(2, 1);
       HYPRE_SStructVectorAddToBoxValues(b, 0, bcLower, bcUpper, 0, values);
     }
 
-    if (MPIcoords[MPIrank][0] == 0) {
+    if (MPIcoords[State.MPIrank][0] == 0) {
       long long nvalues;
       nvalues = gridSize.x * gridSize.y * gridSize.z;
       for (i = 0; i < nvalues; i++)
