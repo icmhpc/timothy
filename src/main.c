@@ -76,8 +76,6 @@ int main(int argc, char **argv)
     if (simStart)
       simTime += secondsPerStep / 3600.0;	/* biological process time in hours */
 
-    vtkOutStep = 1;
-    vtkout = true;
 
     if (!(step % vtkOutStep)) {
       if (vtkout)

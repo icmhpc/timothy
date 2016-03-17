@@ -91,10 +91,10 @@ void allocateGrid()
                                     sizeof(struct int64Vector3d));
 
   for (i = 0; i < State.MPIsize; i++) {
-    gridStartIdx[i].x = gridSize.x * MPIcoords[i][0];
-    gridStartIdx[i].y = gridSize.y * MPIcoords[i][1];
+    gridStartIdx[i].x = gridSize.x * State.MPIcoords[i][0];
+    gridStartIdx[i].y = gridSize.y * State.MPIcoords[i][1];
     if (sdim == 3)
-      gridStartIdx[i].z = gridSize.z * MPIcoords[i][2];
+      gridStartIdx[i].z = gridSize.z * State.MPIcoords[i][2];
     else
       gridStartIdx[i].z = 0;
     gridEndIdx[i].x = gridStartIdx[i].x + gridSize.x - 1;

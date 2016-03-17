@@ -34,6 +34,7 @@ struct expData {
    uint64_t cell;
   int proc;
 };
+extern struct Zoltan_Struct *ztn;
 
 MPI_Request *reqSend;
 MPI_Request *reqRecv;

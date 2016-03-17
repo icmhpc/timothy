@@ -129,8 +129,8 @@ void simulationInit(int argc, char **argv)
 
   /* checking system and runtime configuration */
   checkEndiannes();
-  getLocalRankAndSize(State.MPIrank, State.MPIsize, &MPINodeRank, &MPINodeSize);
-  memPerProc = getMemoryPerProcess(MPINodeSize);
+  getLocalRankAndSize(State.MPIrank, State.MPIsize, &State.MPINodeRank, &State.MPINodeSize);
+  State.memPerProc = getMemoryPerProcess(State.MPINodeSize);
 
   /* print execution informations */
   printExecInfo();
@@ -209,11 +209,11 @@ void simulationInit(int argc, char **argv)
   periods[2] = 0;
   reorder = 0;
   MPI_Cart_create(MPI_COMM_WORLD, sdim, State.MPIdim, periods, reorder,
-                  &MPI_CART_COMM);
-  MPIcoords = (int **) malloc(State.MPIsize * sizeof(int *));
+                  &State.MPI_CART_COMM);
+  State.MPIcoords = (int **) malloc(State.MPIsize * sizeof(int *));
   for (i = 0; i < State.MPIsize; i++) {
-    MPIcoords[i] = (int *) malloc(3 * sizeof(int));
-    MPI_Cart_coords(MPI_CART_COMM, i, sdim, MPIcoords[i]);
+    State.MPIcoords[i] = (int *) malloc(3 * sizeof(int));
+    MPI_Cart_coords(State.MPI_CART_COMM, i, sdim, State.MPIcoords[i]);
   }
   /* compute grid size */
   computeGridSize();

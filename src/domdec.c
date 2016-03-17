@@ -47,6 +47,8 @@ ZOLTAN_ID_PTR exportLocalGids;	/* local IDs of the objects I must send */
 int *exportProcs;		/* process to which I send each of the objects */
 int *exportToPart;		/* partition to which each object will belong */
 
+struct Zoltan_Struct *ztn;
+
 
 /*!
  * Zoltan callback function. This function returns the dimension (2D or 3D) of the system.

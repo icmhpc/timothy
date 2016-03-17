@@ -159,8 +159,8 @@ void printExecInfo()
       printf("threads,\n");
     else
       printf("thread,\n");
-    printf("           %d proc./node, %dMB/proc.\n\n", MPINodeSize,
-           memPerProc);
+    printf("           %d proc./node, %dMB/proc.\n\n", State.MPINodeSize,
+           State.memPerProc);
     printf("Sys.info:  ");
     if (endian)
       printf("%s, little endian\n", CPUARCH);
