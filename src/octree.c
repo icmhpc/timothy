@@ -26,44 +26,58 @@
 #include <math.h>
 #include "global.h"
 
-/*! \file octree.c
- *  \brief contains functions that build octree and functions
- *         that provide a convenient way of operating on octree.
+/*! \file octTree.c
+ *  \brief contains functions that build octTree and functions
+ *         that provide a convenient way of operating on octTree.
  */
 
+
+
+#define N_LEVELS 30u
+#define ROOT_LEVEL N_LEVELS-1
+#define MAXVALUE powf(2,ROOT_LEVEL)
+
+int64_t octSize;
+/* properties of the affine transformation */
+struct doubleVector3d MIC_ATTR affShift;
+double MIC_ATTR affScale;
+int64_t root;
+
+struct uintVector3d *locCode;
+
 /*!
- * This function creates an empty octree node in a given position.
+ * This function creates an empty octTree node in a given position.
  */
 void octEmptyNode(int64_t father,unsigned int level,unsigned int xbit,unsigned int ybit,unsigned int zbit)
 {
   int i;
   unsigned int len;
   if(father==-1) {
-    octree[octSize].xcode=0;
-    octree[octSize].ycode=0;
-    octree[octSize].zcode=0;
-    octree[octSize].xlimit=1u<<level;
-    octree[octSize].ylimit=1u<<level;
-    octree[octSize].zlimit=1u<<level;
+    octTree[octSize].xcode=0;
+    octTree[octSize].ycode=0;
+    octTree[octSize].zcode=0;
+    octTree[octSize].xlimit=1u<<level;
+    octTree[octSize].ylimit=1u<<level;
+    octTree[octSize].zlimit=1u<<level;
   } else {
-    octree[octSize].xcode=octree[father].xcode|xbit;
-    octree[octSize].ycode=octree[father].ycode|ybit;
-    octree[octSize].zcode=octree[father].zcode|zbit;
-    len=(octree[father].xlimit-octree[father].xcode)/2;
-    octree[octSize].xlimit=octree[octSize].xcode+len;
-    octree[octSize].ylimit=octree[octSize].ycode+len;
-    octree[octSize].zlimit=octree[octSize].zcode+len;
+    octTree[octSize].xcode=octTree[father].xcode|xbit;
+    octTree[octSize].ycode=octTree[father].ycode|ybit;
+    octTree[octSize].zcode=octTree[father].zcode|zbit;
+    len=(octTree[father].xlimit-octTree[father].xcode)/2;
+    octTree[octSize].xlimit=octTree[octSize].xcode+len;
+    octTree[octSize].ylimit=octTree[octSize].ycode+len;
+    octTree[octSize].zlimit=octTree[octSize].zcode+len;
   }
-  octree[octSize].father=father;
+  octTree[octSize].father=father;
   for(i=0; i<8; i++)
-    octree[octSize].child[i]=-1;
-  octree[octSize].data=-1;
-  octree[octSize].level=level;
+    octTree[octSize].child[i]=-1;
+  octTree[octSize].data=-1;
+  octTree[octSize].level=level;
   octSize++;
 }
 
 /*!
- * This function inserts a given cell c into a proper position in octree.
+ * This function inserts a given cell c into a proper position in octTree.
  */
 void octInsertCell(int64_t c)
 {
@@ -76,11 +90,11 @@ void octInsertCell(int64_t c)
 
   level=ROOT_LEVEL-1;
   while(!inserted) {
-    if(octree[octIdx].data==-1) { /* insert cell into node */
-      octree[octIdx].data=c;
+    if(octTree[octIdx].data==-1) { /* insert cell into node */
+      octTree[octIdx].data=c;
       inserted=1;
     } else {
-      if(octree[octIdx].data==-2) { /* this is not a leaf */
+      if(octTree[octIdx].data==-2) { /* this is not a leaf */
         childBranchBit = 1u << (level);
         xbit=(locCode[c].x) & childBranchBit;
         ybit=(locCode[c].y) & childBranchBit;
@@ -90,16 +104,16 @@ void octInsertCell(int64_t c)
                          + ((zbit) >> (level-2)) );
         level--;
         father=octIdx;
-        child = octree[octIdx].child[childIndex];
+        child = octTree[octIdx].child[childIndex];
         if(child==-1) {
-          octree[octIdx].child[childIndex]=octSize;
+          octTree[octIdx].child[childIndex]=octSize;
           child=octSize;
           octEmptyNode(father,level,xbit,ybit,zbit);
         }
         octIdx=child;
       } else { /* occupied leaf */
         int64_t oc;
-        oc=octree[octIdx].data;
+        oc=octTree[octIdx].data;
         childBranchBit = 1u << (level);
         xbit=(locCode[oc].x) & childBranchBit;
         ybit=(locCode[oc].y) & childBranchBit;
@@ -109,11 +123,11 @@ void octInsertCell(int64_t c)
                          + ((zbit) >> (level-2)) );
         level--;
         father=octIdx;
-        octree[octIdx].child[childIndex]=octSize;
+        octTree[octIdx].child[childIndex]=octSize;
         child=octSize;
         octEmptyNode(father,level,xbit,ybit,zbit);
-        octree[child].data=octree[father].data;
-        octree[father].data=-2;
+        octTree[child].data=octTree[father].data;
+        octTree[father].data=-2;
         octIdx=father;
         level++;
       }
@@ -122,7 +136,7 @@ void octInsertCell(int64_t c)
 }
 
 /*!
- * This is a driving function for creating an octree.
+ * This is a driving function for creating an octTree.
  */
 void octBuild(struct cellsInfo *ci)
 {
@@ -169,12 +183,12 @@ void octBuild(struct cellsInfo *ci)
     locCode[c].y=(unsigned int)( ((ci->cells[c].y-affShift.y)/affScale) * MAXVALUE );
     locCode[c].z=(unsigned int)( ((ci->cells[c].z-affShift.z)/affScale) * MAXVALUE );
   }
-  /* memory space required to store octree (to be reviewed again!) */
+  /* memory space required to store octTree (to be reviewed again!) */
   octMaxSize = ci->localCellCount.number_of_cells * 16;
 #ifdef __MIC__
-  octree=_mm_malloc(sizeof(octNode)*octMaxSize,64);
+  octTree=_mm_malloc(sizeof(octNode)*octMaxSize,64);
 #else
-  octree=(octNode *) malloc(sizeof(octNode)*octMaxSize); //TODO calloc?
+  octTree=(octNode *) malloc(sizeof(octNode)*octMaxSize); //TODO calloc?
 #endif
   root=0;
   octSize=0;
@@ -184,7 +198,7 @@ void octBuild(struct cellsInfo *ci)
     octInsertCell(c);
   }
 
-  /* a security check for space available in the octree buffer should be implemented */
+  /* a security check for space available in the octTree buffer should be implemented */
 }
 
 /*!
@@ -267,8 +281,8 @@ MIC_ATTR int octTraverseToLevel(unsigned int level,unsigned int xloc,unsigned in
                      + (((zloc) & childBranchBit) >> ((level-2))) );
     level--;
     parent=cellIdx;
-    cellIdx=octree[cellIdx].child[childIndex];
-    if(octree[cellIdx].data != -2) break; /* a leaf */
+    cellIdx=octTree[cellIdx].child[childIndex];
+    if(octTree[cellIdx].data != -2) break; /* a leaf */
   }
   if(cellIdx==-1) cellIdx=parent;
   return cellIdx;
@@ -301,15 +315,15 @@ MIC_ATTR int octLocateRegion(struct uintVector3d minLocCode,struct uintVector3d 
 }
 
 /*!
- * This function deallocates memory used by octree.
+ * This function deallocates memory used by octTree.
  */
 void octFree(struct cellsInfo *ci)
 {
   if(ci->localCellCount.number_of_cells == 0) return;
 #ifdef __MIC__
-  _mm_free(octree);
+  _mm_free(octTree);
 #else
-  free(octree);
+  free(octTree);
 #endif
   free(locCode);
 }
@@ -362,3 +376,8 @@ void octHeapFree(octHeap *ttHeap)
 #ifdef __MIC__
 #pragma offload_attribute(pop)
 #endif
+
+
+#undef N_LEVELS
+#undef ROOT_LEVEL
+#undef MAXVALUE

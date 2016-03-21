@@ -230,7 +230,7 @@ void chemEnvInitSystem(int nch)
   fieldMax[nch + NGLOB] = fieldICMean[nch + NGLOB];
   fieldMin[nch + NGLOB] = fieldICMean[nch + NGLOB];
 
-  for (c = 0; c < maxCellsPerProc; c++) {
+  for (c = 0; c < mainSettings.maxCellsPerProc; c++) {
     cellsData.cellFields[nch + NGLOB][c] = fieldICMean[nch + NGLOB];
   }
 
@@ -247,7 +247,7 @@ void chemEnvCellPC(int nch)
 {
   int ch __attribute__((unused)) , i, j, k;
 
-  if (step == 0)
+  if (State.step == 0)
     return;
 
   int idx = 0;

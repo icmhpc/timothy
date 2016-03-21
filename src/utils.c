@@ -44,6 +44,8 @@
 /*!
  * This function checks the endiannes of the system
  */
+
+extern int endian;		/* =0 - big endian, =1 - little endian */
 int checkEndiannes()
 {
   volatile uint32_t i = 0x01234567;

@@ -104,9 +104,9 @@ struct cellData {
 
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 /* the most important data */
-MIC_ATTR struct cellData *cells __attribute__ ((deprecated));		/* main array for keeping cell data */
-extern double **cellFields __attribute__ ((deprecated));				/* fields value for each cell - interpolated from global fields in each step */
-MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
+//MIC_ATTR struct cellData *cells __attribute__ ((deprecated));		/* main array for keeping cell data */
+//extern double **cellFields __attribute__ ((deprecated));				/* fields value for each cell - interpolated from global fields in each step */
+//MIC_ATTR struct doubleVector3d *velocity;	/* velocity table - velocity of each cell modified in each step */
 /* !!!!!!!!!!!!!!!!!!!!!!! */
 
 struct cellTypeData{
@@ -179,7 +179,11 @@ struct densPotData { /* this structure keeps additional cell data (potential & d
 #define MIN_CELLS_PER_PROC 128
 
 //#define MAX_CELLS_PER_PROC 10485760
-uint64_t maxCellsPerProc;
+//uint64_t maxCellsPerProc;
+
+
+
+extern MIC_ATTR struct partData *recvData; //in comm.c
 
 
 
@@ -188,25 +192,15 @@ uint64_t maxCellsPerProc;
 
 
 
-struct partData *sendData;
-MIC_ATTR struct partData *recvData;
-struct densPotData *sendDensPotData;
-MIC_ATTR struct densPotData *recvDensPotData;
-
-MIC_ATTR int numImp;
 
 /* system */
-int endian;		/* =0 - big endian, =1 - little endian */
+
 
 /* simulation */
-int simStart;  	        /* start simulation flag */
-int step; 		/* step number */
-float tstep; 		/* time step size */
-float simTime;          /* time of the simulation */
-float maxSpeedInUnits;  /* maximal displacement in cm/s */
-int vtkout; //TODO [czaki] setings?
-int povout; //TODO [czaki] setings?
-int vnfout; //TODO [czaki] setings?
+
+
+
+
 
 /* cell cycle */
 
@@ -233,13 +227,13 @@ double MIC_ATTR h2;              /* 2nd power of h */
 double MIC_ATTR h3;              /* 3rd power of h */
 double MIC_ATTR h4;              /* 4th power of h */
 
-int cancer;
-int64_t rsum; //TODO [czaki] explanation need  
+
+
 
 double densityCriticalLevel1; //TODO [czaki] setings?
 double densityCriticalLevel2; //TODO [czaki] setings? 
 
-int rst;
+
 
 struct doubleVector3d {
   double x;
@@ -271,7 +265,7 @@ struct uintVector3d {
   unsigned int z;
 };
 
-struct uintVector3d *locCode;
+
 
 int64_t localID;
 
@@ -298,17 +292,13 @@ struct statisticsData {
 
 struct statisticsData MIC_ATTR statistics;
 
-double globalMinVel;
-double globalMaxVel;
+
 
 /* randomization */
-#define SEED 985456376
-int *stream;
 
 
-#define N_LEVELS 30u
-#define ROOT_LEVEL N_LEVELS-1
-#define MAXVALUE powf(2,ROOT_LEVEL)
+
+
 
 typedef struct _octNode {
   unsigned int xcode;
@@ -323,13 +313,10 @@ typedef struct _octNode {
   int data;
 } octNode;
 
-octNode MIC_ATTR *octree;
-int64_t octSize;
+octNode MIC_ATTR *octTree;
 
-/* properties of the affine transformation */
-struct doubleVector3d MIC_ATTR affShift;
-double MIC_ATTR affScale;
-int64_t root;
+
+
 
 typedef struct _octHeap {
   int size;
@@ -337,7 +324,7 @@ typedef struct _octHeap {
   int *data;
 } octHeap;
 
-int MIC_ATTR tnc;
+//int MIC_ATTR tnc;
 
 int ni; //TODO [czaki] what it is?
 
@@ -364,15 +351,21 @@ struct state {
     int memPerProc;
     MPI_Comm MPI_CART_COMM;
     int **MPIcoords;
+    int rst;
+    ZOLTAN_ID_TYPE localID; //set to 1 on begin
+    int simStart;  	        /* start simulation flag */
+    int step; 		/* step number */
 };
 
 extern struct state State;
 
 struct settings{
     int64_t maxCells;	/* maximal number of cells (set in parameter file) */
-    int scsim;		/* if =1 <- stem cell simulation */
-    int bvsim;		/* if =1 <- blood vessel simulation */
-    int bnsim;		/* if =1 <- bone simulation */
+
+    bool  vtkout; //TODO [czaki] setings?
+    bool povout; //TODO [czaki] setings?
+    bool vnfout; //TODO [czaki] setings?
+
     int MPI_group_size;
     size_t numberOfCellTypes;
     size_t numberOfEnvironments;
@@ -391,8 +384,13 @@ struct settings{
     int size_y;
     int size_z;
     double neighbourhood;
+    int MIC_ATTR tnc;
+    ZOLTAN_ID_TYPE id_range; //Calculate range based on number of mpi process
 
     bool mitosis_random_direction;
+
+
+    float maxSpeedInUnits;  /* maximal displacement in cm/s */
 
 };
 

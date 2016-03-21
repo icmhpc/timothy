@@ -29,9 +29,9 @@
 #include "global.h"
 MIC_ATTR static inline int octNodeIntersection(int idx,struct uintVector3d minLocCode,struct uintVector3d maxLocCode)
 {
-  if( maxLocCode.x<=octree[idx].xcode || minLocCode.x>=octree[idx].xlimit ) return 0;
-  if( maxLocCode.y<=octree[idx].ycode || minLocCode.y>=octree[idx].ylimit ) return 0;
-  if( maxLocCode.z<=octree[idx].zcode || minLocCode.z>=octree[idx].zlimit ) return 0;
+  if( maxLocCode.x<=octTree[idx].xcode || minLocCode.x>=octTree[idx].xlimit ) return 0;
+  if( maxLocCode.y<=octTree[idx].ycode || minLocCode.y>=octTree[idx].ylimit ) return 0;
+  if( maxLocCode.z<=octTree[idx].zcode || minLocCode.z>=octTree[idx].zlimit ) return 0;
   return 1;
 }
 

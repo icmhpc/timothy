@@ -38,6 +38,7 @@
 /*! \file cells.c
  *  \brief contains functions which control current states and evolution of cells
  */
+extern int *stream;
 
 /*!
  * This function checks whether the cell p is outside the computational box.
@@ -159,8 +160,8 @@ void updateCellPositions(struct cellsInfo *ci, struct statisticsData *st)
   }
 #endif
   if ((st->mindist >= 0.95 * 2.0 * pow(2.0, -(1.0 / 3.0)) * csize
-       && simStart == 0) || (ci->totalCellCount.number_of_cells == 1 && simStart == 0)) {
-    simStart = 1;
+       && State.simStart == 0) || (ci->totalCellCount.number_of_cells == 1 && State.simStart == 0)) {
+    State.simStart = 1;
     if (State.MPIrank == 0)
       printf("\nSimulation started.\n");
   }
@@ -169,9 +170,9 @@ void updateCellPositions(struct cellsInfo *ci, struct statisticsData *st)
   uint64_t local_number_of_cells = ci->localCellCount.number_of_cells;
   for (c = 0; c < local_number_of_cells; c++) {
     if(ci->cells[c].cell_type==1) continue;
-    ci->cells[c].x += velocity[c].x ;
-    ci->cells[c].y += velocity[c].y ;
-    ci->cells[c].z += velocity[c].z ;
+    ci->cells[c].x += ci->velocity[c].x ;
+    ci->cells[c].y += ci->velocity[c].y ;
+    ci->cells[c].z += ci->velocity[c].z ;
     /* random movement */
     double alpha=0.000001; //FIXME setings?
     ci->cells[c].x += alpha*(2*sprng(stream)-1);
@@ -295,9 +296,9 @@ void mitosis(struct cellsInfo *ci, uint64_t cell_pos, const struct settings *s){
   cell_base->age++;
   mother_cell_radius = cell_base->size;
   if (velocity_norm > 0 && !s->mitosis_random_direction){
-    shift.x = velocity[cell_pos].x * (mother_cell_radius/(2 * velocity_norm));
-    shift.y = velocity[cell_pos].y * (mother_cell_radius/(2 * velocity_norm));
-    shift.z = velocity[cell_pos].z * (mother_cell_radius/(2 * velocity_norm));
+    shift.x = ci->velocity[cell_pos].x * (mother_cell_radius/(2 * velocity_norm));
+    shift.y = ci->velocity[cell_pos].y * (mother_cell_radius/(2 * velocity_norm));
+    shift.z = ci->velocity[cell_pos].z * (mother_cell_radius/(2 * velocity_norm));
   } else {
     velocity_norm = 0.0;
     while (velocity_norm == 0.0) {
@@ -313,7 +314,7 @@ void mitosis(struct cellsInfo *ci, uint64_t cell_pos, const struct settings *s){
     shift.y = shift.y * (mother_cell_radius / (2 * velocity_norm));
     shift.z = shift.z * (mother_cell_radius / (2 * velocity_norm));
   }
-  if (ci->localCellCount.number_of_cells + 1 > maxCellsPerProc)
+  if (ci->localCellCount.number_of_cells + 1 > s->maxCellsPerProc)
     stopRun(109, NULL, __FILE__, __LINE__);
 #pragma omp critical (local_number_of_cells)
   {
@@ -341,6 +342,8 @@ void mitosis(struct cellsInfo *ci, uint64_t cell_pos, const struct settings *s){
   cell_base->x -= shift.x;
   cell_base->y -= shift.y;
   cell_base->z -= shift.z;
+  cell_new->gid = State.MPIrank * s->id_range + State.localID;
+  State.localID++;
 }
 
 /*!
@@ -526,6 +529,7 @@ void updateCellCycles(struct cellsInfo *ci, const struct settings *s){
  * informations about cells, their current state and evolution.
  */
 void initiateCellsInfo(struct cellsInfo *ci, const struct settings *s){
+  // s->maxCellsPerProc = 1.5 * s->maxCells; TODO Add in create setings
   ci->localTypeCellCount = (uint64_t *)
           calloc(s->numberOfCellTypes, sizeof(uint64_t));
   if (!ci->localTypeCellCount){

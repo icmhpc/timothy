@@ -49,6 +49,7 @@
 struct state State;
 
 double **cellFields;
+float simTime;          /* time of the simulation */
 
 int main(int argc, char **argv)
 {
@@ -61,29 +62,29 @@ int main(int argc, char **argv)
 
   simulationInit(argc, argv);
 
-  for (step = 0; step < nsteps; step++) {
+  for (State.step = 0; State.step < nsteps; State.step++) {
 
-    if (!(step % statOutStep))
+    if (!(State.step % statOutStep))
       printStepNum();
 
     decompositionExecute(cellsData.totalCellCount.number_of_cells);
     octBuild(&cellsData);
     createExportList(&cellsData);
     computeStep(&cellsData);
-    if (!(step % statOutStep))
+    if (!(State.step % statOutStep))
       statisticsPrint(&cellsData, &statistics);
 
-    if (simStart)
+    if (State.simStart)
       simTime += secondsPerStep / 3600.0;	/* biological process time in hours */
 
 
-    if (!(step % vtkOutStep)) {
-      if (vtkout)
-        ioWriteStepVTK(step);
-      if (povout)
-        ioWriteStepPovRay(step, 0);
-      if (vnfout)
-        ioWriteFields(step);
+    if (!(State.step % vtkOutStep)) {
+      if (mainSettings.vtkout)
+        ioWriteStepVTK(State.step);
+      if (mainSettings.povout)
+        ioWriteStepPovRay(State.step, 0);
+      if (mainSettings.vnfout)
+        ioWriteFields(State.step);
     }
 
     updateCellPositions(&cellsData, &statistics);
@@ -91,7 +92,7 @@ int main(int argc, char **argv)
     commCleanup(cellsData.totalCellCount.number_of_cells);
     octFree(&cellsData);
 
-    if (!(step % rstOutStep))
+    if (!(State.step % rstOutStep))
       saveRstFile();
   }
 

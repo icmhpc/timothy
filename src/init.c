@@ -45,7 +45,7 @@
 */
 void defaultValues()
 {
-  rst = 0;
+  State.rst = 0;
   rstReset = 0;
   nhs = -1;
   tgs = 0;
@@ -58,9 +58,9 @@ void defaultValues()
   rstOutStep = 1;
   vtkOutStep = 1;
 
-  povout = 0;
-  vtkout = 0;
-  vnfout = 0;
+  mainSettings.povout = 0;
+  mainSettings.vtkout = 0;
+  mainSettings.vnfout = 0;
 
   csizeInUnits = 10.0;		/* eukaryotic cell size is usually between 10-30 micrometers */
   cellVolume = (4.0 / 3.0) * M_PI * pow(csizeInUnits * 0.0001, 3.0);
@@ -147,8 +147,8 @@ void simulationInit(int argc, char **argv)
   /* read parameters file and restart file (if present) */
   readParams(argc, argv);
   /* generate random cells if not a restart simulation */
-  if (!rst) {
-    simStart = 0;
+  if (!State.rst) {
+    State.simStart = 0;
     /* calculating number of cells per process */
     /*lnc = nc / MPIsize;
     if (MPIrank < nc % MPIsize)
@@ -171,16 +171,16 @@ void simulationInit(int argc, char **argv)
   }
 
   /* maximum distance cell can travel in 1 sec */
-  maxSpeedInUnits = (maxSpeed * csize) / (24.0 * 60.0 * 60.0);
+  mainSettings.maxSpeedInUnits = (float)(maxSpeed * csize) /(24.0f * 60.0f * 60.0f);
   /* at least one global fields iteration per step */
   gfDt = (gfDt > secondsPerStep ? secondsPerStep : gfDt);
   /* global fields iterations per step */
   gfIterPerStep = (int) (secondsPerStep / gfDt);
 
   if (sdim == 3)
-    tnc = 8;
+    mainSettings.tnc = 8;
   if (sdim == 2)
-    tnc = 4;
+    mainSettings.tnc = 4;
 
   /* density critical levels (very important parameters) */
   if (sdim == 3) {
@@ -196,11 +196,11 @@ void simulationInit(int argc, char **argv)
   checkParameters();
 
   if (!strcmp(cOutType, "POV"))
-    povout = 1;
+    mainSettings.povout = 1;
   if (!strcmp(cOutType, "VTK"))
-    vtkout = 1;
+    mainSettings.vtkout = 1;
   if (!strcmp(fOutType, "VNF"))
-    vnfout = 1;
+    mainSettings.vnfout = 1;
 
   /* organizing processes in a Cartesian grid for global fields computations */
   MPI_Dims_create(State.MPIsize, sdim, State.MPIdim);

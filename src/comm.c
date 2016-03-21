@@ -47,10 +47,18 @@ uint64_t numExp;
 
 struct expData *expList;
 
+MIC_ATTR int numImp;
+
 int *recvCount;
 int *sendCount;
 
-#define MAX_EXPORTED_PER_PROC 2*maxCellsPerProc
+struct densPotData *sendDensPotData;
+MIC_ATTR struct densPotData *recvDensPotData;
+
+struct partData *sendData;
+MIC_ATTR struct partData *recvData;
+
+#define MAX_EXPORTED_PER_PROC 2*mainSettings.maxCellsPerProc
 
 /*!
  * This function is a comparison function used

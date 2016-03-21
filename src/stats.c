@@ -32,6 +32,9 @@
  *  \brief contains functions computing and printing simulation statisctical information
  */
 
+double globalMinVel;
+double globalMaxVel;
+
 /*!
  * This function computes and prints out density statistics.
  */

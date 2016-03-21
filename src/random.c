@@ -29,6 +29,9 @@
  * \brief contains functions which handle the RNG
  */
 
+#define SEED 985456376
+int *stream;
+
 /*!
  * This function initializes the RNG.
  */
@@ -39,6 +42,7 @@ void randomStreamInit()
   stream = init_sprng(gtype, State.MPIrank, State.MPIsize, SEED, SPRNG_DEFAULT);
 }
 
+
 /*!
  * This function deallocates memory used by the RNG.
  */
@@ -46,3 +50,5 @@ void randomStreamFree()
 {
   free_sprng(stream);
 }
+
+#undef SEED

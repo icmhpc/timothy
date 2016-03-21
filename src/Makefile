@@ -138,7 +138,7 @@ OPTIONS = $(OPT) $(DEFS)
 
 OBJS = main.o io.o utils.o cells.o domdec.o octree.o potential.o comm.o stats.o random.o init.o grid.o interp.o fields.o tempf.o chemf.o  compute.o
 
-INCL =  cells.h  chemf.h  comm.h  compute.h  domdec.h  fields.h  global.h  grid.h  init.h  inline.h  interp.h  io.h  octree.h  potential.h  random.h  stats.h  tempf.h  utils.h  
+INCL =  cells.h  chemf.h  comm.h  compute.h  domdec.h  fields.h  global.h  grid.h  init.h  inline.h  interp.h  io.h  octree.h  potential.h  random.h  stats.h  tempf.h  utils.h
 
 CFLAGS = $(OPTIONS) $(INCLUDES) 
 

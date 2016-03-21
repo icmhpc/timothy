@@ -77,6 +77,8 @@ int typeRst[NRSTPARAMS];
 int sizeRst[NRSTPARAMS];
 void *addrRst[NRSTPARAMS];
 int nRst;
+
+int endian;		/* =0 - big endian, =1 - little endian */
 /* simulation parameters from the restart file */
 /*int rstSdim;
 int rstNx;
@@ -98,6 +100,7 @@ float rstRd;
 double rstH;
 double rstCsize;*/
 
+extern float simTime;          /* time of the simulation */
 
 
 char params[NPAR][64];
@@ -754,7 +757,7 @@ void readParams(int argc, char **argv)
           && strcmp(params[i], "RSTFILE") == 0) {
         strcpy((char *) addr[i], buf2);
         set[i] = 1;
-        rst = 1;
+        State.rst = 1;
       }
       if (strcmp(buf1, params[i]) == 0
           && strcmp(params[i], "MAXCELLS") == 0) {
@@ -764,7 +767,7 @@ void readParams(int argc, char **argv)
   }
 
   /* read restart file if given */
-  if (rst == 1)
+  if (State.rst == 1)
     readRstFile(argc, argv);
 
   /* rewind the file */
@@ -787,7 +790,7 @@ void readParams(int argc, char **argv)
 
     for (i = 0; i < NPAR; i++) {
       /* in the case of the restart simulation we do not allow to change the number of cells */
-      if (rst == 1 && strcmp(params[i], "NC") == 0
+      if (State.rst == 1 && strcmp(params[i], "NC") == 0
           && strcmp(params[i], buf1) == 0) {
         if (State.MPIrank == 0)
           printf
@@ -914,7 +917,7 @@ void readParams(int argc, char **argv)
       }
     }
   }
-  if (!rst && nhs == -1 && tgs == 1) {
+  if (!State.rst && nhs == -1 && tgs == 1) {
     if (State.MPIrank == 0) {
       fprintf(stderr,
               "This is a tumor growth simulation. NHS is undefined. Define NHS in parameter file\n");
@@ -923,7 +926,7 @@ void readParams(int argc, char **argv)
     stopRun(0, NULL, __FILE__, __LINE__);
   }
 
-  if (!rst) {
+  if (!State.rst) {
     for (i = 0; i < NPAR; i++)
       if (req[i] == 1 && set[i] == 0) {
         if (State.MPIrank == 0) {
@@ -1070,9 +1073,9 @@ void ioDefineOutputFields()
     strcpy(nameOut[nfOut], "velocity");
     dimOut[nfOut] = VECTOR;
     typeOut[nfOut] = REAL;
-    addrOut[nfOut] = &velocity[0];
+    addrOut[nfOut] = &cellsData.velocity[0];
     if (cellsData.localCellCount.number_of_cells > 1)
-      jumpOut[nfOut] = (& velocity[1]) - ( & velocity[0]);
+      jumpOut[nfOut] = (& cellsData.velocity[1]) - ( & cellsData.velocity[0]);
     else
       jumpOut[nfOut] = 0;
 
@@ -1357,7 +1360,7 @@ void printStepNum()
   if (State.MPIrank == 0) {
     printf
     ("\n-------------------------------------------------------------------------\n");
-    printf(" Step %8d,%15s%8.4f%20s%14" PRId64 " ", step, "Time step = ",
+    printf(" Step %8d,%15s%8.4f%20s%14" PRId64 " ", State.step, "Time step = ",
            secondsPerStep, "Number of cells = ", cellsData.totalCellCount.number_of_cells);
     fflush(stdout);
     printf
@@ -1417,7 +1420,7 @@ void ioDefineRstGlobalParams()
   /* "Simulation started" flag */
   typeRst[nRst] = INT;
   sizeRst[nRst] = 1;
-  addrRst[nRst] = &simStart;
+  addrRst[nRst] = &State.simStart;
   nRst++;
   /* simulation time step */
   typeRst[nRst] = REAL;
@@ -1504,7 +1507,7 @@ void saveRstFile()
   MPI_Offset goffset;
   MPI_Offset offset;
 
-  sprintf(fstname, "%s/step%08d.rst", outdir, step);
+  sprintf(fstname, "%s/step%08d.rst", outdir, State.step);
 
   goffset = 0;
   MPI_File_open(MPI_COMM_WORLD, fstname, MPI_MODE_WRONLY | MPI_MODE_CREATE,
@@ -1734,7 +1737,7 @@ void readRstFile(int argc, char **argv)
 
     cellsData.cells[i].gid =
       (unsigned long long int) State.MPIrank *(unsigned long long int)
-      maxCellsPerProc + (unsigned long long int) i;
+                                                      mainSettings.maxCellsPerProc + (unsigned long long int) i;
 
     switch (cellsData.cells[i].phase) {
     case G0_phase:			/* G0 phase */
