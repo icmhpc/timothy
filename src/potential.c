@@ -179,7 +179,7 @@ MIC_ATTR void compPot(uint64_t local_number_of_cells)
       octComputeBox(p,&minLocCode,&maxLocCode);
       octIndex=octLocateRegion(minLocCode,maxLocCode);
 
-      for(s=0; s<mainSettings.tnc; s++) {
+      for(s=0; s<mainSettings.treeNumberOfChildren; s++) {
         int idx;
         idx=octTree[octIndex].child[s];
         if(idx!=-1 && octNodeIntersection(idx,minLocCode,maxLocCode))
@@ -193,7 +193,7 @@ MIC_ATTR void compPot(uint64_t local_number_of_cells)
         if(cellIdx>=0) {
           cellsData.cells[p].v += ccPot(p,cellIdx,0,&mindist);
         } else {
-          for(s=0; s<mainSettings.tnc; s++) {
+          for(s=0; s<mainSettings.treeNumberOfChildren; s++) {
             newIdx=octTree[idx].child[s];
             if(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
               octHeapPush(&octh,newIdx);
@@ -239,7 +239,7 @@ MIC_ATTR void compRPot()
           #pragma omp atomic
           cellsData.cells[cellIdx].v += v;
         } else {
-          for(s=0; s<mainSettings.tnc; s++) {
+          for(s=0; s<mainSettings.treeNumberOfChildren; s++) {
             newIdx=octTree[idx].child[s];
             if(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
               octHeapPush(&octh,newIdx);
@@ -354,7 +354,7 @@ MIC_ATTR void compPotGrad(uint64_t local_number_of_cells)
     octComputeBox(p,&minLocCode,&maxLocCode);
     octIndex=octLocateRegion(minLocCode,maxLocCode);
 
-    for(s=0; s<mainSettings.tnc; s++) {
+    for(s=0; s<mainSettings.treeNumberOfChildren; s++) {
       int idx;
       idx=octTree[octIndex].child[s];
       if(idx!=-1 && octNodeIntersection(idx,minLocCode,maxLocCode))
@@ -368,7 +368,7 @@ MIC_ATTR void compPotGrad(uint64_t local_number_of_cells)
       if(cellIdx>=0) {
         ccPotGrad(p,cellIdx,0);
       } else {
-        for(s=0; s<mainSettings.tnc; s++) {
+        for(s=0; s<mainSettings.treeNumberOfChildren; s++) {
           newIdx=octTree[idx].child[s];
           if(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
             octHeapPush(&octh,newIdx);
@@ -404,7 +404,7 @@ MIC_ATTR void compRPotGrad()
       if(cellIdx>=0) {
         ccPotGrad(rp,cellIdx,1);
       } else {
-        for(s=0; s<mainSettings.tnc; s++) {
+        for(s=0; s<mainSettings.treeNumberOfChildren; s++) {
           newIdx=octTree[idx].child[s];
           if(newIdx!=-1 && octNodeIntersection(newIdx,minLocCode,maxLocCode))
             octHeapPush(&octh,newIdx);

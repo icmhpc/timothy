@@ -47,6 +47,9 @@
 */
 
 struct state State;
+struct settings mainSettings;
+struct cellsInfo cellsData;
+
 
 double **cellFields;
 float simTime;          /* time of the simulation */

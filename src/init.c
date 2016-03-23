@@ -178,9 +178,9 @@ void simulationInit(int argc, char **argv)
   gfIterPerStep = (int) (secondsPerStep / gfDt);
 
   if (sdim == 3)
-    mainSettings.tnc = 8;
+    mainSettings.treeNumberOfChildren = 8;
   if (sdim == 2)
-    mainSettings.tnc = 4;
+    mainSettings.treeNumberOfChildren = 4;
 
   /* density critical levels (very important parameters) */
   if (sdim == 3) {

@@ -155,7 +155,7 @@ struct cellsInfo{
 
 
 
-struct cellsInfo cellsData;
+extern struct cellsInfo cellsData;
 
 /* Parallelization */
 
@@ -181,6 +181,22 @@ struct densPotData { /* this structure keeps additional cell data (potential & d
 //#define MAX_CELLS_PER_PROC 10485760
 //uint64_t maxCellsPerProc;
 
+              /* mean duration of G1 phase - cancer cells */
+float cs;               /* mean duration of S phase - cancer cells */
+float cg2;              /* mean duration of G2 phase - cancer cells */
+float cm;               /* mean duration of M phase - cancer cells */
+float secondsPerStep;   /* lenght of a single simulation step in seconds */
+int rstReset;		/* if =1 <- reset simulation    const_cell,
+ parameters of restart file */
+int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
+int tgs;                /* - tumor growth simulation, 0 - no tumor growth */
+int statOutStep;    const_cell,
+
+int rstOutStep;
+int vtkOutStep;
+float gfDt;
+float gfH;
+int gfIterPerStep;
 
 
 extern MIC_ATTR struct partData *recvData; //in comm.c
@@ -384,7 +400,7 @@ struct settings{
     int size_y;
     int size_z;
     double neighbourhood;
-    int MIC_ATTR tnc;
+    int MIC_ATTR treeNumberOfChildren;
     ZOLTAN_ID_TYPE id_range; //Calculate range based on number of mpi process
 
     bool mitosis_random_direction;
@@ -394,7 +410,7 @@ struct settings{
 
 };
 
-struct settings mainSettings;
+extern struct settings mainSettings;
 
 
 /* GLOBAL SETTINGS */

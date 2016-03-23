@@ -452,33 +452,34 @@ void updateCellCycles(struct cellsInfo *ci, const struct settings *s){
 #pragma omp atomic
           ci->localCellCount.g1_phase_number_of_cells--;
           break;
-        }
-        double max_size = ci->cellTypes[cells[i].cell_type].max_size;
-        if (cells[i].size < max_size){
-          cells[i].size +=  (max_size - pow(2.0, -(1.0 / 3.0)) * max_size) *
-                  (s->global_fields_time_delta) / (3600.0 * cells[i].g1);
-          //FIXME This should depend of phase length and biomass income
-        }
-        if (cells[i].size > max_size){
-          cells[i].size = max_size;
-        }
-        if (cells[i].phasetime >= cells[i].g1){
-          cells[i].phase = S_phase;
-          cells[i].phasetime = 0;
-#pragma omp atomic
-          ci->localCellCount.g1_phase_number_of_cells--;
-#pragma omp atomic
-          ci->localCellCount.s_phase_number_of_cells++;
-          if (ci->cellTypes[cells[i].cell_type].enable_random_death){
-            if (sprng(stream) < rd){
-              //FIXME I make assumption that in case of necrotic cells code should check that is enough place to destroy cell
-              cells[i].phase = Necrotic_phase;
-#pragma omp atomic
-              ci->localCellCount.s_phase_number_of_cells--;
-#pragma omp atomic
-              ci->localCellCount.necrotic_phase_number_of_cells++;
-            }
+        }{
+          double max_size = ci->cellTypes[cells[i].cell_type].max_size;
+          if (cells[i].size < max_size){
+            cells[i].size +=  (max_size - pow(2.0, -(1.0 / 3.0)) * max_size) *
+                    (s->global_fields_time_delta) / (3600.0 * cells[i].g1);
+            //FIXME This should depend of phase length and biomass income
+          }
+          if (cells[i].size > max_size){
+            cells[i].size = max_size;
+          }
+          if (cells[i].phasetime >= cells[i].g1){
+            cells[i].phase = S_phase;
+            cells[i].phasetime = 0;
+  #pragma omp atomic
+            ci->localCellCount.g1_phase_number_of_cells--;
+  #pragma omp atomic
+            ci->localCellCount.s_phase_number_of_cells++;
+            if (ci->cellTypes[cells[i].cell_type].enable_random_death){
+              if (sprng(stream) < rd){
+                //FIXME I make assumption that in case of necrotic cells code should check that is enough place to destroy cell
+                cells[i].phase = Necrotic_phase;
+  #pragma omp atomic
+                ci->localCellCount.s_phase_number_of_cells--;
+  #pragma omp atomic
+                ci->localCellCount.necrotic_phase_number_of_cells++;
+              }
 
+            }
           }
         }
         break;

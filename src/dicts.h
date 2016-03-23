@@ -38,8 +38,8 @@ inline str_uint16_dict * create_dict(str_uint16_pair * in_data, size_t size){
   size_t strings_size =0 ;
   size_t i;
   str_uint16_dict * result;
-  str_uint16_pair * data = malloc(sizeof(str_uint16_pair) * size);
-  data = memcpy(data, in_data, sizeof(str_uint16_pair) * size);
+  str_uint16_pair * data = (str_uint16_pair *) malloc(sizeof(str_uint16_pair) * size);
+  data = (str_uint16_pair *) memcpy(data, in_data, sizeof(str_uint16_pair) * size);
   qsort(data, size, sizeof(str_uint16_pair), compare_str_uint16_pair);
   char * strings;
   for(i=0; i < size; i++){
@@ -63,7 +63,7 @@ inline str_uint16_dict * create_dict(str_uint16_pair * in_data, size_t size){
  * function used to get value from str_uint_dict return -1 on fail
  */
 inline int32_t get_value(str_uint16_dict * dict, char* key){
-  str_uint16_pair * res = bsearch(key, dict->members, dict->size, sizeof(str_uint16_pair), compare_str_and_str_uint16_pair);
+  str_uint16_pair * res = (str_uint16_pair *) bsearch(key, dict->members, dict->size, sizeof(str_uint16_pair), compare_str_and_str_uint16_pair);
   if (res == NULL)
     return  (int32_t) -1;
   return (int32_t) res->second;
