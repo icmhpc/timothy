@@ -190,7 +190,7 @@ int rstReset;		/* if =1 <- reset simulation    const_cell,
  parameters of restart file */
 int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
 int tgs;                /* - tumor growth simulation, 0 - no tumor growth */
-int statOutStep;    const_cell,
+int statOutStep;
 
 int rstOutStep;
 int vtkOutStep;
