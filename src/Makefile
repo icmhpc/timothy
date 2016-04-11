@@ -149,7 +149,7 @@ $(OBJS): $(INCL)
 
 VALIDATOR_FLAGS = -O0 -Winline -Wall -Wextra -g
 VALIDATOR_CXX_FLAGS = -std=c++0x -std=c++11
-VALIDATOR_OBJS = validator.o ini_parser/ini_parser.o validator/validator.o
+VALIDATOR_OBJS = validator/validator.o ini_manipulator/ini_manipulator.o validator.o
 
 VALIDATOR_INLC = global.h ini_parser/ini_parser.h
 
@@ -158,14 +158,15 @@ VALIDATOR_INLC = global.h ini_parser/ini_parser.h
 $(VALIDATOR): $(VALIDATOR_OBJS)
 	$(CXX) $(VALIDATOR_FLAGS) $(VALIDATOR_CXX_FLAGS) $(VALIDATOR_OBJS) -o $(VALIDATOR)
 
-validator.o: validator.cpp ini_parser/ini_parser.h
+validator.o: validator.cpp ini_manipulator/ini_manipulator.h
 	$(CXX) -c $(VALIDATOR_FLAGS) $(VALIDATOR_CXX_FLAGS) $< -o $@
 
-validator/validator.o: validator/validator.cpp ini_parser/ini_parser.h
+validator/validator.o: validator/validator.cpp ini_manipulator/ini_manipulator.h
 	$(CXX) -c $(VALIDATOR_FLAGS) $(VALIDATOR_CXX_FLAGS) $< -o $@
 
-ini_parser/ini_parser.o: ini_parser/ini_parser.c ini_parser/ini_parser.h
-	cc -c $(VALIDATOR_FLAGS) $< -o $@
+ini_manipulator/ini_manipulator.o: ini_manipulator/ini_manipulator.cpp ini_manipulator/ini_manipulator.h
+	$(CXX) -c $(VALIDATOR_FLAGS) $(VALIDATOR_CXX_FLAGS) $< -o $@
+
 
 .PHONY: clean
 clean:

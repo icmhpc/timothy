@@ -5,12 +5,26 @@
 #include "ini_manipulator.h"
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 const static std::string indent = "    ";
 
 
 namespace timothy {
     namespace ini_manipulator {
+
+        std::string to_string(ini_fields_type type){
+          switch (type){
+            case NUMBER_FIELD: return "Integer";
+            case FLOAT_FIELD: return "Double";
+            case BOOLEAN_FIELD: return "Boolean";
+            case STRING_FIELD: return "String";
+            case UNSPECIFIED_FIELD: return "Unspecified";
+            case STRUCT_FIELD: return "Struct";
+          }
+          return "Error [timothy::ini_manipulator::to_string]";
+        }
+
         iniField::iniField(const std::string name, const int val) {
           this->name = name;
           this->value.i = val;
@@ -45,34 +59,171 @@ namespace timothy {
           if (this->type == STRING_FIELD){
             delete this->value.str;
           }
+          if (this->type == STRUCT_FIELD){
+            delete this->value.str;
+            delete (char *) this->ptr;
+          }
+        }
+
+        iniField::iniField(const iniField & f) : name(f.name), type(f.type) {
+          switch (f.type){
+            case NUMBER_FIELD: this->value.i = f.value.i; break;
+            case FLOAT_FIELD: this->value.d = f.value.d; break;
+            case BOOLEAN_FIELD: this->value.b = f.value.b; break;
+            case STRING_FIELD: this->value.str = new std::string(*f.value.str); break;
+            case UNSPECIFIED_FIELD:break;
+            case STRUCT_FIELD:
+              this->value.str = new std::string(*f.value.str);
+              this->ptr = (void *) new char[f.size];
+              this->size = f.size;
+              break;
+          }
+        }
+
+        void flushComment(std::istream &s){
+          if (s.peek() == ';' || s.peek() == '#')
+            s.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+
+        bool isComment(int c){
+          return c == ';' || c == '#';
+        }
+
+        bool isComment(std::istream &s){
+          return isComment(s.peek());
         }
 
         iniField::iniField(std::istream &s) {
           std::stringbuf st;
           std::string tmp_name;
           std::string tmp_value;
+          ini_fields_type tmp_type = UNSPECIFIED_FIELD;
+          bool escaped = false;
           while (isspace(s.peek())) s.get();
           s.get(st, '=');
           tmp_name = st.str();
           while (isspace(tmp_name.back())) tmp_name.pop_back();
           if (s.eof() || tmp_name.length() == 0 )
-            throw fileFormatError("invalid field format ")
+            throw fileFormatError("invalid field format ");
           s.get(); // read '='
           while (isspace(s.peek())) s.get();
 
           if (s.peek() == '"' ){
-
+            s.get();
+            tmp_type = STRING_FIELD;
+            while (true){
+              if (escaped){
+                std::string error("Unsupported escape characters ");
+                switch (s.peek()){
+                  case 'n' : tmp_value += "\n"; break;
+                  case 't' : tmp_value += "\t"; break;
+                  case 'r' : tmp_value += "\r"; break;
+                  case '\"' : tmp_value += "\""; break;
+                  case '\'' : tmp_value += "\'"; break;
+                  case '\\' : tmp_value += "\\"; break;
+                  default: error.push_back((char)s.peek()); throw fileFormatError(error);
+                }
+                s.get();
+                escaped = false;
+              } else {
+                if (s.peek() == '\"'){
+                  s.get();
+                  break;
+                }
+                if (s.peek() ==  '\\'){
+                  escaped = true;
+                  s.get();
+                  continue;
+                }
+                tmp_value.push_back((char) s.get());
+              }
+            }
           } else {
-            s.get(st, '/');
-            tmp_value = st.str();
-            while (s.peek() == '/') {
-              s.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-              tmp_value += "\n";
-              s.get(st, '/');
-              tmp_value = st.str();
+            while (true) {
+              if (s.peek() == '\n') {
+                s.get();
+                break;
+              }
+              tmp_value.push_back((char) s.get());
+            }
+          }
+          while (isspace(tmp_value.back())) tmp_value.pop_back();
+          this->name = tmp_name;
+          if (tmp_type != UNSPECIFIED_FIELD){
+            this->type = tmp_type;
+            switch (tmp_type){
+              case NUMBER_FIELD:break;
+              case FLOAT_FIELD:break;
+              case BOOLEAN_FIELD:break;
+              case STRING_FIELD: this->value.str = new std::string(tmp_value); break;
+              case STRUCT_FIELD:break;
+              case UNSPECIFIED_FIELD:break;
+            }
+            return;
+          }
+          if (tmp_value == "true" || tmp_value == "True" || tmp_value == "TRUE" ){
+            this->type = BOOLEAN_FIELD;
+            this->value.b = true;
+            return;
+          }
+          if (tmp_value == "false" || tmp_value == "False" || tmp_value == "FALSE" ){
+            this->type = BOOLEAN_FIELD;
+            this->value.b = false;
+            return;
+          }
+          if (isdigit(tmp_value[0]) || tmp_value[0] == '.' || tmp_value[0] == '-' || tmp_value[0] == '+'){
+            bool has_dot = false;
+            bool has_e = false;
+            tmp_type = NUMBER_FIELD;
+            auto ch = tmp_value.begin();
+            if (*ch == '+' || *ch == '-')
+              ch++;
+            for (; ch != tmp_value.end(); ch++){
+              if (isdigit(*ch))
+                continue;
+              if (*ch == '.'){
+                if (!has_dot) {
+                  has_dot = true;
+                  tmp_type = FLOAT_FIELD;
+                } else {
+                  tmp_type = UNSPECIFIED_FIELD;
+                  break;
+                }
+                continue;
+              }
+              if (*ch == 'e'){
+                if (has_e){
+                  tmp_type = UNSPECIFIED_FIELD;
+                  break;
+                } else {
+                  has_e = true;
+                  has_dot = true;
+                  tmp_type = FLOAT_FIELD;
+                  if (*(ch+1) == '+' || (*(ch+1) == '-')){
+                    ch++;
+                  }
+                }
+                continue;
+              }
+              tmp_type = UNSPECIFIED_FIELD;
+              break;
+            }
+            if (tmp_type == NUMBER_FIELD){
+              std::istringstream ss(tmp_value);
+              ss >> this->value.i;
+              this->type = NUMBER_FIELD;
+              return;
+            }
+            if (tmp_type == FLOAT_FIELD){
+              std::istringstream ss(tmp_value);
+              ss >> this->value.d;
+              this->type = FLOAT_FIELD;
+              return;
             }
           }
 
+          this->value.str = new std::string(tmp_value);
+          this->type = STRING_FIELD;
         }
 
 
@@ -92,6 +243,11 @@ namespace timothy {
 
         bool iniField::isFloat() const { return this->isRestrictFloat() || this->isRestrictNumeric(); }
 
+        bool iniField::isStruct() const {
+          return this->type == STRUCT_FIELD;
+        }
+
+
         bool iniField::getBoolValue() const {
           switch (this->type) {
             case NUMBER_FIELD :
@@ -103,7 +259,7 @@ namespace timothy {
           }
         }
 
-        int iniField::getIntValue() const {
+        long iniField::getIntValue() const {
           switch (this->type) {
             case NUMBER_FIELD :
               return this->value.i;
@@ -166,7 +322,7 @@ namespace timothy {
 
         fileFormatError::fileFormatError(std::string s) : msg(s) { ; }
 
-        const char *fileFormatError::what() const {
+        const char *fileFormatError::what() const noexcept {
           return msg.c_str();
         }
 
@@ -181,23 +337,55 @@ namespace timothy {
           this->fields_order.shrink_to_fit();
         }
 
+        void removeSpaces(std::istream &s){
+          while (isspace(s.peek())) {s.get();};
+        }
+
+        iniSection::iniSection(std::istream &s) {
+          if (s.get() != '['){
+            throw fileFormatError("Section name should start from \'[\'");
+          }
+          int c;
+          while ((c = s.get()) != ']' && (isalnum(c) || '_' == c)){
+            this->name += c;
+          }
+          if (c != ']' && c != '_'){
+            throw fileFormatError("Section name should contain only alphanumeric characters or \'_\'");
+          }
+
+          while (s.peek() != '[' && s.peek() != EOF){
+            do {
+              flushComment(s);
+              removeSpaces(s);
+            } while (isComment(s));
+            if (s.peek() == '[' || s.peek() == EOF)
+              break;
+            auto field = iniField(s);
+            this->fields_order.push_back(field.name);
+            this->fields.insert(std::make_pair(field.name, field));
+            removeSpaces(s);
+          }
+        }
+
         bool iniSection::hasField(const std::string name) const{
           return fields.count(name) > 0;
         }
 
 
-        std::ostream &timothy::ini_manipulator::operator<<(std::ostream &o, const iniField &f) {
-          o << f.name << " = ";
+        std::ostream & operator<<(std::ostream &o, const iniField &f) {
+          o << f.name << " = "; //{" << to_string(f.type) << "} ";
           switch (f.type){
             case BOOLEAN_FIELD : o << f.value.b; break;
-            case FLOAT_FIELD : o << f.value.d; break;
+            case FLOAT_FIELD : o << std::showpoint << f.value.d; break;
             case NUMBER_FIELD : o << f.value.i; break;
             case STRING_FIELD : o << *f.value.str; break;
             case UNSPECIFIED_FIELD : o << "<UNSPECIFIED FIELD>"; break;
+            case STRUCT_FIELD: o << *f.value.str; break;
           }
-          o << std::endl;
           return o;
         }
+
+
 
         bool iniSection::isBoolean(const std::string name) const {
           return fields.at(name).isBoolean();
@@ -213,6 +401,9 @@ namespace timothy {
 
         bool iniSection::isNumeric(const std::string name) const {
           return fields.at(name).isNumeric();
+        }
+        bool iniSection::isStruct(const std::string name) const {
+          return fields.at(name).isStruct();
         }
 
         bool iniSection::isRestrictBoolean(const std::string name) const {
@@ -231,7 +422,7 @@ namespace timothy {
           return fields.at(name).isRestrictNumeric();
         }
 
-        int iniSection::getIntValue(const std::string name) const {
+        long iniSection::getIntValue(const std::string name) const {
           return fields.at(name).getIntValue();
         }
 
@@ -246,6 +437,40 @@ namespace timothy {
         bool iniSection::getBoolValue(const std::string name) const {
           return fields.at(name).getBoolValue();
         }
+
+        std::ostream & operator<<(std::ostream &o, const iniSection &f) {
+          o << "[" << f.name << "]" << std::endl;
+          for( auto & it : f.fields_order ){
+            o << "    " << f.fields.at(it) << std::endl;
+          }
+          return o;
+        }
+
+        iniConfiguration::iniConfiguration(std::istream &s) {
+          while (s.peek() != EOF){
+            if (isComment(s.peek())){
+              flushComment(s);
+              continue;
+            }
+            if (isspace(s.peek())){
+              removeSpaces(s);
+              continue;
+            }
+            if (s.peek() == '['){
+              //std::cerr << "BUKA \"[\"" << std::endl;
+              auto section = iniSection(s);
+              this->sections_order.push_back(section.name);
+              this->sections.insert(std::make_pair(section.name, section));
+              continue;
+            }
+            if (s.peek() == EOF)
+              return;
+            std::string message("wrong value on section level ");
+            message.push_back((char)s.get());
+            throw fileFormatError(message);
+          }
+        }
+
 
         bool iniConfiguration::hasField(const std::string section_name, const std::string field_name) const{
           if (sections.count(section_name) > 0 )
@@ -301,7 +526,7 @@ namespace timothy {
           return false;
         }
 
-        int iniConfiguration::getIntValue(const std::string section_name, const std::string field_name) const {
+        long iniConfiguration::getIntValue(const std::string section_name, const std::string field_name) const {
           return sections.at(section_name).getIntValue(field_name);
         }
 
@@ -311,11 +536,60 @@ namespace timothy {
 
         std::string iniConfiguration::getStringValue(const std::string section_name,
                                                      const std::string field_name) const {
-          return return sections.at(section_name).getStringValue(field_name
+          return sections.at(section_name).getStringValue(field_name);
         }
 
         bool iniConfiguration::getBoolValue(const std::string section_name, const std::string field_name) const {
-          return return sections.at(section_name).getBoolValue(field_name
+          return sections.at(section_name).getBoolValue(field_name);
+        }
+
+        bool iniConfiguration::hasFieldsWithType(const std::vector<section_info> &data, std::stringstream &errors) {
+          bool any_error = false;
+          for (auto & section_requirement : data){
+            if (this->sections.count(section_requirement.first) == 0){
+              any_error = true;
+              errors << "Section "  << section_requirement.first << " do not exists" << std::endl;
+              continue;
+            }
+            auto & section = this->sections.at(section_requirement.first);
+            for (auto field_requirement = section_requirement.second.begin();
+                    field_requirement != section_requirement.second.end(); field_requirement++){
+              if (section.hasField(field_requirement->name)){
+                bool local_any_error = false;
+                switch (field_requirement->type){
+                  case NUMBER_FIELD: local_any_error =  section.isNumeric(field_requirement->name); break;
+                  case FLOAT_FIELD: local_any_error =  section.isFloat(field_requirement->name); break;
+                  case BOOLEAN_FIELD: local_any_error = section.isBoolean(field_requirement->name); break;
+                  case STRING_FIELD: local_any_error =  section.isString(field_requirement->name); break;
+                  case STRUCT_FIELD: local_any_error =  section.isStruct(field_requirement->name); break;
+                  case UNSPECIFIED_FIELD: local_any_error = true; break;
+                }
+                if (!local_any_error){
+                  any_error = true;
+                  errors << "Field " << section_requirement.first << "::" << field_requirement->name;
+                  errors << " has wrong type " << to_string(section.fields.at(field_requirement->name).type);
+                  errors << " instead of " << to_string(field_requirement->type) << std::endl;
+                }
+              } else if(field_requirement->required){
+                any_error = true;
+                errors << "Field " << section_requirement.first << "::" << field_requirement->name;
+                errors << " does not exists" << std::endl;
+              }
+            }
+          }
+          return !any_error;
+        }
+
+        std::vector<std::string> iniConfiguration::getListOfSections() {
+          return this->sections_order;
+        }
+
+        std::ostream & operator<<(std::ostream &o, const iniConfiguration &f) {
+          for (auto & it : f.sections_order){
+            o << f.sections.at(it);
+            o << std::endl;
+          }
+          return o;
         }
 
 

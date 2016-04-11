@@ -5,28 +5,30 @@
 #include "ini_manipulator/ini_manipulator.h"
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
 
+namespace mp = timothy::ini_manipulator;
 
 int main(int argc, char** argv){
-  struct parsed_config config;
   timothy::ini_manipulator::iniConfiguration c;
-  int res;
-  if (argc > 1){
-    res = readFromPath(argv[1], &config);
-  } else {
-    res = readFromFile(stdin, &config);
-  }
-  if (res != (int) OK){
-    fprintf(stderr, "Parser error %d in line %zu\n", res, config.number_of_sections);
+  try {
+    if (argc > 1) {
+      std::fstream file;
+      file.open(argv[1]);
+      c = mp::iniConfiguration(file);
+      file.close();
+    } else {
+      c = mp::iniConfiguration(std::cin);
+    }
+  } catch (mp::fileFormatError e) {
+    std::cerr << "[PARSING ERROR]" << e.what() << std::endl;
     return EXIT_FAILURE;
   }
-  printf("%d\n", sectionExist( (char *) "GLOBAL", &config));
-  prettyPrint(stdout, &config);
-  std::pair<int, std::string>validate_result = validate_config(&config);
+  std::cout << c << std::endl;
+  std::pair<int, std::string>validate_result = timothy::validator::validate_config(c);
   if (!validate_result.first){
     std::cout << validate_result.second;
   }
-  deleteParsedConfig(&config);
   return EXIT_SUCCESS;
 }
 

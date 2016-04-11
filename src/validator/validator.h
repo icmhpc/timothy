@@ -5,13 +5,17 @@
 #ifndef TIMOTHY_VALIDATOR_H
 #define TIMOTHY_VALIDATOR_H
 
-extern "C"{
-#include "../ini_parser/ini_parser.h"
-};
+
 
 #include <string>
+#include "../ini_manipulator/ini_manipulator.h"
 
-std::pair<bool,std::string> validate_config(parsed_config * c);
+namespace timothy {
+    namespace validator{
+        std::pair<bool,std::string> validate_config(timothy::ini_manipulator::iniConfiguration & c);
+    }
+}
+
 
 
 #endif //TIMOTHY_VALIDATOR_H
