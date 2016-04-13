@@ -6,12 +6,25 @@
 #include <algorithm>
 #include <sstream>
 #include <iostream>
+#include <stdexcept>
+#include <string.h>
 
-const static std::string indent = "    ";
+
 
 
 namespace timothy {
     namespace ini_manipulator {
+
+        namespace {
+            const std::map<std::string, size_t> type_size = {
+                    {"int", sizeof(int)}, {"uint", sizeof(unsigned)}, {"float", sizeof(float)},
+                    {"double", sizeof(double)}, {"char", sizeof(char)},
+                    {"uint8", sizeof(uint8_t)}, {"int8", sizeof(int8_t)},
+                    {"uint16", sizeof(uint16_t)}, {"int16", sizeof(int16_t)},
+                    {"uint32", sizeof(uint32_t)}, {"int32", sizeof(int32_t)}
+            };
+            const std::string indent  = "    ";
+        }
 
         std::string to_string(ini_fields_type type){
           switch (type){
@@ -61,7 +74,7 @@ namespace timothy {
           }
           if (this->type == STRUCT_FIELD){
             delete this->value.str;
-            delete (char *) this->ptr;
+            free(this->ptr);
           }
         }
 
@@ -74,7 +87,7 @@ namespace timothy {
             case UNSPECIFIED_FIELD:break;
             case STRUCT_FIELD:
               this->value.str = new std::string(*f.value.str);
-              this->ptr = (void *) new char[f.size];
+              this->ptr = malloc(f.size);
               this->size = f.size;
               break;
           }
@@ -94,14 +107,15 @@ namespace timothy {
         }
 
         iniField::iniField(std::istream &s) {
-          std::stringbuf st;
           std::string tmp_name;
           std::string tmp_value;
           ini_fields_type tmp_type = UNSPECIFIED_FIELD;
           bool escaped = false;
           while (isspace(s.peek())) s.get();
-          s.get(st, '=');
-          tmp_name = st.str();
+          while (isalnum(s.peek()) || s.peek() == '_') tmp_name += s.get();
+          while (isspace(s.peek())) s.get();
+          if (s.peek() != '=')
+            throw fileFormatError("Field name have to contain only alphanumeric characters: " + tmp_name);
           while (isspace(tmp_name.back())) tmp_name.pop_back();
           if (s.eof() || tmp_name.length() == 0 )
             throw fileFormatError("invalid field format ");
@@ -121,6 +135,15 @@ namespace timothy {
                   case '\"' : tmp_value += "\""; break;
                   case '\'' : tmp_value += "\'"; break;
                   case '\\' : tmp_value += "\\"; break;
+                  case ' ' :
+                    while (isblank(s.peek())) s.get();
+                    if (s.peek() == '\r' || s.peek() == '\n')
+                      s.get();
+                    else
+                      throw fileFormatError("After break line sequence \"\\ \" can bee only blank characters");
+                    if (s.peek() == '\n') s.get();
+                    while (isblank(s.peek())) s.get();
+                    break;
                   default: error.push_back((char)s.peek()); throw fileFormatError(error);
                 }
                 s.get();
@@ -139,12 +162,102 @@ namespace timothy {
               }
             }
           } else {
-            while (true) {
-              if (s.peek() == '\n') {
+            if (s.peek() == '{'){ //TODO check pragma pack.
+              s.get();
+              tmp_type = STRUCT_FIELD;
+              std::vector<std::pair<std::string, std::string>> struct_fields;
+              std::string field_type;
+              std::string field_value;
+              while (s.peek() != '}' && s.peek() != EOF) {
+                while (isspace(s.peek())) s.get();
+                while (isalnum(s.peek()) || s.peek() == '_') { field_type += s.get(); }
+                while (isblank(s.peek())) s.get();
+                if (s.peek() != ':') {
+                  std::cerr << field_type << " " << s.peek() << std::endl;
+                  throw fileFormatError("struct field must have format \"type : value\"");
+                }
                 s.get();
-                break;
+                while (isblank(s.peek())) s.get();
+                while (isprint(s.peek())) field_value += s.get();
+                while (isspace(field_value.back())) field_value.pop_back();
+                struct_fields.push_back(std::make_pair(field_type, field_value));
+                field_type = "";
+                field_value = "";
+                while (isspace(s.peek())) s.get();
               }
-              tmp_value.push_back((char) s.get());
+              if (s.peek() != '}')
+                throw  fileFormatError("Bad struct format");
+              s.get();
+              size_t struct_size = 0;
+              for (auto it : struct_fields){
+                try {
+                  struct_size += type_size.at(it.first);
+                } catch (std::out_of_range e){
+                  throw fileFormatError("Unknown type " + it.first);
+                }
+              }
+              this->size = struct_size;
+              this->ptr = malloc(struct_size);
+              tmp_value = "{\n";
+              char * tmp_pointer = (char *) this->ptr;
+              std::string parsed;
+              for (auto it : struct_fields) {
+                size_t pos = 0;
+                if (it.first == "float"){
+                  *(float *) tmp_pointer = (float) std::stod(it.second, &pos);
+                  if (pos != it.second.length())
+                    throw fileFormatError("Can not convert \"" + it.second + "\" to float");
+                  parsed = std::to_string(*(float *) tmp_pointer);
+                  tmp_pointer += sizeof(float)/sizeof(char);
+                  tmp_value += indent + indent + it.first + " : " + parsed + "\n";
+                  continue;
+                }
+                if (it.first == "double"){
+                  *(double *) tmp_pointer = std::stod(it.second, &pos);
+                  if (pos != it.second.length())
+                    throw fileFormatError("Can not convert \"" + it.second + "\" to double");
+                  parsed = std::to_string(*(double *) tmp_pointer);
+                  tmp_pointer += sizeof(double)/sizeof(char);
+                  tmp_value += indent + indent + it.first + " : " + parsed + "\n";
+                  continue;
+                }
+                uint64_t swap;
+                if (it.first[0] == 'u'){
+                  unsigned long long val = std::stoull(it.second, &pos);
+                  if (pos != it.second.length())
+                    throw fileFormatError("Can not convert \"" + it.second + "\" to unsigned integer type");
+                  parsed = std::to_string(val); //TODO casting on smaller numbers
+                  swap = htobe64(val);
+                } else {
+                  long long val = std::stoll(it.second, &pos);
+                  if (pos != it.second.length())
+                    throw fileFormatError("Can not convert \"" + it.second + "\" to signed integer type");
+                  parsed = std::to_string(val);
+                  swap = htobe64(val);
+                }
+                char * array_swap = (char *) &swap;
+                pos = 8 - type_size.at(it.first);
+                switch (type_size.at(it.first)){
+                  case 2 : be16toh( *(uint16_t *) &array_swap[6]); break;
+                  case 4 : be32toh( *(uint32_t *) &array_swap[4]); break;
+                  case 8 : be64toh( *(uint64_t *) &array_swap[0]); break;
+                  default: break;
+                }
+                memcpy(tmp_pointer, array_swap+pos, type_size.at(it.first));
+                tmp_pointer += type_size.at(it.first);
+                tmp_value += indent + indent + it.first + " : " + parsed + "\n";
+
+              }
+              tmp_value += indent + "}";
+              this->value.str = new std::string(tmp_value);
+            } else {
+              while (true) {
+                if (s.peek() == '\n') {
+                  s.get();
+                  break;
+                }
+                tmp_value.push_back((char) s.get());
+              }
             }
           }
           while (isspace(tmp_value.back())) tmp_value.pop_back();
@@ -441,7 +554,7 @@ namespace timothy {
         std::ostream & operator<<(std::ostream &o, const iniSection &f) {
           o << "[" << f.name << "]" << std::endl;
           for( auto & it : f.fields_order ){
-            o << "    " << f.fields.at(it) << std::endl;
+            o << indent << f.fields.at(it) << std::endl;
           }
           return o;
         }
@@ -543,7 +656,7 @@ namespace timothy {
           return sections.at(section_name).getBoolValue(field_name);
         }
 
-        bool iniConfiguration::hasFieldsWithType(const std::vector<section_info> &data, std::stringstream &errors) {
+        bool iniConfiguration::hasFieldsWithType(const std::vector<section_info> &data, std::stringstream &errors) const {
           bool any_error = false;
           for (auto & section_requirement : data){
             if (this->sections.count(section_requirement.first) == 0){
@@ -569,6 +682,13 @@ namespace timothy {
                   errors << "Field " << section_requirement.first << "::" << field_requirement->name;
                   errors << " has wrong type " << to_string(section.fields.at(field_requirement->name).type);
                   errors << " instead of " << to_string(field_requirement->type) << std::endl;
+                } else {
+                  if (field_requirement->test != nullptr){
+                    if (!field_requirement->test->check(section.fields.at(field_requirement->name))){
+                      errors << field_requirement->test->error_message(
+                              section_requirement.first + "::" + field_requirement->name) << std::endl;
+                    }
+                  }
                 }
               } else if(field_requirement->required){
                 any_error = true;

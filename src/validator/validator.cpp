@@ -2,7 +2,7 @@
 // Created by Grzegorz Bokota on 11.02.16.
 //
 
-#include <python2.7/Python.h>
+
 #include "validator.h"
 #include <sstream>
 #include <algorithm>
@@ -16,33 +16,93 @@ namespace timothy {
     namespace validator {
         namespace mp= timothy::ini_manipulator;
         namespace {
+            typedef mp::iniConfiguration::tester tester;
+            class isPowerOfTwo : public tester{
+            public:
+                virtual bool check (const mp::iniField & f){
+                  auto num = f.getIntValue();
+                  return num != 0 && !(num & (num - 1));
+                }
+                virtual std::string error_message(std::string name){
+                  return  "Value of field " + name + " has to be power of two";
+                }
+            };
+            class is2or3 : public tester{
+            public:
+                virtual bool check (const mp::iniField & f){
+                  auto num = f.getIntValue();
+                  return num == 2 || num == 3;
+                }
+                virtual std::string error_message(std::string name){
+                  return  "Value of field " + name + " has to be 2 or 3";
+                }
+            };
+            class activeOrPassive : public tester{
+            public:
+                virtual bool check (const mp::iniField & f){
+                  auto str = f.getStringValue();
+                  return str == "active" || str == "passive";
+                }
+                virtual std::string error_message(std::string name){
+                  return  "Value of field " + name + " has to be \"active\" or \"passive\"";
+                }
+            };
+            class nonNegativeFloat : public tester{
+            public:
+                virtual bool check (const mp::iniField & f){
+                  auto fl = f.getFloatValue();
+                  return fl >= 0;
+                }
+                virtual std::string error_message(std::string name){
+                  return  "Value of field " + name + " has to be non negative number";
+                }
+            };
+            class nonNegativeNumber : public tester{
+            public:
+                virtual bool check (const mp::iniField & f){
+                  auto fl = f.getIntValue();
+                  return fl >= 0;
+                }
+                virtual std::string error_message(std::string name){
+                  return  "Value of field " + name + " has to be non negative number";
+                }
+            };
+            isPowerOfTwo isPowerOfTwo;
+            is2or3 is2or3;
+            activeOrPassive activeOrPassive;
+            nonNegativeFloat nonNegativeFloat;
+            nonNegativeNumber nonNegativeNumber;
+
             std::vector<mp::iniConfiguration::field_info> global_check = {
-                    {"size_x",              mp::NUMBER_FIELD, true},
-                    {"size_y",              mp::NUMBER_FIELD, true},
-                    {"size_z",              mp::NUMBER_FIELD, true},
-                    {"max_number_of_cells", mp::NUMBER_FIELD, true},
+                    {"size_x",              mp::NUMBER_FIELD, true, &isPowerOfTwo},
+                    {"size_y",              mp::NUMBER_FIELD, true, &isPowerOfTwo},
+                    {"size_z",              mp::NUMBER_FIELD, true, &isPowerOfTwo},
+                    {"max_number_of_cells", mp::NUMBER_FIELD, true, &nonNegativeNumber},
+                    {"dimension", mp::NUMBER_FIELD, true, &is2or3},
+                    {"seconds_per_step", mp::NUMBER_FIELD, true, nullptr}
+
             };
             std::vector<mp::iniConfiguration::field_info> active_cell_check = {
-                    {"type",     mp::STRING_FIELD, true},
-                    {"g1_phase", mp::FLOAT_FIELD,  true},
-                    {"s_phase",  mp::FLOAT_FIELD,  true},
-                    {"g2_phase", mp::FLOAT_FIELD,  true},
-                    {"m_phase",  mp::FLOAT_FIELD,  true},
-                    {"pre_function", mp::STRING_FIELD, false},
-                    {"pre_function_data", mp::STRUCT_FIELD, false},
-                    {"post_function", mp::STRING_FIELD, false},
-                    {"post_function_data", mp::STRUCT_FIELD, false}
+                    {"type",     mp::STRING_FIELD, true, &activeOrPassive},
+                    {"g1_phase", mp::FLOAT_FIELD,  true, &nonNegativeFloat},
+                    {"s_phase",  mp::FLOAT_FIELD,  true, &nonNegativeFloat},
+                    {"g2_phase", mp::FLOAT_FIELD,  true, &nonNegativeFloat},
+                    {"m_phase",  mp::FLOAT_FIELD,  true, &nonNegativeFloat},
+                    {"pre_function", mp::STRING_FIELD, false, nullptr},
+                    {"pre_function_data", mp::STRUCT_FIELD, false, nullptr},
+                    {"post_function", mp::STRING_FIELD, false, nullptr},
+                    {"post_function_data", mp::STRUCT_FIELD, false, nullptr}
             };
 
             std::vector<mp::iniConfiguration::field_info> passive_cell_check;
             std::vector<mp::iniConfiguration::field_info> active_env_check = {
-                    {"dc",               mp::FLOAT_FIELD, true},
-                    {"bc",               mp::FLOAT_FIELD, true},
-                    {"ic_mean",          mp::FLOAT_FIELD, true},
-                    {"ic_var",           mp::FLOAT_FIELD, true},
-                    {"lambda",           mp::FLOAT_FIELD, true},
-                    {"critical_level_1", mp::FLOAT_FIELD, true},
-                    {"critical_level_2", mp::FLOAT_FIELD, true}
+                    {"dc",               mp::FLOAT_FIELD, true, &nonNegativeFloat},
+                    {"bc",               mp::FLOAT_FIELD, true, &nonNegativeFloat},
+                    {"ic_mean",          mp::FLOAT_FIELD, true, &nonNegativeFloat},
+                    {"ic_var",           mp::FLOAT_FIELD, true, &nonNegativeFloat},
+                    {"lambda",           mp::FLOAT_FIELD, true, &nonNegativeFloat},
+                    {"critical_level_1", mp::FLOAT_FIELD, true, &nonNegativeFloat},
+                    {"critical_level_2", mp::FLOAT_FIELD, true, &nonNegativeFloat}
             };
             std::vector<mp::iniConfiguration::field_info> passive_env_check;
         }

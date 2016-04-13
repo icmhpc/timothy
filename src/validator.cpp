@@ -24,6 +24,7 @@ int main(int argc, char** argv){
     std::cerr << "[PARSING ERROR]" << e.what() << std::endl;
     return EXIT_FAILURE;
   }
+  fprintf(stderr, "parsed\n" );
   std::cout << c << std::endl;
   std::pair<int, std::string>validate_result = timothy::validator::validate_config(c);
   if (!validate_result.first){

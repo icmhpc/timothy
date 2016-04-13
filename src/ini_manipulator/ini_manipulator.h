@@ -118,12 +118,19 @@ namespace timothy {
             std::map<std::string, iniSection> sections;
             std::vector<std::string> sections_order;
         public:
+            class tester {
+            public:
+                virtual bool check(const iniField &) = 0;
+                virtual std::string error_message(std::string name) = 0;
+            };
             class field_info{
             public:
                 std::string name;
                 ini_fields_type type;
                 bool required;
-                field_info(std::string _n, ini_fields_type _t, bool _r) : name(_n), type(_t), required(_r) {};
+                tester * test;
+                field_info(std::string _n, ini_fields_type _t, bool _r, tester * t)
+                        : name(_n), type(_t), required(_r), test(t) {};
             };
 
             typedef std::pair<const std::string, const std::vector<field_info > > section_info;
@@ -147,7 +154,7 @@ namespace timothy {
             void setValue(const std::string section_name, const std::string field_name, const T & t ) {
               return sections.at(section_name).setValue(field_name,t);
             }
-            bool hasFieldsWithType(const std::vector<section_info> &data, std::stringstream &errors);
+            bool hasFieldsWithType(const std::vector<section_info> &data, std::stringstream &errors) const;
             friend std::ostream & operator<< (std::ostream & o, const iniConfiguration &f);
 
         };
