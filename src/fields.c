@@ -26,7 +26,7 @@
 
 #include "global.h"
 #include "fields.h"
-#include "tempf.h"
+//#include "tempf.h" REMOVE
 #include "chemf.h"
 #include "cells.h"
 #include "utils.h"
@@ -143,11 +143,11 @@ void fieldsInit()
   }
 
   /* initialize temperature field */
-  if (temperature) {
+  /*if (temperature) { REMOVE
     tempEnvInitSystem();
     tempEnvInitBC();
     tempEnvInitSolver();
-  }
+  }*/
 
   /* initialize chemical fields */
   for (i = 0; i < NCHEM; i++) {
@@ -179,8 +179,8 @@ void fieldsSolve()
     if (gfIter > 0)
       updateCellStates(&cellsData, &mainSettings);
     /* solve temperature field */
-    if (temperature)
-      tempEnvSolve();
+    //if (temperature) REMOVE
+    //  tempEnvSolve();
     /* solve chemical fields */
     for (i = 0; i < NCHEM; i++) {
       if (i == 0 && !oxygen)

@@ -30,6 +30,7 @@
 #include <limits.h>
 #include <stdbool.h>
 
+#include "dicts.h"
 #include "global.h"
 #include "fields.h"
 #include "utils.h"

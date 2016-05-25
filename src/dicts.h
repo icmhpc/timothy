@@ -19,12 +19,13 @@ struct str_uint16_dict{
 
 typedef struct str_uint16_dict str_uint16_dict;
 
+
 inline int compare_str_uint16_pair(const void * value1, const void * value2){
   str_uint16_pair * s1 = (str_uint16_pair *) value1;
   str_uint16_pair * s2 = (str_uint16_pair *) value2;
   return strcmp(s1->first, s2->first);
 }
-
+static inline int compare_str_and_str_uint16_pair(const void * key, const void * value);
 inline int compare_str_and_str_uint16_pair(const void * key, const void * value){
   char * s1 = (char *) key;
   str_uint16_pair * s2 = (str_uint16_pair *) value;
@@ -62,7 +63,7 @@ inline str_uint16_dict * create_dict(str_uint16_pair * in_data, size_t size){
 /*!
  * function used to get value from str_uint_dict return -1 on fail
  */
-inline int32_t get_value(str_uint16_dict * dict, char* key){
+static inline int32_t get_value(str_uint16_dict * dict, char* key){
   str_uint16_pair * res = (str_uint16_pair *) bsearch(key, dict->members, dict->size, sizeof(str_uint16_pair), compare_str_and_str_uint16_pair);
   if (res == NULL)
     return  (int32_t) -1;

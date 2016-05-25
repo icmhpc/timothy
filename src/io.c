@@ -135,12 +135,14 @@ void readRstFile(int argc, char **argv);
 /*!
  * This function prints Timothy's basic information.
  */
-void printBasicInfo()
+void printBasicInfo(struct state *State)
 {
-  if (State.MPIrank == 0) {
+  if (State->MPIrank == 0) {
     printf("\nTimothy v.%s - Tissue Modelling Framework\n", VERSION);
-    printf(" M.Cytowski, Z.Szymanska\n");
+    printf(" M.Cytowski, Z.Szymanska"); printf("  G.Bokota, M.Kadlof\n");
     printf(" ICM, University of Warsaw\n");
+    printf(" G.Bokota, M.Kadlof\n");
+    printf(" CENT, University of Warsaw\n");
     printf(" http://timothy.icm.edu.pl\n\n");
     fflush(stdout);
   }
@@ -149,21 +151,21 @@ void printBasicInfo()
 /*!
  * This function prints the execution info.
  */
-void printExecInfo()
+void printExecInfo(struct state *State)
 {
-  if (State.MPIrank == 0) {
-    printf("Exec.info: %d ", State.MPIsize);
-    if (State.MPIsize > 1)
+  if (State->MPIrank == 0) {
+    printf("Exec.info: %d ", State->MPIsize);
+    if (State->MPIsize > 1)
       printf("processes ");
     else
       printf("process ");
-    printf("x %d OpenMP ", State.OMPthreads);
-    if (State.OMPthreads > 1)
+    printf("x %d OpenMP ", State->OMPthreads);
+    if (State->OMPthreads > 1)
       printf("threads,\n");
     else
       printf("thread,\n");
-    printf("           %d proc./node, %dMB/proc.\n\n", State.MPINodeSize,
-           State.memPerProc);
+    printf("           %d proc./node, %dMB/proc.\n\n", State->MPINodeSize,
+           State->memPerProc);
     printf("Sys.info:  ");
     if (endian)
       printf("%s, little endian\n", CPUARCH);
@@ -174,7 +176,7 @@ void printExecInfo()
   }
 }
 
-void printHelp()
+void printHelp() //Rewrite
 {
   int i;
   if (State.MPIrank == 0) {
@@ -189,7 +191,7 @@ void printHelp()
 /*!
  * This function initializes all parameters.
  */
-void initParams()
+void initParams() //remove
 {
 
   int nr;

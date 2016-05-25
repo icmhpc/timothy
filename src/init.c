@@ -106,7 +106,7 @@ void simulationInit(int argc, char **argv)
   int reorder;
 
   /* print basic informations */
-  printBasicInfo();
+  printBasicInfo(&State);
 
   /* check necessary arguments */
   //if( (argc<3 || (strcmp(argv[1],"-p"))) || (argc<2 || (strcmp(argv[1],"-h"))) )
@@ -133,7 +133,7 @@ void simulationInit(int argc, char **argv)
   State.memPerProc = getMemoryPerProcess(State.MPINodeSize);
 
   /* print execution informations */
-  printExecInfo();
+  printExecInfo(&State);
 
   /* set default values */
   defaultValues();
