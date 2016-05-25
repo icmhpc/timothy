@@ -180,13 +180,13 @@ size_t getMemoryPerProcess(int32_t lsize)
 #if defined(_AIX)
   int msize = sysconf(_SC_AIX_REALMEM) / 1024;
 #endif				/* aix */
-#if defined(__linux__) || defined(__linux) || defined(linux) || defined(__gnu_linux__)
+#if defined(__linux__) || defined(__linux) || defined(linux) || defined(__gnu_linux__) || defined(__APPLE__)
   long psize = sysconf(_SC_PAGE_SIZE);
   long npages = sysconf(_SC_PHYS_PAGES);
   long msize = psize * npages / (1024 * 1024);
 #endif				/*linux */
 #endif				/* bgq */
-  return msize / lsize;
+  return (size_t) msize / lsize;
 }
 
 /*!

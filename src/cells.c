@@ -36,6 +36,14 @@
 #include "utils.h"
 #include "cells.h"
 
+#if !defined(_ISOC11_SOURCE)
+void * aligned_alloc(size_t alignment, size_t size){
+    void * ptr;
+    posix_memalign(&ptr,alignment, size);
+    return ptr;
+}
+#endif
+
 /*! \file cells.c
  *  \brief contains functions which control current states and evolution of cells
  */

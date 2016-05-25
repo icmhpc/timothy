@@ -93,7 +93,7 @@ struct cellData {
   double y;             /* y coordinate of the particle position */
   double z;             /* z coordinate of the particle position */
   double size;          /* radius of the cell */
-  double h;             /* neighbourhood of the cell */
+  double h;             /* neighbourhood of the cell  */
   double v;             /* particle potential */
   double density;       /* particle density */
   double scalarField;   /* additional scalar field which can be used for analysis of results (printed to the output VTK files) */
@@ -180,23 +180,23 @@ struct densPotData { /* this structure keeps additional cell data (potential & d
 
 //#define MAX_CELLS_PER_PROC 10485760
 //uint64_t maxCellsPerProc;
-
-              /* mean duration of G1 phase - cancer cells */
-float cs;               /* mean duration of S phase - cancer cells */
-float cg2;              /* mean duration of G2 phase - cancer cells */
-float cm;               /* mean duration of M phase - cancer cells */
-float secondsPerStep;   /* lenght of a single simulation step in seconds */
-int rstReset;		/* if =1 <- reset simulation    const_cell,
- parameters of restart file */
-int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
-int tgs;                /* - tumor growth simulation, 0 - no tumor growth */
-int statOutStep;
-
-int rstOutStep;
-int vtkOutStep;
-float gfDt;
-float gfH;
-int gfIterPerStep;
+//
+//              /* mean duration of G1 phase - cancer cells */
+//float cs;               /* mean duration of S phase - cancer cells */
+//float cg2;              /* mean duration of G2 phase - cancer cells */
+//float cm;               /* mean duration of M phase - cancer cells */
+//float secondsPerStep;   /* lenght of a single simulation step in seconds */
+//int rstReset;		/* if =1 <- reset simulation    const_cell,
+// parameters of restart file */
+//int64_t nhs;            /* number of cells to activate random dying - homeostasis of cell colony */
+//int tgs;                /* - tumor growth simulation, 0 - no tumor growth */
+//int statOutStep;
+//
+//int rstOutStep;
+//int vtkOutStep;
+//float gfDt;
+//float gfH;
+//int gfIterPerStep;
 
 
 extern MIC_ATTR struct partData *recvData; //in comm.c
