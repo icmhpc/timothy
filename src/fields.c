@@ -43,6 +43,9 @@
  */
 
 
+double *haloSX0,*haloSX1,*haloSY0,*haloSY1,*haloSZ0,*haloSZ1;
+double *haloRX0,*haloRX1,*haloRY0,*haloRY1,*haloRZ0,*haloRZ1;
+int rX0,rX1,rY0,rY1,rZ0,rZ1;
 
 /*!
  * This function intializes the fields.
@@ -68,16 +71,16 @@ void fieldsInit()
     tissueField[i] = 0.0;
   nf++;
 
-  if(bvsim) {
-    strcpy(fieldName[nf], "vessel");
-    fieldType[nf] = SCALAR_FIELD;
-    fieldAddr[nf] =
-      (double *) calloc(gridSize.x * gridSize.y * gridSize.z,
-                        sizeof(double));
-    vesselField = (double *) fieldAddr[nf];
-    for (i = 0; i < gridSize.x * gridSize.y * gridSize.z; i++)
-      vesselField[i] = 0.0;
-  }
+//  if(bvsim) {TODO  REMOVE
+//    strcpy(fieldName[nf], "vessel");
+//    fieldType[nf] = SCALAR_FIELD;
+//    fieldAddr[nf] =
+//      (double *) calloc(gridSize.x * gridSize.y * gridSize.z,
+//                        sizeof(double));
+//    vesselField = (double *) fieldAddr[nf];
+//    for (i = 0; i < gridSize.x * gridSize.y * gridSize.z; i++)
+//      vesselField[i] = 0.0;
+//  }
   nf++;
 
   if(temperature) {
@@ -112,17 +115,17 @@ void fieldsInit()
     }
     if (chf == 0) {
       strcpy(fieldName[nf], "oxygen");
-      fieldDt[nf] = gfDt;
-      fieldCriticalLevel1[nf] *= gfDt;	//*(boxVolume/cellVolume);
-      fieldCriticalLevel2[nf] *= gfDt;	//*(boxVolume/cellVolume);
+      fieldDt[nf] = mainSettings.gfDt;
+      fieldCriticalLevel1[nf] *= mainSettings.gfDt;	//*(boxVolume/cellVolume);
+      fieldCriticalLevel2[nf] *= mainSettings.gfDt;	//*(boxVolume/cellVolume);
     }
     if (chf == 1) {
       strcpy(fieldName[nf], "glucose");
-      fieldDt[nf] = secondsPerStep;
+      fieldDt[nf] = mainSettings.secondsPerStep;
     }
     if (chf == 2) {
       strcpy(fieldName[nf], "hydrogenIon");
-      fieldDt[nf] = secondsPerStep;
+      fieldDt[nf] = mainSettings.secondsPerStep;
     }
     fieldType[nf] = SCALAR_FIELD;
     fieldAddr[nf] =
@@ -174,7 +177,7 @@ void fieldsSolve()
   if (!gfields)
     return;
 
-  for (gfIter = 0; gfIter < gfIterPerStep; gfIter++) {
+  for (gfIter = 0; gfIter < mainSettings.gfIterPerStep; gfIter++) {
     /* update cell state (if more than one iteration) */
     if (gfIter > 0)
       updateCellStates(&cellsData, &mainSettings);

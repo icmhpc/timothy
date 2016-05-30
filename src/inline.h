@@ -48,11 +48,11 @@ MIC_ATTR static inline float sph_kernel(double r)
   if(r<0.0) return 0.0;
 
   u=r/h;
-  if(sdim==2) c=40/(7*M_PI*h2);
-  if(sdim==3) c=8/(M_PI*h3);
+  if(mainSettings.dimension==2) c=40/(7*M_PI*h2);
+  if(mainSettings.dimension==3) c=8/(M_PI*h3);
 
-  if(u>=0.0 && u<=0.5) return c*(1-6*u*u+6*u*u*u);
-  if(u>0.5 && u<=1.0) return c*(2*(1-u)*(1-u)*(1-u));
+  if(u>=0.0 && u<=0.5) return (float) (c*(1-6*u*u+6*u*u*u));
+  if(u>0.5 && u<=1.0) return (float) (c*(2*(1-u)*(1-u)*(1-u)));
   if(u>1.0) return 0.0;
   return 0.0;
 }
@@ -67,7 +67,7 @@ MIC_ATTR static inline float sph_kernel(double r)
  */
 MIC_ATTR static inline int sph_kernel_gradient(int p1, int p2, double grad[3],int mode,double r)
 {
-  double u=1.0,c=1.0,w=1.0;
+  double u,c=1.0,w=1.0;
   double x1,x2,y1,y2,z1,z2;
 
   if(mode==0) {
@@ -89,8 +89,8 @@ MIC_ATTR static inline int sph_kernel_gradient(int p1, int p2, double grad[3],in
   if(r>=0.0 && r<=h) {
 
     u=r/h;
-    if(sdim==2) c=(40*8)/(7*M_PI*h3);
-    if(sdim==3) c=48/(M_PI*h4);
+    if(mainSettings.dimension==2) c=(40*8)/(7*M_PI*h3);
+    if(mainSettings.dimension==3) c=48/(M_PI*h4);
 
     if(u>=0.0 && u<=0.5) w=-2.0*u+3.0*u*u;
     if(u>0.5 && u<=1.0) w=-(1.0-u)*(1.0-u);
@@ -98,8 +98,8 @@ MIC_ATTR static inline int sph_kernel_gradient(int p1, int p2, double grad[3],in
 
     grad[0]=w*c*(x2-x1)/r;
     grad[1]=w*c*(y2-y1)/r;
-    if(sdim==3) grad[2]=w*c*(z2-z1)/r;
-    if(sdim==2) grad[2]=0.0;
+    if(mainSettings.dimension==3) grad[2]=w*c*(z2-z1)/r;
+    if(mainSettings.dimension==2) grad[2]=0.0;
 
   } else {
 

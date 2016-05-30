@@ -38,14 +38,14 @@
  */
 void computeGridSize()
 {
-  gridResolution = csize * gfH;
+  gridResolution = csize * mainSettings.gfH;
   boxVolume = pow((gridResolution / csize) * csizeInUnits * 0.0001, 3);
   lowerGridCorner.x = 0.0;
   lowerGridCorner.y = 0.0;
   lowerGridCorner.z = 0.0;
-  upperGridCorner.x = (double) nx - 1;
-  upperGridCorner.y = (double) ny - 1;
-  upperGridCorner.z = (double) nz - 1;
+  upperGridCorner.x = (double) mainSettings.size_x - 1;
+  upperGridCorner.y = (double) mainSettings.size_y - 1;
+  upperGridCorner.z = (double) mainSettings.size_z - 1;
 
 
   globalGridSize.x = upperGridCorner.x - lowerGridCorner.x + 1;
@@ -54,19 +54,19 @@ void computeGridSize()
 
   gridI = (int64_t) ((globalGridSize.x + 1) / gridResolution);
   gridJ = (int64_t) ((globalGridSize.y + 1) / gridResolution);
-  if (sdim == 3)
+  if (mainSettings.dimension == 3)
     gridK = (int64_t) ((globalGridSize.z + 1) / gridResolution);
   else
     gridK = 0;
 
   gridI = gridI + (State.MPIdim[0] - gridI % State.MPIdim[0]);
   gridJ = gridJ + (State.MPIdim[1] - gridJ % State.MPIdim[1]);
-  if (sdim == 3)
+  if (mainSettings.dimension == 3)
     gridK = gridK + (State.MPIdim[2] - gridK % State.MPIdim[2]);
 
   gridSize.x = gridI / State.MPIdim[0];
   gridSize.y = gridJ / State.MPIdim[1];
-  if (sdim == 3)
+  if (mainSettings.dimension == 3)
     gridSize.z = gridK / State.MPIdim[2];
   else
     gridSize.z = 1;
@@ -93,13 +93,13 @@ void allocateGrid()
   for (i = 0; i < State.MPIsize; i++) {
     gridStartIdx[i].x = gridSize.x * State.MPIcoords[i][0];
     gridStartIdx[i].y = gridSize.y * State.MPIcoords[i][1];
-    if (sdim == 3)
+    if (mainSettings.dimension == 3)
       gridStartIdx[i].z = gridSize.z * State.MPIcoords[i][2];
     else
       gridStartIdx[i].z = 0;
     gridEndIdx[i].x = gridStartIdx[i].x + gridSize.x - 1;
     gridEndIdx[i].y = gridStartIdx[i].y + gridSize.y - 1;
-    if (sdim == 3)
+    if (mainSettings.dimension == 3)
       gridEndIdx[i].z = gridStartIdx[i].z + gridSize.z - 1;
     else
       gridEndIdx[i].z = 0;

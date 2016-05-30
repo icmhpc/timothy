@@ -49,6 +49,8 @@
 struct state State;
 struct settings mainSettings;
 struct cellsInfo cellsData;
+struct statisticsData MIC_ATTR statistics;
+octNode MIC_ATTR *octTree;
 
 
 double **cellFields;
@@ -65,23 +67,23 @@ int main(int argc, char **argv)
 
   simulationInit(argc, argv);
 
-  for (State.step = 0; State.step < nsteps; State.step++) {
+  for (State.step = 0; State.step < mainSettings.number_of_steps; State.step++) {
 
-    if (!(State.step % statOutStep))
+    if (!(State.step % mainSettings.statOutStep))
       printStepNum();
 
     decompositionExecute(cellsData.totalCellCount.number_of_cells);
     octBuild(&cellsData);
     createExportList(&cellsData);
     computeStep(&cellsData);
-    if (!(State.step % statOutStep))
+    if (!(State.step % mainSettings.statOutStep))
       statisticsPrint(&cellsData, &statistics);
 
     if (State.simStart)
-      simTime += secondsPerStep / 3600.0;	/* biological process time in hours */
+      simTime += mainSettings.secondsPerStep / 3600.0;	/* biological process time in hours */
 
 
-    if (!(State.step % vtkOutStep)) {
+    if (!(State.step % mainSettings.vtkOutStep)) {
       if (mainSettings.vtkout)
         ioWriteStepVTK(State.step);
       if (mainSettings.povout)
@@ -95,7 +97,7 @@ int main(int argc, char **argv)
     commCleanup(cellsData.totalCellCount.number_of_cells);
     octFree(&cellsData);
 
-    if (!(State.step % rstOutStep))
+    if (!(State.step % mainSettings.rstOutStep))
       saveRstFile();
   }
 

@@ -26,7 +26,7 @@
 #ifndef TIMOTHY_IO_H
 #define TIMOTHY_IO_H
 #include<stdint.h>
-
+#include "global.h"
 
 void ioWriteStepVTK(int);
 void ioWriteStepPovRay(int, int);

@@ -113,7 +113,7 @@ void createExportList(struct cellsInfo *ci)
     xmax = ci->cells[p].x + r;
     ymin = ci->cells[p].y - r;
     ymax = ci->cells[p].y + r;
-    if (sdim == 3) {
+    if (mainSettings.dimension == 3) {
       zmin = ci->cells[p].z - r;
       zmax = ci->cells[p].z + r;
     } else {

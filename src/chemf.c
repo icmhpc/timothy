@@ -255,7 +255,7 @@ void chemEnvCellPC(int nch)
     for (j = 0; j < gridSize.y; j++)
       for (i = 0; i < gridSize.x; i++, idx++) {
         chemPC[idx] = -fieldConsumption[nch + NGLOB] * tissueField[gridSize.z * gridSize.y * i + gridSize.z * j + k] * dt[nch];
-        if(bvsim) chemPC[idx]+=fieldProduction[nch + NGLOB] * vesselField[gridSize.z * gridSize.y * i + gridSize.z * j +k] * dt[nch] ;	//*(cellVolume/boxVolume);//*(1.0/cellVolume);//*dt[nch];//*dt[nch];
+        //if(bvsim) chemPC[idx]+=fieldProduction[nch + NGLOB] * vesselField[gridSize.z * gridSize.y * i + gridSize.z * j +k] * dt[nch] ;	//*(cellVolume/boxVolume);//*(1.0/cellVolume);//*dt[nch];//*dt[nch];
       }
 }
 

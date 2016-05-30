@@ -78,7 +78,7 @@ int sizeRst[NRSTPARAMS];
 void *addrRst[NRSTPARAMS];
 int nRst;
 
-int endian;		/* =0 - big endian, =1 - little endian */
+	/* =0 - big endian, =1 - little endian */
 /* simulation parameters from the restart file */
 /*int rstSdim;
 int rstNx;
@@ -684,7 +684,7 @@ void initParams() //remove
   type[nr] = STRING;
   nr++;
 
-  strcpy(params[nr], "SCSIM");
+  /*strcpy(params[nr], "SCSIM");
   strcpy(desc[nr],
          "is this stem cell simulation? (0 - no, 1 - yes)");
   req[nr] = 0;
@@ -706,7 +706,7 @@ void initParams() //remove
   req[nr] = 0;
   addr[nr] = &bnsim;
   type[nr] = INT;
-  nr++;
+  nr++;*/
 
 }
 

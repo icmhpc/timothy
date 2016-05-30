@@ -100,13 +100,13 @@ void computeStep(struct cellsInfo *ci)
   /* 4. Add chemotactic term to potential */
 
   /* add chemotaxis term to potential */
-  if(bvsim) {
-    uint64_t p;
-    for(p=0; p < ci->localCellCount.number_of_cells ; p++)
-      ci->cells[p].v+=10000*sqrt(pow(ci->cellFields[NFIELDS][p],2)+
-                                     pow(ci->cellFields[NFIELDS+1][p],2)+
-                                     pow(ci->cellFields[NFIELDS+2][p],2));
-  }
+//  if(bvsim) { TODO REMOVE
+//    uint64_t p;
+//    for(p=0; p < ci->localCellCount.number_of_cells ; p++)
+//      ci->cells[p].v+=10000*sqrt(pow(ci->cellFields[NFIELDS][p],2)+
+//                                     pow(ci->cellFields[NFIELDS+1][p],2)+
+//                                     pow(ci->cellFields[NFIELDS+2][p],2));
+//  }
 
   /* 5. Compute gradient of the potential for local cells */
 
@@ -175,7 +175,7 @@ void computeStep(struct cellsInfo *ci)
   if (globalMaxVel == 0.0)
     sf = 0.0;
   else
-    sf = mainSettings.maxSpeedInUnits * secondsPerStep / globalMaxVel;
+    sf = mainSettings.maxSpeedInUnits * mainSettings.secondsPerStep / globalMaxVel;
 
   statistics.minvel = DBL_MAX;  /* minimal velocity is set to DBL_MAX */
   statistics.maxvel = 0;        /* maximal velocity is set to zero */

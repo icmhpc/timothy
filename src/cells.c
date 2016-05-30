@@ -313,7 +313,7 @@ void mitosis(struct cellsInfo *ci, uint64_t cell_pos, const struct settings *s){
     while (velocity_norm == 0.0) {
       shift.x = sprng(stream) * 2.0 - 1.0;
       shift.y = sprng(stream) * 2.0 - 1.0;
-      if (sdim == 3)
+      if (s->dimension == 3)
         shift.z = sprng(stream) * 2.0 - 1.0;
       else
         shift.z = 0.0;
@@ -360,6 +360,7 @@ void mitosis(struct cellsInfo *ci, uint64_t cell_pos, const struct settings *s){
  */
 void updateCellCycles(struct cellsInfo *ci, const struct settings *s){
   uint64_t number_of_cells = ci->localCellCount.number_of_cells;
+  bool enable_random_death = number_of_cells > s->minimal_number_of_cells_for_random_death;
   struct cellData * cells = ci->cells;
   bool to_g0_phase;
   for(uint64_t i = 0; i < number_of_cells; i++){
@@ -478,8 +479,8 @@ void updateCellCycles(struct cellsInfo *ci, const struct settings *s){
             ci->localCellCount.g1_phase_number_of_cells--;
   #pragma omp atomic
             ci->localCellCount.s_phase_number_of_cells++;
-            if (ci->cellTypes[cells[i].cell_type].enable_random_death){
-              if (sprng(stream) < rd){
+            if (enable_random_death && ci->cellTypes[cells[i].cell_type].enable_random_death){
+              if (sprng(stream) < s->random_death){
                 //FIXME I make assumption that in case of necrotic cells code should check that is enough place to destroy cell
                 cells[i].phase = Necrotic_phase;
   #pragma omp atomic
@@ -510,8 +511,8 @@ void updateCellCycles(struct cellsInfo *ci, const struct settings *s){
           ci->localCellCount.g2_phase_number_of_cells--;
 #pragma omp atomic
           ci->localCellCount.m_phase_number_of_cells++;
-          if (ci->cellTypes[cells[i].cell_type].enable_random_death){
-            if (sprng(stream) < rd){
+          if (enable_random_death && ci->cellTypes[cells[i].cell_type].enable_random_death){
+            if (sprng(stream) < s->random_death){
               //FIXME I make assumption that in case of necrotic cells code should check that is enough place to destroy cell
               cells[i].phase = Necrotic_phase;
 #pragma omp atomic

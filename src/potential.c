@@ -78,11 +78,11 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
   }
 
   /* compute the distance between two cells */
-  if (sdim == 2)
+  if (mainSettings.dimension == 2)
     dist =
       sqrt((x - cellsData.cells[p2].x) * (x - cellsData.cells[p2].x) +
            (y - cellsData.cells[p2].y) * (y - cellsData.cells[p2].y));
-  if (sdim == 3)
+  if (mainSettings.dimension == 3)
     dist =
       sqrt((x - cellsData.cells[p2].x) * (x - cellsData.cells[p2].x) +
            (y - cellsData.cells[p2].y) * (y - cellsData.cells[p2].y) +
@@ -98,9 +98,9 @@ MIC_ATTR double ccPot(int p1, int p2, int mode,double *mindist)
     double area;
     double sc=1.0;
 
-    if (sdim == 2)
+    if (mainSettings.dimension == 2)
       sc = h2;
-    if (sdim == 3)
+    if (mainSettings.dimension == 3)
       sc = h3;
 
     if (mode == 0) {
@@ -161,7 +161,7 @@ MIC_ATTR void compPot(uint64_t local_number_of_cells)
   {
     uint64_t p;
     double mindist;
-    mindist=nx;
+    mindist=mainSettings.size_x;
 
     #pragma omp for schedule(dynamic,64)
     for (p = 0; p < local_number_of_cells; p++) {
@@ -218,7 +218,7 @@ MIC_ATTR void compRPot()
   #pragma omp parallel
   {
     double mindist;
-    mindist=nx;
+    mindist=mainSettings.size_x;
     #pragma omp for schedule(dynamic,64)
     for (rp = 0; rp < numImp; rp++) {
       int64_t cellIdx;
@@ -294,9 +294,9 @@ MIC_ATTR void ccPotGrad(int p1, int p2, int mode)
   }
 
   dist = 1; // TODO check
-  if (sdim == 2)
+  if (mainSettings.dimension == 2)
     dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-  if (sdim == 3)
+  if (mainSettings.dimension == 3)
     dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) +
                 (z1 - z2) * (z1 - z2));
 

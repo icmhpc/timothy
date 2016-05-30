@@ -55,9 +55,9 @@ struct Zoltan_Struct *ztn;
  */
 int ztnReturnDimension(void *data __attribute__((unused)), int *ierr __attribute__((unused)))
 {
-  if (sdim == 3)
+  if (mainSettings.dimension == 3)
     return 3;
-  if (sdim == 2)
+  if (mainSettings.dimension == 2)
     return 2;
   return 0;
 }
@@ -70,14 +70,15 @@ void ztnReturnCoords(void *data, int numGidEntries __attribute__((unused)), int 
                      double *geomVec, int *ierr __attribute__((unused)))
 {
   struct cellData * cells = (struct cellData *) data;
-  if (sdim == 3) {
+  if (mainSettings.dimension == 3) {
     geomVec[0] = cells[localId[0]].x;
     geomVec[1] = cells[localId[0]].y;
     geomVec[2] = cells[localId[0]].z;
-  }
-  if (sdim == 2) {
-    geomVec[0] = cells[localId[0]].x;
-    geomVec[1] = cells[localId[0]].y;
+  } else { //TODO remove if
+    if (mainSettings.dimension == 2) {
+      geomVec[0] = cells[localId[0]].x;
+      geomVec[1] = cells[localId[0]].y;
+    }
   }
 }
 

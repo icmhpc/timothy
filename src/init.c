@@ -45,18 +45,13 @@
 */
 void defaultValues()
 {
-  State.rst = 0;
-  rstReset = 0;
-  nhs = -1;
-  tgs = 0;
+  State.rstReset = 0;
+  mainSettings.minimal_number_of_cells_for_random_death = -1;
+  //tgs = 0;
 
-  bvsim=0;
-  bnsim=0;
-  scsim=0;
-
-  statOutStep = 1;
-  rstOutStep = 1;
-  vtkOutStep = 1;
+  mainSettings.statOutStep = 1;
+  mainSettings.rstOutStep = 1;
+  mainSettings.vtkOutStep = 1;
 
   mainSettings.povout = 0;
   mainSettings.vtkout = 0;
@@ -88,12 +83,12 @@ void scInit()
 */
 void checkParameters()
 {
-  /* under construction */
-  if (strcmp(cOutType, "VTK") && strcmp(cOutType, "POV")
-      && strcmp(cOutType, "NON"))
-    stopRun(116, "COUTTYPE", __FILE__, __LINE__);
-  if (strcmp(fOutType, "VNF") && strcmp(fOutType, "NON"))
-    stopRun(116, "FOUTTYPE", __FILE__, __LINE__);
+  /* under construction TODO write new */
+//  if (strcmp(cOutType, "VTK") && strcmp(cOutType, "POV")
+//      && strcmp(cOutType, "NON"))
+//    stopRun(116, "COUTTYPE", __FILE__, __LINE__);
+//  if (strcmp(fOutType, "VNF") && strcmp(fOutType, "NON"))
+//    stopRun(116, "FOUTTYPE", __FILE__, __LINE__);
 }
 
 /*!
@@ -147,7 +142,7 @@ void simulationInit(int argc, char **argv)
   /* read parameters file and restart file (if present) */
   readParams(argc, argv);
   /* generate random cells if not a restart simulation */
-  if (!State.rst) {
+  if (!State.rstReset) {
     State.simStart = 0;
     /* calculating number of cells per process */
     /*lnc = nc / MPIsize;
@@ -171,49 +166,53 @@ void simulationInit(int argc, char **argv)
   }
 
   /* maximum distance cell can travel in 1 sec */
-  mainSettings.maxSpeedInUnits = (float)(maxSpeed * csize) /(24.0f * 60.0f * 60.0f);
+  mainSettings.maxSpeedInUnits = (float)(mainSettings.maxSpeed * csize) /(24.0f * 60.0f * 60.0f);
   /* at least one global fields iteration per step */
-  gfDt = (gfDt > secondsPerStep ? secondsPerStep : gfDt);
+  mainSettings.gfDt = (mainSettings.gfDt > mainSettings.secondsPerStep ? mainSettings.secondsPerStep : mainSettings.gfDt);
   /* global fields iterations per step */
-  gfIterPerStep = (int) (secondsPerStep / gfDt);
+  mainSettings.gfIterPerStep = (int) (mainSettings.secondsPerStep / mainSettings.gfDt);
 
-  if (sdim == 3)
+  if (mainSettings.dimension == 3)
     mainSettings.treeNumberOfChildren = 8;
-  if (sdim == 2)
+  if (mainSettings.dimension == 2)
     mainSettings.treeNumberOfChildren = 4;
 
   /* density critical levels (very important parameters) */
-  if (sdim == 3) {
-    densityCriticalLevel1 = 6 * h3 * sph_kernel(1.5 * csize);	//1.8  //1.4 //1.75
-    densityCriticalLevel2 = 6 * h3 * sph_kernel(1.1 * csize);	//1.1 //1.4
+  if (mainSettings.dimension == 3) {
+    for (int i=0; i<mainSettings.numberOfEnvironments; i++){
+      mainSettings.environments[i].critical_level_1 = 6 * h3 * sph_kernel(1.5 * csize); //1.8  //1.4 //1.75
+      mainSettings.environments[i].critical_level_1 = 6 * h3 * sph_kernel(1.1 * csize); 	//1.1 //1.4
+    }
   }
-  if (sdim == 2) {
-    densityCriticalLevel1 = 4 * h2 * sph_kernel(1.4 * csize);	//1.4 //1.75
-    densityCriticalLevel2 = 4 * h2 * sph_kernel(1.15 * csize);	//1.1 //1.4
+  if (mainSettings.dimension == 2) {
+    for (int i=0; i<mainSettings.numberOfEnvironments; i++){
+      mainSettings.environments[i].critical_level_1 = 4 * h2 * sph_kernel(1.4 * csize); //1.8  //1.4 //1.75
+      mainSettings.environments[i].critical_level_1 = 4 * h2 * sph_kernel(1.15 * csize); 	//1.1 //1.4
+    }
   }
 
   /* checking the consistency */
   checkParameters();
 
-  if (!strcmp(cOutType, "POV"))
-    mainSettings.povout = 1;
-  if (!strcmp(cOutType, "VTK"))
-    mainSettings.vtkout = 1;
-  if (!strcmp(fOutType, "VNF"))
-    mainSettings.vnfout = 1;
+//  if (!strcmp(cOutType, "POV")) TODO update to new interface
+//    mainSettings.povout = 1;
+//  if (!strcmp(cOutType, "VTK"))
+//    mainSettings.vtkout = 1;
+//  if (!strcmp(fOutType, "VNF"))
+//    mainSettings.vnfout = 1;
 
   /* organizing processes in a Cartesian grid for global fields computations */
-  MPI_Dims_create(State.MPIsize, sdim, State.MPIdim);
+  MPI_Dims_create(State.MPIsize, mainSettings.dimension, State.MPIdim);
   periods[0] = 0;
   periods[1] = 0;
   periods[2] = 0;
   reorder = 0;
-  MPI_Cart_create(MPI_COMM_WORLD, sdim, State.MPIdim, periods, reorder,
+  MPI_Cart_create(MPI_COMM_WORLD, mainSettings.dimension, State.MPIdim, periods, reorder,
                   &State.MPI_CART_COMM);
   State.MPIcoords = (int **) malloc(State.MPIsize * sizeof(int *));
   for (i = 0; i < State.MPIsize; i++) {
     State.MPIcoords[i] = (int *) malloc(3 * sizeof(int));
-    MPI_Cart_coords(State.MPI_CART_COMM, i, sdim, State.MPIcoords[i]);
+    MPI_Cart_coords(State.MPI_CART_COMM, i, mainSettings.dimension, State.MPIcoords[i]);
   }
   /* compute grid size */
   computeGridSize();

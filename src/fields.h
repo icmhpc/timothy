@@ -78,9 +78,6 @@ double *chemGradient[NCHEM];
 double **fieldsPatchesCommBuff;
 double **fieldsPatches;
 
-double *haloSX0,*haloSX1,*haloSY0,*haloSY1,*haloSZ0,*haloSZ1;
-double *haloRX0,*haloRX1,*haloRY0,*haloRY1,*haloRZ0,*haloRZ1;
-int rX0,rX1,rY0,rY1,rZ0,rZ1;
 
 MPI_Request reqFGSend[6];
 MPI_Request reqFGRecv[6];

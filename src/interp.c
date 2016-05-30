@@ -93,12 +93,12 @@ void findPatches(struct cellsInfo *ci)
     patchSize[p].z = 0;
     lowerPatchCorner[p].x = INT_MAX;
     lowerPatchCorner[p].y = INT_MAX;
-    if (sdim == 3)
+    if (mainSettings.dimension == 3)
       lowerPatchCorner[p].z = INT_MAX;
     else
       lowerPatchCorner[p].z = 0;
     upperPatchCorner[p].x = INT_MIN, upperPatchCorner[p].y = INT_MIN;
-    if (sdim == 3)
+    if (mainSettings.dimension == 3)
       upperPatchCorner[p].z = INT_MIN;
     else
       upperPatchCorner[p].z = 0;
@@ -133,7 +133,7 @@ void findPatches(struct cellsInfo *ci)
                 (lowerPatchCorner[p].y >
                  cellIdx.y + ay ? cellIdx.y +
                  ay : lowerPatchCorner[p].y);
-              if (sdim == 3)
+              if (mainSettings.dimension == 3)
                 lowerPatchCorner[p].z =
                   (lowerPatchCorner[p].z >
                    cellIdx.z + az ? cellIdx.z +
@@ -146,7 +146,7 @@ void findPatches(struct cellsInfo *ci)
                 (upperPatchCorner[p].y <
                  cellIdx.y + ay ? cellIdx.y +
                  ay : upperPatchCorner[p].y);
-              if (sdim == 3)
+              if (mainSettings.dimension == 3)
                 upperPatchCorner[p].z =
                   (upperPatchCorner[p].z <
                    cellIdx.z + az ? cellIdx.z +
@@ -162,7 +162,7 @@ void findPatches(struct cellsInfo *ci)
     if (cicIntersect[p]) {
       patchSize[p].x = upperPatchCorner[p].x - lowerPatchCorner[p].x + 1;
       patchSize[p].y = upperPatchCorner[p].y - lowerPatchCorner[p].y + 1;
-      if (sdim == 3)
+      if (mainSettings.dimension == 3)
         patchSize[p].z = upperPatchCorner[p].z - lowerPatchCorner[p].z + 1;
       else
         patchSize[p].z = 1;
@@ -353,7 +353,7 @@ int applyPatches()
 
   for (i = 0; i < gridSize.x * gridSize.y * gridSize.z; i++) {
     tissueField[i] = 0.0;
-    if(bvsim) vesselField[i] = 0.0;
+//    if(bvsim) vesselField[i] = 0.0; TODO REMOVE
   }
 
   for (p = 0; p < State.MPIsize; p++) {
@@ -381,10 +381,10 @@ int applyPatches()
                         g.z] +=
                           cicRecvPatch[p][size.z * size.y * c.x + size.z * c.y +
                                           c.z];
-            if(bvsim) vesselField[gridSize.z * gridSize.y * g.x + gridSize.z * g.y +
-                                    g.z] +=
-                                      cicRecvPatch[p][size.z * size.y * c.x + size.z * c.y +
-                                                      c.z+size.x*size.y*size.z];
+//            if(bvsim) vesselField[gridSize.z * gridSize.y * g.x + gridSize.z * g.y + TODO REMOVE
+//                                    g.z] +=
+//                                      cicRecvPatch[p][size.z * size.y * c.x + size.z * c.y +
+//                                                      c.z+size.x*size.y*size.z];
           }
         }
     free(cicRecvPatch[p]);
@@ -432,7 +432,7 @@ void initFieldsPatchesExchange()
       (double *) calloc((NFIELDS+NCHEM*3) * fieldPatchSize, sizeof(double));
     /* fields */
     for (f = 0; f < NFIELDS; f++) {
-      if(f==BVES && !bvsim) continue;
+      //if(f==BVES && !bvsim) continue;
       if(f==TEMP && !temperature) continue;
       if(f==OXYG && !oxygen) continue;
       if(f==GLUC && !glucose) continue;
