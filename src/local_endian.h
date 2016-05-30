@@ -27,7 +27,6 @@
 #define __LITTLE_ENDIAN LITTLE_ENDIAN
 #define __BYTE_ORDER    BYTE_ORDER
 #else
-#include 
-#include 
+// Import other libs
 #endif
 #endif //TIMOTHY_ENDIAN_H
