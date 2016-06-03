@@ -71,7 +71,7 @@ set(SOURCE_FILES
 
 set(VALIDATOR_SOURCE src/ini_parser/ini_parser.c src/ini_parser/ini_parser.h src/validator.cpp src/validator/validator.cpp src/validator/validator.h src/ini_manipulator/ini_manipulator.cpp src/ini_manipulator/ini_manipulator.h src/functions.cpp src/functions.h src/local_endian.h)
 
-set(ENVIRORMENT_SOURCE src/timothy_new_environment/environment.c src/timothy_new_environment/environment.h)
+set(ENVIRORMENT_SOURCE src/timothy_new_environment/environment.c src/timothy_new_environment/environment.h src/timothy_new_environment/fields.c src/timothy_new_environment/fields.h)
 
 add_executable(timothy ${SOURCE_FILES})
 target_include_directories(timothy PUBLIC ${ZOLTAN_INCLUDE_DIR})
@@ -95,6 +95,9 @@ target_link_libraries(envirorment ${MPI_C_LIBRARIES})
 target_link_libraries (envirorment ${HYPRE_LIBRARY})
 target_include_directories(envirorment PUBLIC ${HYPRE_INCLUDE_DIR})
 target_link_libraries (envirorment m)
+target_link_libraries(envirorment ${MPI_C_LIBRARIES})
+
+
 if(MPI_COMPILE_FLAGS)
     set_target_properties(timothy PROPERTIES
             COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")

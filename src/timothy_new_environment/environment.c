@@ -27,6 +27,7 @@
 #include "HYPRE_parcsr_ls.h"
 #include "HYPRE_krylov.h"
 #include "environment.h"
+#include "fields.h"
 #include "mpi.h"
 
 /* zmienne lokalne w pliku environment */
@@ -340,7 +341,7 @@ void envInitSystem(const struct state *simstate, const struct settings *set,
  * This function computes cell production/consumption function based on
  * the interpolated cell density field.
  */
-void envCellPC(const struct state *simstate, double *envPC, int var,
+void envCellPC(const struct state *simstate, double *envPC, HYPRE_Int var,
                struct gridData *grid) {
   int ch __attribute__((unused)), i, j, k;
 
@@ -367,7 +368,7 @@ void envInitBC(const struct state *simstate, const struct settings *set,
                struct gridData *grid) {
   HYPRE_Int i, j, k;
   int mi;
-  size_t var;
+  HYPRE_Int var;
   int nentries = 1;
   HYPRE_Int stencil_indices[1];
   long long nvalues =
@@ -393,7 +394,7 @@ void envInitBC(const struct state *simstate, const struct settings *set,
   HYPRE_SStructVectorInitialize(b);
   HYPRE_SStructVectorInitialize(x);
 
-  for (var = 0; var < set->numberOfEnvironments; var++) {
+  for (var = 0; var < (int) set->numberOfEnvironments; var++) {
 
     envCellPC(simstate, envPC, var, grid);
 
@@ -525,7 +526,7 @@ void envSolve(const struct state *simstate, const struct settings *simsetup,
               struct gridData *grid) {
   size_t i;//, j, k;
   //int idx;
-  size_t var;
+  HYPRE_Int var;
   double *values;
   int stepIter = 0;
   size_t nvalues =
@@ -542,7 +543,7 @@ void envSolve(const struct state *simstate, const struct settings *simsetup,
   while (stepIter < numberOfIters) {
     if (envIter > 0) {
       /* update right hand side */
-      for (var = 0; var < simsetup->numberOfEnvironments; var++) {
+      for (var = 0; var < (int) simsetup->numberOfEnvironments; var++) {
 
         envCellPC(simstate, envPC, var, grid);
         HYPRE_SStructVectorGetBoxValues(x, 0, envLower, envUpper, var, values);
@@ -591,7 +592,7 @@ void envSolve(const struct state *simstate, const struct settings *simsetup,
 
     HYPRE_ParCSRPCGSolve(envSolver, parA, parb, parx);
 
-    for (var = 0; var < simsetup->numberOfEnvironments; var++) {
+    for (var = 0; var < (int) simsetup->numberOfEnvironments; var++) {
       HYPRE_SStructVectorGather(x);
       HYPRE_SStructVectorGetBoxValues(x, 0, envLower, envUpper, var, values);
       /*         idx = 0;
@@ -642,7 +643,7 @@ void allocateFields(const struct settings *simsetup, struct gridData *grid) {
   fieldProduction =
       (double *)malloc(simsetup->numberOfEnvironments * sizeof(double));
   for (nf = 0; nf < simsetup->numberOfEnvironments; nf++) {
-    fieldAddr[nf] = (double *)calloc(grid->local_size.x * grid->local_size.y *
+    fieldAddr[nf] = (double *)calloc((size_t) grid->local_size.x * grid->local_size.y *
                                          grid->local_size.z,
                                      sizeof(double));
     envField[nf] = (double *)fieldAddr[nf];
@@ -676,28 +677,22 @@ void initFields(const struct settings *simsetup, struct gridData *grid) {
 }
 
 /* to jest glowna funkcja "biblioteczna" */
-void computeEnvironment(const struct settings *simsetup, struct state *simstate,
+void prepareEnvironment(const struct settings *simsetup, struct state *simstate,
                         struct gridData *grid) {
-  double t0, t1;
+  //double t0, t1;
   computeGridSize(simsetup, simstate, grid);
   allocateGrid(simsetup, simstate, grid);
   allocateFields(simsetup, grid);
   initFields(simsetup, grid);
   envInit(simsetup->numberOfEnvironments);
-
-  MPI_Barrier(MPI_COMM_WORLD);
-  t0 = MPI_Wtime();
   envInitSystem(simstate, simsetup, grid);
   envInitBC(simstate, simsetup, grid);
   envInitSolver(simstate);
-  envSolve(simstate, simsetup, grid);
-  MPI_Barrier(MPI_COMM_WORLD);
-  t1 = MPI_Wtime();
-  if (simstate->MPIrank == 0)
-    printf("TIME: %f\n", t1 - t0);
+  allocateFieldGradient(simsetup, simstate, grid);
+
 }
 
-void prepareEnvironment(struct settings *set) {
+void prepareTestEnvironment(struct settings *set) {
   size_t i;
   set->environments =
       calloc(set->numberOfEnvironments, sizeof(struct environment));
@@ -710,6 +705,12 @@ void prepareEnvironment(struct settings *set) {
   }
 }
 
+void envCalculate (const struct settings *simsetup, struct state *simstate,
+                   struct gridData *grid) {
+  initFieldHaloExchange(simstate, simsetup, grid);
+  envSolve(simstate, simsetup, grid);
+}
+
 /* zmienne globalne z timothy-ego */
 struct gridData grid;
 struct environment *nutrient;
@@ -720,7 +721,7 @@ struct state simstate;
 int main(int argc, char *argv[]) {
 
   int i;
- // double t0, t1;
+  double t0, t1;
 
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &simstate.MPIsize);
@@ -755,8 +756,16 @@ int main(int argc, char *argv[]) {
                     simstate.MPIcoords[i]);
   }
   /* koniec */
-  prepareEnvironment(&simsetup);
-  computeEnvironment(&simsetup, &simstate, &grid);
+  prepareTestEnvironment(&simsetup);
+  prepareEnvironment(&simsetup, &simstate, &grid);
+  MPI_Barrier(MPI_COMM_WORLD);
+  t0 = MPI_Wtime();
+  envCalculate(&simsetup, &simstate, &grid);
+  MPI_Barrier(MPI_COMM_WORLD);
+  t1 = MPI_Wtime();
+  if (simstate.MPIrank == 0)
+    printf("TIME: %f\n", t1 - t0);
+  freeFieldGradient();
 
   MPI_Finalize();
 }

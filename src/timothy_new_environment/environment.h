@@ -1,5 +1,9 @@
+#ifndef TIMOTHY_ENVIRONMENT_H
+#define TIMOTHY_ENVIRONMENT_H
 #include <stdbool.h>
-
+#include <stdint.h>
+#include <stddef.h>
+#include <mpi.h>
 #ifdef __MIC__
 #define MIC_ATTR __attribute__((target(mic)))
 #else
@@ -154,4 +158,4 @@ struct state {
     int simStart;  	        /* start simulation flag */
     int step; 		/* step number */
 };
-
+#endif //TIMOTHY_ENVIRONMENT_H
