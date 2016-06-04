@@ -689,6 +689,7 @@ void prepareEnvironment(const struct settings *simsetup, struct state *simstate,
   envInitBC(simstate, simsetup, grid);
   envInitSolver(simstate);
   allocateFieldGradient(simsetup, simstate, grid);
+  fieldsInit(simsetup, simstate, grid;
 
 }
 
@@ -707,13 +708,11 @@ void prepareTestEnvironment(struct settings *set) {
 
 void envCalculate (const struct settings *simsetup, struct state *simstate,
                    struct gridData *grid) {
-  initFieldHaloExchange(simstate, simsetup, grid);
   envSolve(simstate, simsetup, grid);
 }
 
 /* zmienne globalne z timothy-ego */
 struct gridData grid;
-struct environment *nutrient;
 struct settings simsetup;
 struct state simstate;
 // int nnutrients;

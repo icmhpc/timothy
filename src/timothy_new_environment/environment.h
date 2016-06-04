@@ -36,16 +36,22 @@ typedef struct _doubleVector3d {
 } doubleVector3d;
 
 struct int64Vector3d {
-  int64_t x;
-  int64_t y;
-  int64_t z;
+    int64_t x;
+    int64_t y;
+    int64_t z;
+};
+
+struct intVector3d {
+    int x;
+    int y;
+    int z;
 };
 
 /* NEW */
 struct gridData{
   struct int64Vector3d global_size;
   doubleVector3d lower_corner,upper_corner;
-  struct int64Vector3d local_size;
+  struct intVector3d local_size;
   double resolution;
   double voxel_volume;
   struct int64Vector3d *lower_indices,*upper_indices;
