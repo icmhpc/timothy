@@ -689,7 +689,7 @@ void prepareEnvironment(const struct settings *simsetup, struct state *simstate,
   envInitBC(simstate, simsetup, grid);
   envInitSolver(simstate);
   allocateFieldGradient(simsetup, simstate, grid);
-  fieldsInit(simsetup, simstate, grid;
+  fieldsInit(simsetup, simstate, grid);
 
 }
 
