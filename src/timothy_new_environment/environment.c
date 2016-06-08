@@ -291,7 +291,7 @@ void envInitSystem(const struct state *simstate, const struct settings *set,
   envObjectType = HYPRE_PARCSR;
   HYPRE_SStructGraphCreate(simstate->MPI_CART_COMM, envGrid, &envGraph);
   HYPRE_SStructGraphSetObjectType(envGraph, envObjectType);
-  for (var = 0; var < set->numberOfEnvironments; var++)
+  for (int var = 0; var < set->numberOfEnvironments; var++)
     HYPRE_SStructGraphSetStencil(envGraph, 0, var, envStencil[var]);
   HYPRE_SStructGraphAssemble(envGraph);
 

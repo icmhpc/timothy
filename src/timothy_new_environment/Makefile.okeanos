@@ -1,0 +1,16 @@
+INCLUDES=
+OBJECTS=environment.o
+TARGET=environment_packed
+HYPRE_LIB=-L/apps/hypre/2.11.0/INTEL/16.0/lib -lHYPRE
+HYPRE_INC=-I/apps/hypre/2.11.0/INTEL/16.0/include
+default: $(TARGET)
+
+%.o: %.c $(HEADERS)
+	cc $(HYPRE_INC) -c $< -o $@
+
+$(TARGET): $(OBJECTS)
+	cc -qopenmp $(OBJECTS) $(HYPRE_LIB) -o $@
+
+clean:
+	rm -f $(OBJECTS)
+	rm -f $(TARGET)
