@@ -82,6 +82,43 @@ struct cellCountInfo{
   uint64_t necrotic_phase_number_of_cells;
   //TODO check names, all needed?
 };
+enum cell_phase{
+    G0_phase,
+    G1_phase,
+    S_phase,
+    G2_phase,
+    M_phase,
+    Necrotic_phase,
+    const_cell,
+    cell_to_destroy
+};
+#define ZOLTAN_ID_TYPE int
+struct cellData {
+    int lifetime;         /* age of the cell */
+    enum cell_phase phase;            /* actual phase of the cell (0=G0,1=G1,2=S,3=G2,4=M,5=Necrotic) */
+    int age;              /* cell's age */
+    int death;		/* 1 - dead cell, 0 - living cell */
+    int halo;		/* cell on the border of parallel region */
+    float phasetime;      /* actual phase time */
+    float g1;		/* g1 phase lenght - randomly selected for each new cell */
+    float s;		/* s phase lenght - randomly selected for each new cell */
+    float g2;		/* g2 phase lenght - randomly selected for each new cell */
+    float m;		/* m phase lenght - randomly selected for each new cell */
+    float young;		/* Young modulus - randomly selected for each new cell */
+    ZOLTAN_ID_TYPE gid;   /* global ID of the particle */
+    double x;             /* x coordinate of the particle position */
+    double y;             /* y coordinate of the particle position */
+    double z;             /* z coordinate of the particle position */
+    double size;          /* radius of the cell */
+    double h;             /* neighbourhood of the cell  */
+    double v;             /* particle potential */
+    double density;       /* particle density */
+    double scalarField;   /* additional scalar field which can be used for analysis of results (printed to the output VTK files) */
+    int cell_type;		/* cell type 1=endothelial */
+    int scstage;          /* stem cells stage (in the course of differentiation) */
+    unsigned char tumor;	/* 1 - tumor cell, 0 - healthly cell */
+};
+#undef ZOLTAN_ID_TYPE
 
 struct cellsInfo{
     struct cellCountInfo localCellCount;

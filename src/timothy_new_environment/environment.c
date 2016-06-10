@@ -680,19 +680,29 @@ void initFields(const struct settings *simsetup, struct gridData *grid) {
 void prepareEnvironment(const struct settings *simsetup, struct state *simstate,
                         struct gridData *grid) {
   //double t0, t1;
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 0\n");
   computeGridSize(simsetup, simstate, grid);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 1\n");
   allocateGrid(simsetup, simstate, grid);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 2\n");
   allocateFields(simsetup, grid);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 3\n");
   initFields(simsetup, grid);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 4\n");
   envInit(simsetup->numberOfEnvironments);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 5\n");
   envInitSystem(simstate, simsetup, grid);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 6\n");
   envInitBC(simstate, simsetup, grid);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 7\n");
   envInitSolver(simstate);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 8\n");
   allocateFieldGradient(simsetup, simstate, grid);
+  if (simstate->MPIrank == 0) fprintf(stderr, "prep 9\n");
   fieldsInit(simsetup, simstate, grid);
 
 }
-
+struct state simstate;
 void prepareTestEnvironment(struct settings *set) {
   size_t i;
   set->environments =
@@ -714,7 +724,7 @@ void envCalculate (const struct settings *simsetup, struct state *simstate,
 /* zmienne globalne z timothy-ego */
 struct gridData grid;
 struct settings simsetup;
-struct state simstate;
+
 // int nnutrients;
 
 int main(int argc, char *argv[]) {
@@ -725,6 +735,7 @@ int main(int argc, char *argv[]) {
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &simstate.MPIsize);
   MPI_Comm_rank(MPI_COMM_WORLD, &simstate.MPIrank);
+  if (simstate.MPIrank == 0)  printf("rank: %d\n", simstate.MPIrank);
 
   simsetup.gfH = 128.0;
   simsetup.maxCellsPerProc = 300000;
@@ -755,8 +766,12 @@ int main(int argc, char *argv[]) {
                     simstate.MPIcoords[i]);
   }
   /* koniec */
+  if (simstate.MPIrank == 0)  printf("rank2: %d\n", simstate.MPIrank);
+
   prepareTestEnvironment(&simsetup);
+  if (simstate.MPIrank == 0) printf("rank3: %d\n", simstate.MPIrank);
   prepareEnvironment(&simsetup, &simstate, &grid);
+  if (simstate.MPIrank == 0) printf("rank4: %d\n", simstate.MPIrank);
   MPI_Barrier(MPI_COMM_WORLD);
   t0 = MPI_Wtime();
   envCalculate(&simsetup, &simstate, &grid);

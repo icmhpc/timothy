@@ -71,7 +71,7 @@ set(SOURCE_FILES
 
 set(VALIDATOR_SOURCE src/ini_parser/ini_parser.c src/ini_parser/ini_parser.h src/validator.cpp src/validator/validator.cpp src/validator/validator.h src/ini_manipulator/ini_manipulator.cpp src/ini_manipulator/ini_manipulator.h src/functions.cpp src/functions.h src/local_endian.h)
 
-set(ENVIRORMENT_SOURCE src/timothy_new_environment/environment.c src/timothy_new_environment/environment.h src/timothy_new_environment/fields.c src/timothy_new_environment/fields.h)
+set(ENVIRORMENT_SOURCE src/timothy_new_environment/environment.c src/timothy_new_environment/environment.h src/timothy_new_environment/fields.c src/timothy_new_environment/fields.h src/timothy_new_environment/interpolation.c src/timothy_new_environment/interpolation.h)
 
 add_executable(timothy ${SOURCE_FILES})
 target_include_directories(timothy PUBLIC ${ZOLTAN_INCLUDE_DIR})
