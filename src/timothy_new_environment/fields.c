@@ -39,7 +39,7 @@ void stopRun(int ierr __attribute__((unused)),
 /*!
  * allocate memory for gradient.  
  */
-void fieldsInit(const struct settings *set, const struct state *sta,
+void fieldsInit(const struct settings *set, const struct state *sta __attribute__((unused)),
                 const struct gridData *grid) {
   gradAddr = (struct doubleVector3d **)calloc(set->numberOfEnvironments,
                                               sizeof(struct doubleVector3d *));

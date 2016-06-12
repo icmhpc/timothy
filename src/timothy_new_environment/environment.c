@@ -20,13 +20,14 @@
  *
  * *************************************************************************/
 
+#include "environment.h"
+#include "HYPRE_krylov.h"
+#include "HYPRE_parcsr_ls.h"
+#include "HYPRE_sstruct_ls.h"
+#include "_hypre_utilities.h"
 #include <float.h>
 #include <inttypes.h>
-#include "_hypre_utilities.h"
-#include "HYPRE_sstruct_ls.h"
-#include "HYPRE_parcsr_ls.h"
-#include "HYPRE_krylov.h"
-#include "environment.h"
+
 #include "fields.h"
 #include "mpi.h"
 
@@ -230,8 +231,8 @@ void envSetBoundary(int coord, int boundary) {
 
 void envInit(size_t numberOfEnvironments) {
   envZ = (double *)malloc(numberOfEnvironments * sizeof(double));
-  envStencil =
-      (HYPRE_SStructStencil *)malloc(numberOfEnvironments * sizeof(HYPRE_SStructStencil));
+  envStencil = (HYPRE_SStructStencil *)malloc(numberOfEnvironments *
+                                              sizeof(HYPRE_SStructStencil));
   envVarTypes = (HYPRE_SStructVariable *)malloc(numberOfEnvironments *
                                                 sizeof(HYPRE_SStructVariable));
 }
@@ -242,7 +243,7 @@ void envInit(size_t numberOfEnvironments) {
 void envInitSystem(const struct state *simstate, const struct settings *set,
                    struct gridData *grid) {
   size_t i;
-  int j;//, k, c;
+  int j; //, k, c;
   int entry;
   size_t var;
   HYPRE_Int offsets[7][3] = {{0, 0, 0}, {-1, 0, 0}, {1, 0, 0}, {0, -1, 0},
@@ -394,7 +395,7 @@ void envInitBC(const struct state *simstate, const struct settings *set,
   HYPRE_SStructVectorInitialize(b);
   HYPRE_SStructVectorInitialize(x);
 
-  for (var = 0; var < (int) set->numberOfEnvironments; var++) {
+  for (var = 0; var < (int)set->numberOfEnvironments; var++) {
 
     envCellPC(simstate, envPC, var, grid);
 
@@ -524,8 +525,8 @@ void envInitSolver(struct state *simstate) {
  */
 void envSolve(const struct state *simstate, const struct settings *simsetup,
               struct gridData *grid) {
-  size_t i;//, j, k;
-  //int idx;
+  size_t i; //, j, k;
+  // int idx;
   HYPRE_Int var;
   double *values;
   int stepIter = 0;
@@ -543,7 +544,7 @@ void envSolve(const struct state *simstate, const struct settings *simsetup,
   while (stepIter < numberOfIters) {
     if (envIter > 0) {
       /* update right hand side */
-      for (var = 0; var < (int) simsetup->numberOfEnvironments; var++) {
+      for (var = 0; var < (int)simsetup->numberOfEnvironments; var++) {
 
         envCellPC(simstate, envPC, var, grid);
         HYPRE_SStructVectorGetBoxValues(x, 0, envLower, envUpper, var, values);
@@ -592,7 +593,7 @@ void envSolve(const struct state *simstate, const struct settings *simsetup,
 
     HYPRE_ParCSRPCGSolve(envSolver, parA, parb, parx);
 
-    for (var = 0; var < (int) simsetup->numberOfEnvironments; var++) {
+    for (var = 0; var < (int)simsetup->numberOfEnvironments; var++) {
       HYPRE_SStructVectorGather(x);
       HYPRE_SStructVectorGetBoxValues(x, 0, envLower, envUpper, var, values);
       /*         idx = 0;
@@ -629,7 +630,7 @@ void envSolve(const struct state *simstate, const struct settings *simsetup,
 void allocateFields(const struct settings *simsetup, struct gridData *grid) {
 
   int i;
-  size_t  nf;
+  size_t nf;
 
   dt = (double *)malloc(simsetup->numberOfEnvironments * sizeof(double));
   fieldDt = (double *)malloc(simsetup->numberOfEnvironments * sizeof(double));
@@ -643,9 +644,9 @@ void allocateFields(const struct settings *simsetup, struct gridData *grid) {
   fieldProduction =
       (double *)malloc(simsetup->numberOfEnvironments * sizeof(double));
   for (nf = 0; nf < simsetup->numberOfEnvironments; nf++) {
-    fieldAddr[nf] = (double *)calloc((size_t) grid->local_size.x * grid->local_size.y *
-                                         grid->local_size.z,
-                                     sizeof(double));
+    fieldAddr[nf] = (double *)calloc(
+        (size_t)grid->local_size.x * grid->local_size.y * grid->local_size.z,
+        sizeof(double));
     envField[nf] = (double *)fieldAddr[nf];
     for (i = 0;
          i < grid->local_size.x * grid->local_size.y * grid->local_size.z; i++)
@@ -676,110 +677,23 @@ void initFields(const struct settings *simsetup, struct gridData *grid) {
   }
 }
 
-/* to jest glowna funkcja "biblioteczna" */
 void prepareEnvironment(const struct settings *simsetup, struct state *simstate,
                         struct gridData *grid) {
-  //double t0, t1;
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 0\n");
+  // double t0, t1;
+
   computeGridSize(simsetup, simstate, grid);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 1\n");
   allocateGrid(simsetup, simstate, grid);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 2\n");
   allocateFields(simsetup, grid);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 3\n");
   initFields(simsetup, grid);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 4\n");
   envInit(simsetup->numberOfEnvironments);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 5\n");
   envInitSystem(simstate, simsetup, grid);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 6\n");
   envInitBC(simstate, simsetup, grid);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 7\n");
   envInitSolver(simstate);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 8\n");
   allocateFieldGradient(simsetup, simstate, grid);
-  if (simstate->MPIrank == 0) fprintf(stderr, "prep 9\n");
   fieldsInit(simsetup, simstate, grid);
-
-}
-struct state simstate;
-void prepareTestEnvironment(struct settings *set) {
-  size_t i;
-  set->environments =
-      calloc(set->numberOfEnvironments, sizeof(struct environment));
-  for (i = 0; i < set->numberOfEnvironments; i++) {
-    set->environments[i].diffusion_coefficient = 1.82e-5;
-    set->environments[i].lambda_delay = 0.0;
-    set->environments[i].boundary_condition = ((double)i + 1.0) * 0.1575e-6;
-    set->environments[i].initial_condition_mean = ((double)i + 1.0) * 0.1575e-6;
-    set->environments[i].initial_condition_variance = 0.0;
-  }
 }
 
-void envCalculate (const struct settings *simsetup, struct state *simstate,
-                   struct gridData *grid) {
+void envCalculate(const struct settings *simsetup, struct state *simstate,
+                  struct gridData *grid) {
   envSolve(simstate, simsetup, grid);
-}
-
-/* zmienne globalne z timothy-ego */
-struct gridData grid;
-struct settings simsetup;
-
-// int nnutrients;
-
-int main(int argc, char *argv[]) {
-
-  int i;
-  double t0, t1;
-
-  MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &simstate.MPIsize);
-  MPI_Comm_rank(MPI_COMM_WORLD, &simstate.MPIrank);
-  if (simstate.MPIrank == 0)  printf("rank: %d\n", simstate.MPIrank);
-
-  simsetup.gfH = 128.0;
-  simsetup.maxCellsPerProc = 300000;
-  simsetup.size_x = 1024;
-  simsetup.size_y = 1024;
-  simsetup.size_z = 1024;
-  simsetup.dimension = 3;
-
-  simstate.step = 1;
-
-  simsetup.numberOfEnvironments = atoi(argv[1]);
-  simsetup.gfH = atof(argv[2]);
-
-  /* to jest robione w init.c */
-  int periods[3];
-  int reorder;
-  MPI_Dims_create(simstate.MPIsize, simsetup.dimension, simstate.MPIdim);
-  periods[0] = 0;
-  periods[1] = 0;
-  periods[2] = 0;
-  reorder = 0;
-  MPI_Cart_create(MPI_COMM_WORLD, simsetup.dimension, simstate.MPIdim, periods,
-                  reorder, &(simstate.MPI_CART_COMM));
-  simstate.MPIcoords = (int **)malloc(simstate.MPIsize * sizeof(int *));
-  for (i = 0; i < simstate.MPIsize; i++) {
-    simstate.MPIcoords[i] = (int *)malloc(3 * sizeof(int));
-    MPI_Cart_coords(simstate.MPI_CART_COMM, i, simsetup.dimension,
-                    simstate.MPIcoords[i]);
-  }
-  /* koniec */
-  if (simstate.MPIrank == 0)  printf("rank2: %d\n", simstate.MPIrank);
-
-  prepareTestEnvironment(&simsetup);
-  if (simstate.MPIrank == 0) printf("rank3: %d\n", simstate.MPIrank);
-  prepareEnvironment(&simsetup, &simstate, &grid);
-  if (simstate.MPIrank == 0) printf("rank4: %d\n", simstate.MPIrank);
-  MPI_Barrier(MPI_COMM_WORLD);
-  t0 = MPI_Wtime();
-  envCalculate(&simsetup, &simstate, &grid);
-  MPI_Barrier(MPI_COMM_WORLD);
-  t1 = MPI_Wtime();
-  if (simstate.MPIrank == 0)
-    printf("TIME: %f\n", t1 - t0);
-  freeFieldGradient();
-
-  MPI_Finalize();
 }

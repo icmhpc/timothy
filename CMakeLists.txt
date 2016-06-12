@@ -71,7 +71,9 @@ set(SOURCE_FILES
 
 set(VALIDATOR_SOURCE src/ini_parser/ini_parser.c src/ini_parser/ini_parser.h src/validator.cpp src/validator/validator.cpp src/validator/validator.h src/ini_manipulator/ini_manipulator.cpp src/ini_manipulator/ini_manipulator.h src/functions.cpp src/functions.h src/local_endian.h)
 
-set(ENVIRORMENT_SOURCE src/timothy_new_environment/environment.c src/timothy_new_environment/environment.h src/timothy_new_environment/fields.c src/timothy_new_environment/fields.h src/timothy_new_environment/interpolation.c src/timothy_new_environment/interpolation.h)
+set(ENVIRONMENT_SOURCE src/timothy_new_environment/environment.c src/timothy_new_environment/environment.h src/timothy_new_environment/fields.c src/timothy_new_environment/fields.h src/timothy_new_environment/interpolation.c src/timothy_new_environment/interpolation.h src/timothy_new_environment/main-env.c src/timothy_new_environment/global_structures.h)
+
+set(ENVIRONMENT_TEST1_SOURCE src/timothy_new_environment/environment.c src/timothy_new_environment/environment.h src/timothy_new_environment/fields.c src/timothy_new_environment/fields.h src/timothy_new_environment/global_structures.h src/timothy_new_environment/tests/test1_init.c)
 
 add_executable(timothy ${SOURCE_FILES})
 target_include_directories(timothy PUBLIC ${ZOLTAN_INCLUDE_DIR})
@@ -90,13 +92,16 @@ target_link_libraries(validator ${MPI_C_LIBRARIES})
 target_link_libraries(validator ${MPI_CXX_LIBRARIES})
 
 
-add_executable(envirorment ${ENVIRORMENT_SOURCE})
-target_link_libraries(envirorment ${MPI_C_LIBRARIES})
-target_link_libraries (envirorment ${HYPRE_LIBRARY})
-target_include_directories(envirorment PUBLIC ${HYPRE_INCLUDE_DIR})
-target_link_libraries (envirorment m)
-target_link_libraries(envirorment ${MPI_C_LIBRARIES})
+add_executable(environment ${ENVIRONMENT_SOURCE})
+target_link_libraries(environment ${MPI_C_LIBRARIES})
+target_link_libraries (environment ${HYPRE_LIBRARY})
+target_include_directories(environment PUBLIC ${HYPRE_INCLUDE_DIR})
+target_link_libraries (environment m)
+target_link_libraries(environment ${MPI_C_LIBRARIES})
 
+add_executable(environment_test1 ${ENVIRONMENT_TEST1_SOURCE})
+target_include_directories(environment_test1 PUBLIC ${HYPRE_INCLUDE_DIR})
+target_link_libraries(environment_test1  m ${MPI_C_LIBRARIES} ${HYPRE_LIBRARY})
 
 if(MPI_COMPILE_FLAGS)
     set_target_properties(timothy PROPERTIES

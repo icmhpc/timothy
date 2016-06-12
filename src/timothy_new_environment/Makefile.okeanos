@@ -1,5 +1,5 @@
 INCLUDES=
-OBJECTS=environment.o
+OBJECTS=environment.o fields.o
 TARGET=environment_packed
 HYPRE_LIB=-L/apps/hypre/2.11.0/INTEL/16.0/lib -lHYPRE
 HYPRE_INC=-I/apps/hypre/2.11.0/INTEL/16.0/include
