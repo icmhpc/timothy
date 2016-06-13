@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD, &simstate.MPIsize);
   MPI_Comm_rank(MPI_COMM_WORLD, &simstate.MPIrank);
   if (simstate.MPIrank == 0)  printf("rank: %d\n", simstate.MPIrank);
+  if (simstate.MPIrank == 0)  printf("size: %d\n", simstate.MPIsize);
 
   simsetup.gfH = 128.0;
   simsetup.maxCellsPerProc = 300000;
@@ -65,6 +66,12 @@ int main(int argc, char *argv[]) {
     simstate.MPIcoords[i] = (int *)malloc(3 * sizeof(int));
     MPI_Cart_coords(simstate.MPI_CART_COMM, i, simsetup.dimension,
                     simstate.MPIcoords[i]);
+    struct intVector3d pos;
+    pos.x = simstate.MPIcoords[i][0];
+    pos.y = simstate.MPIcoords[i][1];
+    pos.z = simstate.MPIcoords[i][2];
+    *getProcesNum(&simstate, pos) = i;
+
   }
   /* koniec */
   if (simstate.MPIrank == 0)  printf("rank2: %d\n", simstate.MPIrank);

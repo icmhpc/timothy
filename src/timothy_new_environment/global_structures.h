@@ -33,11 +33,7 @@ struct doubleVector3d {
 };
 
 #ifndef __cplusplus
-typedef struct _doubleVector3d {
-  double x;
-  double y;
-  double z;
-} doubleVector3d;
+typedef struct doubleVector3d  doubleVector3d;
 #endif
 
 struct int64Vector3d {
@@ -186,11 +182,17 @@ struct state {
   int memPerProc;
   MPI_Comm MPI_CART_COMM;
   int **MPIcoords;
+  int *MPIreverseCords;
   int rstReset;
   ZOLTAN_ID_TYPE localID; //set to 1 on begin
   int simStart;  	        /* start simulation flag */
   int step; 		/* step number */
 };
+
+static inline int * getProcesNum(struct state *st, struct intVector3d p){
+  return &st->MPIreverseCords[p.x*st->MPIdim[1]*st->MPIdim[2] + p.y * st->MPIdim[2] +p.z];
+}
+
 #undef ZOLTAN_ID_TYPE
 
 #endif //TIMOTHY_GLOBAL_STRUCTURES_H
