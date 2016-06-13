@@ -55,6 +55,7 @@ int main(int argc, char *argv[]) {
   int periods[3];
   int reorder;
   MPI_Dims_create(simstate.MPIsize, simsetup.dimension, simstate.MPIdim);
+  simstate.MPIreverseCords = calloc(simstate.MPIsize, sizeof(int));
   periods[0] = 0;
   periods[1] = 0;
   periods[2] = 0;
