@@ -171,7 +171,7 @@ void allocateGrid(const struct settings *simsetup, const struct state *simstate,
             grid->lower_corner.z +
             grid->resolution * (grid->lower_indices[simstate->MPIrank].z + k);
       }
-  printf("Grid allocation finished.\n");
+  //printf("Grid allocation finished.\n");
 #undef grid_node
 }
 
@@ -653,7 +653,7 @@ void allocateFields(const struct settings *simsetup, struct gridData *grid) {
       envField[nf][i] = 0.0;
   }
 
-  printf("Fields allocation finished\n");
+  //printf("Fields allocation finished\n");
 }
 
 /* ustawia testowe parametry dla fields */
@@ -672,7 +672,8 @@ void initFields(const struct settings *simsetup, struct gridData *grid) {
         for (i = 0; i < grid->local_size.x; i++) {
           envField[var][grid->local_size.y * grid->local_size.z * i +
                         grid->local_size.z * j + k] =
-              simsetup->environments[var].initial_condition_mean;
+              simsetup->environments[var].initial_condition_mean +
+                      ((double) rand()/(double) RAND_MAX - 0.5) * simsetup->environments[var].initial_condition_variance;
         }
   }
 }
