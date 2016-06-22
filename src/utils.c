@@ -160,7 +160,7 @@ void stopRun(int ierr, const char *name, const char *file, int line)
     break;
   }
   fflush(stderr);
-  MPI_Finalize();
+  MPI_Abort(MPI_COMM_WORLD, 1);
   exit(1);
 }
 
