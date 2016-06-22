@@ -31,13 +31,15 @@ endif
 include ./src/makefile_include/default.mk
 
 ifeq "$(IS_MAKE)" "0"
-	MAKE = make
+	MAKE_T = make
 else
-	MAKE = gmake
+	MAKE_T = gmake
 endif 
 
 ifeq ($(SYSTYPE),okeanos)
-		MAKE = module load gcc && module swap PrgEnv-cray PrgEnv-intel $(MAKE)
+	MAKE = module load gcc && module swap PrgEnv-cray PrgEnv-intel 2>/dev/null && $(MAKE_T)
+else
+	MAKE = $(MAKE_T)
 endif
 all:
 	$(MAKE) -C src
