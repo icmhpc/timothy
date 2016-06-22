@@ -20,62 +20,17 @@
 # *
 # * *************************************************************************/
 
-#SYSTYPE = ibm-p775
-#SYSTYPE = ibm-bgq
-#SYSTYPE = intel-mic
-#SYSTYPE = gnu-x86
 
-# Czaki laptop configuration (gnu-x86)
-#ZOLTANLIB=-L/home/czaki/libs/zoltan/3.82/lib -lzoltan
-#SPRNGLIB=-L/usr/lib -lsprng
-#GMPLIB=-lgmp
-#HYPRELIB=-L/home/czaki/libs/hypre/2.10/lib -lHYPRE
-#ZOLTANINC=-I/home/czaki/libs/zoltan/3.82/include
-#SPRNGINC=-I/usr/include/sprng
-#HYPREINC= -I/home/czaki/libs/hypre/2.10/include
-#MPIINC=-I/usr/include/mpi
-
-# MC laptop configuration
-#ZOLTANLIB=-L/opt/zoltan/3.81/lib -lzoltan
-#SPRNGLIB=-L/usr/lib -lsprng
-#GMPLIB=-lgmp
-#HYPRELIB=-L/opt/hypre/2.9.0b/lib -lHYPRE -lblas -llapack
-#ZOLTANINC=-I/opt/zoltan/3.81/include
-#SPRNGINC=-I/usr/include/sprng
-#HYPREINC=-I/opt/hypre/2.9.0b/include
-#MPIINC=-I/usr/include/mpi
-
-# Nostromo (ibm-bgq) system configuration
-#ZOLTANLIB=-L/opt/zoltan/3.8/lib -lzoltan
-#SPRNGLIB=-L/opt/sprng/2.0/lib -lsprng
-#GMPLIB=-L/opt/gmp/5.1.1/lib -lgmp
-#HYPRELIB=-L/opt/hypre/2.9.0b_bigint_omp/lib -lHYPRE
-#ZOLTANINC=-I/opt/zoltan/3.8/include
-#SPRNGINC=-I/opt/sprng/2.0/include
-#HYPREINC=-I/opt/hypre/2.9.0b_bigint_omp/include
-#MPIINC=
-
-# MICLAB system (intel-mic) configuration
-#ZOLTANLIB=-L/home/mcytowski/libs/zoltan/lib -lzoltan
-#SPRNGLIB=-L/home/mcytowski/libs/sprng/lib -lsprng
-#GMPLIB=-L/home/mcytowski/libs/gmp/lib -lgmp
-#HYPRELIB=-L/home/mcytowski/libs/hypre/lib -lHYPRE
-#ZOLTANINC=-I/home/mcytowski/libs/zoltan/include
-#SPRNGINC=-I/home/mcytowski/libs/sprng/include
-#HYPREINC=-I/home/mcytowski/libs/hypre/include
-#MPIINC=
-
-# Boreasz (ibm-p775) system configuration 
-#ZOLTANLIB=-L/p7data/opt/zoltan/3.6/lib -lzoltan
-#SPRNGLIB=-L/p7data/opt/sprng/2.0/lib -lsprng
-#GMPLIB=-L/p7data/opt/gmp/5.0.5/lib -lgmp
-#HYPRELIB=-L/opt/hypre/2.9.0b/bigint_omp/lib -lHYPRE
-#ZOLTANINC=-I/p7data/opt/zoltan/3.6/include
-#SPRNGINC=-I/p7data/opt/sprng/2.0/include
-#HYPREINC=-I/opt/hypre/2.9.0b/bigint_omp/include
-#MPIINC=
+ifeq ($(wildcard makefile_include/default.mk),)
+    $(error Please create file deafult.mk in src/makefile_include/ directory)
+endif 
 
 include makefile_include/default.mk
+
+all: $(EXEC) $(VALIDATOR)
+	
+
+
 
 #############################################################################
 # Prepare configuration for your system 
@@ -89,6 +44,13 @@ include makefile_include/default.mk
 #endif
 #############################################################################
 
+ifeq ($(SYSTYPE),okeanos)
+CC = cc
+OPT = -O2 -O2 -qopenmp
+DEFS = -DPROF
+INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)
+LIBS = -lm $(ZOLTANLIB) $(SPRNGLIB) $(GMPLIB) $(HYPRELIB)
+endif
 
 
 # IBM BG/Q configuration
@@ -132,7 +94,7 @@ INCLUDES = -I. $(ZOLTANINC) $(SPRNGINC) $(HYPREINC) $(MPIINC)
 EXEC = ../timothy
 VALIDATOR = ../validator
 
-all: $(EXEC) $(VALIDATOR)
+
 
 OPTIONS = $(OPT) $(DEFS)
 
