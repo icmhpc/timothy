@@ -22,27 +22,36 @@
 
 .PHONY: all clean doc clean_doc clean_all
 
-IS_GMAKE = $(shell command -v gmake > /dev/null; echo $$?)
+IS_MAKE = $(shell command -v make > /dev/null; echo $$?)
 IS_DOXYGEN = $(shell command -v doxygen > /dev/null; echo $$?)
 
+ifeq ($(wildcard src/makefile_include/default.mk),)
+	$(error Please create file deafult.mk in src/makefile_include/ directory)
+endif
+include ./src/makefile_include/default.mk
 
-ifeq "$(IS_GMAKE)" "0"
-	MAKE = gmake
+ifeq "$(IS_MAKE)" "0"
+	MAKE_T = make
 else
-	MAKE = make
+	MAKE_T = gmake
 endif 
 
+ifeq ($(SYSTYPE),okeanos)
+	MAKE = module load gcc && module swap PrgEnv-cray PrgEnv-intel 2>/dev/null && $(MAKE_T)
+else
+	MAKE = $(MAKE_T)
+endif
 all:
-	make -C src
+	$(MAKE) -C src
 
 validator:
-	make -C src ../validator
+	$(MAKE) -C src ../validator
 
 timothy:
-	make -C src ../timothy
+	$(MAKE) -C src ../timothy
 
 clean:
-	make -C src clean 
+	$(MAKE) -C src clean 
 
 clean_doc:
 	rm -rf doc/html doc/latex 
