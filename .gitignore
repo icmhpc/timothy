@@ -1,10 +1,18 @@
 timothy
 *.kate-swp
 result
+result/
+results
+results/
 /validator
 timothy.kdev4
 *.orig
 src/makefile_include/default.mk
+Makefile
+run/*
+!run/parameters.txt.dist
+!run/parameters.ini.dist
+
 # Created by https://www.gitignore.io/api/c++,c,vim,latex,intellij,cmake
 
 ### C++ ###
